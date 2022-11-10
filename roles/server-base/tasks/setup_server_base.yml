@@ -1,0 +1,20 @@
+---
+
+- include_tasks: "{{ role_path }}/tasks/setup_server_base_redhat.yml"
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: "{{ role_path }}/tasks/setup_server_base_debian.yml"
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure Docker is started and autoruns
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  when: gitlab_docker_installation_enabled|bool
+
+- name: "Ensure {{ gitlab_ntpd_service }} is started and autoruns"
+  service:
+    name: "{{ gitlab_ntpd_service }}"
+    state: started
+    enabled: yes

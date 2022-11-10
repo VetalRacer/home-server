@@ -1,0 +1,150 @@
+---
+
+# Change gitlab root password
+#
+# docker exec -it gitlab gitlab-rake "gitlab:password:reset[root]"
+
+# The fully-qualified name of your Gitlab server (e.g. `gitlab.example.com`)
+gitlab_server_hostname: 'gitlab.loc'
+
+# Base directory that contains everything
+gitlab_base_data_path: "{{ base_data_path }}/gitlab"
+
+gitlab_docker_image_template: "gitlab/gitlab-ee:__VERSION__"
+gitlab_docker_image_tag: "15.5.1-ee.0"
+gitlab_docker_image: "{{ gitlab_docker_image_template|replace('__VERSION__', gitlab_docker_image_tag) }}"
+
+# Gitlab-related data
+gitlab_base_path: "{{ gitlab_base_data_path }}/gitlab"
+gitlab_data_dir_path: "{{ gitlab_base_path }}/data"
+gitlab_log_dir_path: "{{ gitlab_base_path }}/log"
+gitlab_gitlab_data_ssh_dir_path: "{{ gitlab_data_dir_path }}/ssh"
+gitlab_gitlab_backups_dir_path: "{{ gitlab_data_dir_path }}/backups"
+
+gitlab_gitlab_uid: "1000"
+gitlab_gitlab_gid: "1000"
+
+gitlab_puma_workers: 5
+gitlab_sidekiq_concurrency: 5
+
+gitlab_gitlab_default_theme: 2
+
+gitlab_gitlab_projects_wiki: true
+gitlab_gitlab_projects_snippets: true
+gitlab_gitlab_projects_builds: true
+gitlab_gitlab_projects_issues: true
+
+# By default, we send mail through our own mailer service.
+#
+# If you're using an external SMTP server, you might wish to:
+# 1. Either configure the gitlab-mailer service to relay through your SMTP server. See the `gitlab_mailer_*` variables.
+# 2. Or, make Gitlab send through another SMTP server by:
+# - disabling the mailer service (`gitlab_mailer_enabled: false`)
+# - enabling TLS below (`gitlab_gitlab_smtp_tls: true`)
+# - using `gitlab_gitlab_smtp_authentication: login`, etc.
+gitlab_gitlab_smtp_enabled: true
+gitlab_gitlab_smtp_domain: "{{ gitlab_server_hostname }}"
+gitlab_gitlab_smtp_host: "gitlab-mailer"
+gitlab_gitlab_smtp_port: 8025
+gitlab_gitlab_smtp_tls: false
+gitlab_gitlab_smtp_user: ""
+gitlab_gitlab_smtp_pass: ""
+gitlab_gitlab_smtp_authentication: ""
+
+gitlab_gitlab_email: "gitlab@{{ gitlab_server_hostname }}"
+gitlab_gitlab_email_reply_to: "{{ gitlab_gitlab_email }}"
+
+# Required secrets (can be generated with something like `pwgen -Bsv1 64`)
+gitlab_gitlab_secrets_otp_key_base: ''
+gitlab_gitlab_secrets_secret_key_base: ''
+gitlab_gitlab_secrets_db_key_base: ''
+
+
+# A list of SSH host keys to install for the Gitlab Shell SSH server.
+#
+# If left empty, Gitlab will generate the keys in the `gitlab_gitlab_data_ssh_dir_path` directory for you.
+# To make them stick (when rebuilding the Gitlab server), you'd either need to make a backup and restore them there manually,
+# or you'd need to define the keys here.
+#
+# Contains definition objects like this:
+#
+# gitlab_shell_ssh_host_keys:
+#  - name: ssh_host_ecdsa_key
+#    type: private
+#    content: |
+#      private key here
+#  - name: ssh_host_ecdsa_key.pub
+#    type: public
+#    content: |
+#      public key here
+#
+# Encrypting the content is preferrable (using `ansible-vault encrypt_string`).
+gitlab_shell_ssh_host_keys: []
+
+gitlab_services_list: |
+  {{
+    (['gitlab.service'])
+    +
+    (["gitlab-runner.service"])
+  }}
+
+# Controls whether to install a Gitlab Runner service.
+#
+# As with everything else, the runner also runs in a container.
+# Since this runner runs on the Gitlab host itself, it's ONLY suitable for trusted workloads.
+#
+# Installing the runner requires some more manual work.
+# Basically, registering needs to be done with a `register` command. The runner insists on overwriting its own configuration file (config.toml).
+# See: https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1932
+#
+# Steps to install:
+# 1. Use `gitlab_runner_enabled: true` in your `vars.yml`
+# 2. Install (`--tags=setup-all,start`)
+# 3. Find the Gitlab Runner registration token by pressing the **Register an instance runner** button from the admin panel: https://gitlab.DOMAIN/admin/runners
+# 4. Run the following command on the Gitlab host:
+#
+# docker exec -t gitlab-runner /entrypoint register \
+# --registration-token=REGISTRATION_TOKEN_HERE \
+# --docker-image=docker.io/docker:20.10 \
+# --name=runner.gitlab.DOMAIN \
+# --url=https://gitlab.DOMAIN \
+# --executor=docker \
+# --non-interactive
+#
+# ^^ Replace `REGISTRATION_TOKEN` (value from step 3) and `DOMAIN`
+#
+# 5. Get the `token` value from the configuration (`grep token /gitlab/runner/config.toml`). This is a "runner token". Not to be confused with the registration token (step 3).
+# 6. Put that runner token (from step 5) into `gitlab_runner_configuration_runners_token` in your `vars.yml` file
+# 7. Re-run the install (`--tags=setup-all,start`)
+# 8. Optionally restrict which projects can run builds on this runner from the admin panel: https://gitlab.DOMAIN/admin/runners
+gitlab_runner_enabled: true
+
+gitlab_runner_base_path: "{{ gitlab_base_data_path }}/runner"
+gitlab_runner_config_path: "{{ gitlab_runner_base_path }}/config"
+
+gitlab_runner_container_image: "docker.io/gitlab/gitlab-runner:{{ gitlab_runner_container_image_version }}"
+gitlab_runner_container_image_version: v15.1.1
+
+# The runner needs to talk to Gitlab (`https://gitlab.DOMAIN`) over the public IP address.
+# `gitlab.DOMAIN` in the container would usually resolve to some internal docker network IP address, which is not really accessible.
+# Port 443 is exposed via nginx anyway. Defining the Gitlab Runner URL as `http://gitlab:80` does not work (a redirect is issued there).
+# To make `gitlab.DOMAIN` resolve to the public IP address, we use `--add-host DOMAIN:IP` in our `docker run` call.
+#
+# With the definition below, we assume that `ansible_host` (coming from `inventory/hosts`) is a public IP address.
+# If not, override `gitlab_runner_container_add_host_ip_address`
+gitlab_runner_container_add_host_domain_name: "{{ gitlab_server_hostname }}"
+gitlab_runner_container_add_host_ip_address: "{{ ansible_host }}"
+
+gitlab_runner_docker_socket_path: /var/run/docker.sock
+
+# Controls how many jobs can be processed concurrently.
+gitlab_runner_configuration_concurrent: 1
+
+# The interval length, in seconds, between new jobs check. If set to 0 or lower, a default value (3 seconds) is used.
+gitlab_runner_configuration_check_interval: 0
+
+gitlab_runner_configuration_log_level: info
+
+gitlab_runner_configuration_runners_name: runner.{{ gitlab_server_hostname }}
+
+gitlab_runner_configuration_runners_token: ''

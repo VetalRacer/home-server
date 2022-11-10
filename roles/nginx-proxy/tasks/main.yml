@@ -1,0 +1,14 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_nginx_proxy.yml"
+  tags:
+    - setup-nginx-proxy
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  tags:
+    - start

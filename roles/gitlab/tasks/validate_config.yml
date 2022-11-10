@@ -1,0 +1,23 @@
+---
+
+- name: Fail if required settings not defined
+  fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`) for using this role.
+  when: "vars[item] == ''"
+  with_items:
+    - "gitlab_server_hostname"
+    - "gitlab_gitlab_secrets_otp_key_base"
+    - "gitlab_gitlab_secrets_secret_key_base"
+    - "gitlab_gitlab_secrets_db_key_base"
+    - "gitlab_backup_cron_email_to"
+    - "gitlab_backup_encryption_password"
+
+- name: (Deprecation) Catch and report renamed variables
+  fail:
+    msg: >-
+      Your configuration contains a variable, which now has a different name.
+      Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
+  when: "vars | dict2items | selectattr('key', 'match', item.old) | list | items2dict"
+  with_items:
+    - {'old': 'gitlab_unicorn_workers', 'new': 'gitlab_puma_workers'}

@@ -1,0 +1,30 @@
+[Unit]
+Description=Gitlab
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill gitlab 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm gitlab 2>/dev/null'
+
+ExecStart={{ host_command_docker }} run --rm --name gitlab \
+			--network={{ nginx_docker_network }} \
+			--name gitlab \
+			--hostname={{ gitlab_server_hostname }} \
+			--env-file={{ gitlab_base_path }}/env-gitlab \
+			--volume {{ gitlab_data_dir_path }}/config:/etc/gitlab \
+			--volume {{ gitlab_data_dir_path }}/data:/var/opt/gitlab \
+			--volume {{ gitlab_log_dir_path }}/logs:/var/log/gitlab \
+			{{ gitlab_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill gitlab 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm gitlab 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=gitlab
+
+[Install]
+WantedBy=multi-user.target

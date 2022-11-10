@@ -1,0 +1,33 @@
+[Unit]
+Description=Nginx-proxy server
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill nginx-proxy 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm nginx-proxy 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name nginx-proxy \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			-p 80:80 \
+			-v {{ nginx_proxy_base_path }}/nginx.conf:/etc/nginx/nginx.conf:ro \
+			-v {{ nginx_proxy_data_path }}:/nginx-data:ro \
+			-v {{ nginx_proxy_confd_path }}:/etc/nginx/conf.d:ro \
+			{% for arg in nginx_proxy_container_extra_arguments %}
+			{{ arg }} \
+			{% endfor %}
+			{{ nginx_proxy_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill nginx-proxy 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm nginx-proxy 2>/dev/null'
+ExecReload={{ host_command_docker }} exec nginx-proxy /usr/sbin/nginx -s reload
+Restart=always
+RestartSec=30
+SyslogIdentifier=nginx-proxy
+
+[Install]
+WantedBy=multi-user.target

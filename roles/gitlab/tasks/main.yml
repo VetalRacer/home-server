@@ -1,0 +1,19 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_gitlab.yml"
+  tags:
+    - setup-gitlab
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_runner.yml"
+  tags:
+    - setup-runner
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  tags:
+    - start

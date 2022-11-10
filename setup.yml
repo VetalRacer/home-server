@@ -1,0 +1,5 @@
+- hosts: home_server
+  roles:
+    - { role: server-base }
+    - { role: nginx-proxy }
+    - { role: gitlab }

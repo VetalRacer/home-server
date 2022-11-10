@@ -12,8 +12,8 @@
         path: "{{ item }}"
         state: directory
         mode: 0700
-        owner: "{{ gitlab_gitlab_uid }}"
-        group: "{{ gitlab_gitlab_gid }}"
+        owner: "{{ gitlab_uid }}"
+        group: "{{ gitlab_gid }}"
       with_items:
         - "{{ gitlab_runner_base_path }}"
         - "{{ gitlab_runner_config_path }}"

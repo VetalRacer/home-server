@@ -7,9 +7,9 @@
   when: "vars[item] == ''"
   with_items:
     - "gitlab_server_hostname"
-    - "gitlab_gitlab_secrets_otp_key_base"
-    - "gitlab_gitlab_secrets_secret_key_base"
-    - "gitlab_gitlab_secrets_db_key_base"
+    - "gitlab_secrets_otp_key_base"
+    - "gitlab_secrets_secret_key_base"
+    - "gitlab_secrets_db_key_base"
     - "gitlab_backup_cron_email_to"
     - "gitlab_backup_encryption_password"
 

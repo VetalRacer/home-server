@@ -18,21 +18,21 @@ gitlab_docker_image: "{{ gitlab_docker_image_template|replace('__VERSION__', git
 gitlab_base_path: "{{ gitlab_base_data_path }}/gitlab"
 gitlab_data_dir_path: "{{ gitlab_base_path }}/data"
 gitlab_log_dir_path: "{{ gitlab_base_path }}/log"
-gitlab_gitlab_data_ssh_dir_path: "{{ gitlab_data_dir_path }}/ssh"
-gitlab_gitlab_backups_dir_path: "{{ gitlab_data_dir_path }}/backups"
+gitlab_data_ssh_dir_path: "{{ gitlab_data_dir_path }}/ssh"
+gitlab_backups_dir_path: "{{ gitlab_data_dir_path }}/backups"
 
-gitlab_gitlab_uid: "1000"
-gitlab_gitlab_gid: "1000"
+gitlab_uid: "1000"
+gitlab_gid: "1000"
 
 gitlab_puma_workers: 5
 gitlab_sidekiq_concurrency: 5
 
-gitlab_gitlab_default_theme: 2
+gitlab_default_theme: 2
 
-gitlab_gitlab_projects_wiki: true
-gitlab_gitlab_projects_snippets: true
-gitlab_gitlab_projects_builds: true
-gitlab_gitlab_projects_issues: true
+gitlab_projects_wiki: true
+gitlab_projects_snippets: true
+gitlab_projects_builds: true
+gitlab_projects_issues: true
 
 # By default, we send mail through our own mailer service.
 #
@@ -40,29 +40,29 @@ gitlab_gitlab_projects_issues: true
 # 1. Either configure the gitlab-mailer service to relay through your SMTP server. See the `gitlab_mailer_*` variables.
 # 2. Or, make Gitlab send through another SMTP server by:
 # - disabling the mailer service (`gitlab_mailer_enabled: false`)
-# - enabling TLS below (`gitlab_gitlab_smtp_tls: true`)
-# - using `gitlab_gitlab_smtp_authentication: login`, etc.
-gitlab_gitlab_smtp_enabled: true
-gitlab_gitlab_smtp_domain: "{{ gitlab_server_hostname }}"
-gitlab_gitlab_smtp_host: "gitlab-mailer"
-gitlab_gitlab_smtp_port: 8025
-gitlab_gitlab_smtp_tls: false
-gitlab_gitlab_smtp_user: ""
-gitlab_gitlab_smtp_pass: ""
-gitlab_gitlab_smtp_authentication: ""
+# - enabling TLS below (`gitlab_smtp_tls: true`)
+# - using `gitlab_smtp_authentication: login`, etc.
+gitlab_smtp_enabled: true
+gitlab_smtp_domain: "{{ gitlab_server_hostname }}"
+gitlab_smtp_host: "gitlab-mailer"
+gitlab_smtp_port: 8025
+gitlab_smtp_tls: false
+gitlab_smtp_user: ""
+gitlab_smtp_pass: ""
+gitlab_smtp_authentication: ""
 
-gitlab_gitlab_email: "gitlab@{{ gitlab_server_hostname }}"
-gitlab_gitlab_email_reply_to: "{{ gitlab_gitlab_email }}"
+gitlab_email: "gitlab@{{ gitlab_server_hostname }}"
+gitlab_email_reply_to: "{{ gitlab_email }}"
 
 # Required secrets (can be generated with something like `pwgen -Bsv1 64`)
-gitlab_gitlab_secrets_otp_key_base: ''
-gitlab_gitlab_secrets_secret_key_base: ''
-gitlab_gitlab_secrets_db_key_base: ''
+gitlab_secrets_otp_key_base: ''
+gitlab_secrets_secret_key_base: ''
+gitlab_secrets_db_key_base: ''
 
 
 # A list of SSH host keys to install for the Gitlab Shell SSH server.
 #
-# If left empty, Gitlab will generate the keys in the `gitlab_gitlab_data_ssh_dir_path` directory for you.
+# If left empty, Gitlab will generate the keys in the `gitlab_data_ssh_dir_path` directory for you.
 # To make them stick (when rebuilding the Gitlab server), you'd either need to make a backup and restore them there manually,
 # or you'd need to define the keys here.
 #

@@ -25,6 +25,6 @@ In the future, if you are to restore a backup or otherwise rebuild the Gitlab se
 The backup/restore process doesn't take care of those, so you should let the playbook help you.
 Edit your `inventory/host_vars/gitlab.<your-domain>/vars.yml` file and uncomment and populate the `gitlab_shell_ssh_host_keys` variable.
 
-The SSH host keys are in `/gitlab/gitlab/data/ssh` (`gitlab_gitlab_data_ssh_dir_path`) on the server.
+The SSH host keys are in `/gitlab/gitlab/data/ssh` (`gitlab_data_ssh_dir_path`) on the server.
 You can paste the content for each key in the corresponding place in `gitlab_shell_ssh_host_keys`.
 We recommend encrypting the values using `ansible-vault encrypt_string`.

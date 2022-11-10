@@ -14,16 +14,16 @@
     group: "{{ item.group }}"
   with_items:
     - path: "{{ gitlab_data_dir_path }}"
-      owner: "{{ gitlab_gitlab_uid }}"
-      group: "{{ gitlab_gitlab_uid }}"
+      owner: "{{ gitlab_uid }}"
+      group: "{{ gitlab_uid }}"
       mode: '0755'
 
     - path: "{{ gitlab_log_dir_path }}"
-      owner: "{{ gitlab_gitlab_uid }}"
-      group: "{{ gitlab_gitlab_uid }}"
+      owner: "{{ gitlab_uid }}"
+      group: "{{ gitlab_uid }}"
       mode: '0755'
 
-    - path: "{{ gitlab_gitlab_data_ssh_dir_path }}"
+    - path: "{{ gitlab_data_ssh_dir_path }}"
       owner: "0"
       group: "0"
       mode: '0777'
@@ -39,7 +39,7 @@
 - name: Ensure Gitlab SSH host keys installed (if provided)
   copy:
     content: "{{ item.content }}"
-    dest: "{{ gitlab_gitlab_data_ssh_dir_path }}/{{ item.name }}"
+    dest: "{{ gitlab_data_ssh_dir_path }}/{{ item.name }}"
     owner: "root"
     group: "root"
     mode: "{{ '0600' if item.type == 'private' else '0644' }}"
@@ -50,9 +50,9 @@
     src: "{{ role_path }}/templates/gitlab/gitlab.service.j2"
     dest: "/etc/systemd/system/gitlab.service"
     mode: 0644
-  register: gitlab_gitlab_systemd_service_result
+  register: gitlab_systemd_service_result
 
 - name: Ensure systemd reloaded after gitlab.service installation
   service:
     daemon_reload: yes
-  when: gitlab_gitlab_systemd_service_result.changed
+  when: gitlab_systemd_service_result.changed

@@ -15,6 +15,12 @@ nginx_docker_network: nginx-proxy
 # Base directory that contains everything
 base_data_path: "/services"
 
+# Base directory that contains scripts
+scripts_base_data_path: "{{ base_data_path }}/scripts"
+
+# Base directory that contains backups
+backups_base_data_path: "{{ base_data_path }}/backups"
+
 gitlab_root_password: ''
 
 #------------------------------------------

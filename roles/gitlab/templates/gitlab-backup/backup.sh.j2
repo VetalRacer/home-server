@@ -1,0 +1,139 @@
+#!/bin/bash
+
+# # # # # # # # # # SETTINGS # # # # # # # # # #
+
+# Directory for temporary storage of backups that are deleted after being sent to Yandex.Disk
+SOURCE_BACKUP_DIR='{{ gitlab_source_backups_dir_path }}'
+
+# Directory for storing backups that are deleted after a certain time
+TARGET_BACKUP_DIR='{{ gitlab_backup_directory }}'
+
+# Backup project name
+PROJECT='{{ gitlab_server_hostname }}'
+
+# Maximum number of backups stored on Yandex.Disk (0 - store all backups):
+MAX_BACKUPS_YANDEX='{{ gitlab_backup_days_to_keep_yandex }}'
+
+# Maximum number of locally stored backups (0 - store all backups):
+let MAX_BACKUPS_LOCAL='{{ gitlab_backup_days_to_keep_local }}'+1
+
+# Date used in backup names
+DATE=`date '+%Y_%m_%d'`
+
+# Yandex.Disk token
+TOKEN='{{ gitlab_yandex_token }}'
+
+# The name of the log file, stored in the directory specified in $TARGET_BACKUP_DIR
+LOGFILE='backup_gitlab.log'
+
+# # # # # # # # # # # END OF SETTINGS # # # # # # # # # # # # # 
+# # # # # # # # # NOT EDIT! # # # # # # # # # #
+
+function logger()
+{
+    echo "["`date "+%Y-%m-%d %H:%M:%S"`"] File $TARGET_BACKUP_DIR: $1" >> $TARGET_BACKUP_DIR/$LOGFILE
+}
+
+function parseJson()
+{
+    local output
+    regex="(\"$1\":[\"]?)([^\",\}]+)([\"]?)"
+    [[ $2 =~ $regex ]] && output=${BASH_REMATCH[2]}
+    echo $output
+}
+
+function checkError()
+{
+    echo $(parseJson 'error' "$1")
+}
+
+function getUploadUrl()
+{
+    json_out=`curl -s -H "Authorization: OAuth $TOKEN" "https://cloud-api.yandex.net:443/v1/disk/resources/upload?path=app:/$FILENAME&overwrite=true"`
+    json_error=$(checkError "$json_out")
+    if [[ $json_error != '' ]];
+    then
+        logger "$PROJECT - Yandex.Disk error: $json_error"
+#        mailing "$PROJECT - Yandex.Disk backup error" "ERROR copy file $FILENAME. Yandex.Disk error: $json_error"
+    echo ''
+    else
+        output=$(parseJson 'href' $json_out)
+        echo $output
+    fi
+}
+
+function uploadFile()
+{
+    local json_out
+    local uploadUrl
+    local json_error
+    uploadUrl=$(getUploadUrl)
+    if [[ $uploadUrl != '' ]];
+    then
+        json_out=`curl -s -T $1 -H "Authorization: OAuth $TOKEN" $uploadUrl`
+        json_error=$(checkError "$json_out")
+    if [[ $json_error != '' ]];
+    then
+        logger "$PROJECT - Yandex.Disk error: $json_error"
+    else
+        logger "$PROJECT - Copying file to Yandex.Disk success"
+    fi
+    else
+    	echo 'Some errors occured. Check log file for detail'
+    fi
+}
+
+function backups_list() {
+    # We look for all backup files in the application directory and display their names:
+    curl -s -H "Authorization: OAuth $TOKEN" "https://cloud-api.yandex.net:443/v1/disk/resources?path=app:/&sort=created&limit=100" | tr "{},[]" "\n" | grep "name\":[[:graph:]]*gitlab_backup.tar.gz" | cut -d: -f 2| tr -d '"'
+}
+
+function remove_old_backups_yandex() {
+    bkps=$(backups_list | wc -l)
+    old_bkps=$((bkps - MAX_BACKUPS_YANDEX))
+    if [ "$old_bkps" -gt "0" ];then
+        logger "Delete old backups from Yandex.Disk"
+        # Cycle for deleting old backups:
+        # We delete the first file in the list old_bkps times
+        logger $(backups_list | awk '(NR == 1)') will be deleted
+        for i in `eval echo {1..$((old_bkps))}`; do
+            curl -X DELETE -s -H "Authorization: OAuth $TOKEN" "https://cloud-api.yandex.net:443/v1/disk/resources?path=app:/$(backups_list | awk '(NR == 1)')&permanently=true"
+        done
+    fi
+}
+
+function remove_old_backups_local() {
+    ls -t `find $TARGET_BACKUP_DIR -type f -name *.tar.gz` | tail -n +$MAX_BACKUPS_LOCAL | xargs -r rm
+}
+
+logger "--- $PROJECT START BACKUP $DATE ---"
+logger "Uploading a gitlab backup"
+
+docker exec -t gitlab gitlab-backup create CRON=1 --no-deprecation-warnings 2>&1 | grep -v "File contains invisible non-breaking spaces, you may want to remove those"
+
+for file_path in $(find $SOURCE_BACKUP_DIR -name '*.tar'); do
+    backup_name=$(basename $file_path | sed 's/^[0-9]*\_[0-9]*\_[0-9]*\_[0-9]*\_//')
+    cp $file_path $TARGET_BACKUP_DIR/${DATE}_${backup_name} && rm $file_path;
+    cp {{ gitlab_data_dir_path }}/config/gitlab-secrets.json $TARGET_BACKUP_DIR;
+    tar -cvzf $TARGET_BACKUP_DIR/${DATE}_${backup_name}.gz --directory=$TARGET_BACKUP_DIR ${DATE}_${backup_name} gitlab-secrets.json;
+    rm $TARGET_BACKUP_DIR/${DATE}_${backup_name} $TARGET_BACKUP_DIR/gitlab-secrets.json;
+done
+{% if gitlab_backup_yandex_enabled %}
+    FILENAME=$(find $TARGET_BACKUP_DIR -name "$DATE*.tar.gz" | xargs -L1 -I{} basename "{}")
+    BACKUP_FILE_PATH=$(find $TARGET_BACKUP_DIR -name "$DATE*.tar.gz")
+
+    logger "Upload to Yandex.Disk gitlab backup file $FILENAME"
+
+    uploadFile $BACKUP_FILE_PATH
+
+    # Delete old backups from Yandex.Disk (if MAX_BACKUPS_YANDEX > 0)
+    logger "Delete backups from Yandex disk"
+    if [ $MAX_BACKUPS_YANDEX -gt 0 ];then remove_old_backups_yandex; fi
+
+    # Deleting local backups (if MAX_BACKUPS_LOCAL > 0)
+    logger "Delete backups from local disk"
+    if [ $MAX_BACKUPS_LOCAL -gt 0 ];then remove_old_backups_local; fi
+
+{% endif %}
+
+logger "Completing the backup script"

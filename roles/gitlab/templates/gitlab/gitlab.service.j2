@@ -11,8 +11,9 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill gitlab 2>
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm gitlab 2>/dev/null'
 
 ExecStart={{ host_command_docker }} run --rm --name gitlab \
+			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--name gitlab \
+			--env TZ=Europe/Samara \
 			--hostname={{ gitlab_server_hostname }} \
 			--env-file={{ gitlab_base_path }}/env-gitlab \
 			--volume {{ gitlab_data_dir_path }}/config:/etc/gitlab \

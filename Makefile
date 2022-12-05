@@ -4,11 +4,14 @@ help: ## Show this help.
 setup-all: ## Sets up all services
 	ansible-playbook -i inventory/hosts setup.yml --tags=setup-all
 
+backup: ## Creates a new backup
+	ansible-playbook -i inventory/hosts setup.yml --tags=backup
+
 start: ## Restarts services
 	ansible-playbook -i inventory/hosts setup.yml --tags=start
 
 update: ## Performs an upgrade after making a backup
-	ansible-playbook -i inventory/hosts setup.yml --ask-vault-pass --tags=backup,setup-redis,setup-gitlab,setup-postgres,setup-nginx-proxy,start
+	ansible-playbook -i inventory/hosts setup.yml --tags=backup,setup-redis,setup-gitlab,setup-postgres,setup-nginx-proxy,start
 
 setup-all-and-restart: ## Sets up all services and restarts after that
-	ansible-playbook -i inventory/hosts setup.yml --ask-vault-pass --tags=setup-all,start
+	ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,start

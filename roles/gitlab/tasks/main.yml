@@ -3,6 +3,10 @@
   tags:
     - always
 
+- import_tasks: "{{ role_path }}/tasks/create_backup.yml"
+  tags:
+    - backup
+
 - import_tasks: "{{ role_path }}/tasks/setup_main.yml"
   tags:
     - setup-all

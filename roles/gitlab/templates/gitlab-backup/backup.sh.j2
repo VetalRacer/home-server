@@ -12,7 +12,7 @@ TARGET_BACKUP_DIR='{{ gitlab_backup_directory }}'
 PROJECT='{{ gitlab_server_hostname }}'
 
 # Maximum number of backups stored on Yandex.Disk (0 - store all backups):
-MAX_BACKUPS_YANDEX='{{ gitlab_backup_days_to_keep_yandex }}'
+MAX_BACKUPS_YANDEX='{{ gitlab_backup_yandex_days_to_keep }}'
 
 # Maximum number of locally stored backups (0 - store all backups):
 let MAX_BACKUPS_LOCAL='{{ gitlab_backup_days_to_keep_local }}'+1
@@ -21,7 +21,7 @@ let MAX_BACKUPS_LOCAL='{{ gitlab_backup_days_to_keep_local }}'+1
 DATE=`date '+%Y_%m_%d'`
 
 # Yandex.Disk token
-TOKEN='{{ gitlab_yandex_token }}'
+TOKEN='{{ gitlab_backup_yandex_token }}'
 
 # The name of the log file, stored in the directory specified in $TARGET_BACKUP_DIR
 LOGFILE='backup_gitlab.log'

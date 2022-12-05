@@ -65,12 +65,12 @@ gitlab_backup_program_install_dir: "{{ scripts_base_data_path }}/gitlab"
 gitlab_backup_directory: "{{ backups_base_data_path }}/gitlab"
 gitlab_backup_encryption_password: ""
 gitlab_backup_user_authorized_keys: []
-gitlab_backup_days_to_keep_local: 2
+gitlab_backup_days_to_keep_local: 14
 
 # Gitlab backup yandex config
 gitlab_backup_yandex_enabled: true
-gitlab_backup_days_to_keep_yandex: 15
-gitlab_yandex_token: ""
+gitlab_backup_yandex_days_to_keep: 30
+gitlab_backup_yandex_token: ""
 
 
 # A list of SSH host keys to install for the Gitlab Shell SSH server.

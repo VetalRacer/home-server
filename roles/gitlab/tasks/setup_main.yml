@@ -21,6 +21,7 @@
 #   docker_network:
 #     name: "{{ nginx_docker_network }}"
 #     driver: bridge
+
 - name: Check existence of Nginx-proxy network in Docker
   shell:
     cmd: "docker network ls -q --filter='name=^{{ nginx_docker_network }}$'"

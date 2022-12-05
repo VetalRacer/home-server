@@ -4,22 +4,20 @@
 #
 # docker exec -it gitlab gitlab-rake "gitlab:password:reset[root]"
 
-# The fully-qualified name of your Gitlab server (e.g. `gitlab.example.com`)
-gitlab_server_hostname: 'gitlab.loc'
-
 # Base directory that contains everything
-gitlab_base_data_path: "{{ base_data_path }}/gitlab"
+gitlab_base_data_path: "{{ services_base_data_path }}/gitlab"
 
+# Gitlab edition
 gitlab_docker_image_template: "gitlab/gitlab-ee:__VERSION__"
-gitlab_docker_image_tag: "15.5.1-ee.0"
 gitlab_docker_image: "{{ gitlab_docker_image_template|replace('__VERSION__', gitlab_docker_image_tag) }}"
 
 # Gitlab-related data
 gitlab_base_path: "{{ gitlab_base_data_path }}/gitlab"
 gitlab_data_dir_path: "{{ gitlab_base_path }}/data"
+gitlab_config_dir_path: "{{ gitlab_base_path }}/config"
 gitlab_log_dir_path: "{{ gitlab_base_path }}/log"
 gitlab_data_ssh_dir_path: "{{ gitlab_data_dir_path }}/ssh"
-gitlab_backups_dir_path: "{{ gitlab_data_dir_path }}/backups"
+gitlab_source_backups_dir_path: "{{ gitlab_data_dir_path }}/backups"
 
 gitlab_uid: "1000"
 gitlab_gid: "1000"
@@ -58,6 +56,21 @@ gitlab_email_reply_to: "{{ gitlab_email }}"
 gitlab_secrets_otp_key_base: ''
 gitlab_secrets_secret_key_base: ''
 gitlab_secrets_db_key_base: ''
+
+
+# Gitlab backup settings
+gitlab_backup_user: backup
+gitlab_backup_cron_email_to: ""
+gitlab_backup_program_install_dir: "{{ scripts_base_data_path }}/gitlab"
+gitlab_backup_directory: "{{ backups_base_data_path }}/gitlab"
+gitlab_backup_encryption_password: ""
+gitlab_backup_user_authorized_keys: []
+gitlab_backup_days_to_keep_local: 2
+
+# Gitlab backup yandex config
+gitlab_backup_yandex_enabled: true
+gitlab_backup_days_to_keep_yandex: 15
+gitlab_yandex_token: ""
 
 
 # A list of SSH host keys to install for the Gitlab Shell SSH server.
@@ -121,9 +134,8 @@ gitlab_runner_enabled: true
 
 gitlab_runner_base_path: "{{ gitlab_base_data_path }}/runner"
 gitlab_runner_config_path: "{{ gitlab_runner_base_path }}/config"
+gitlab_runner_container_image: "docker.io/gitlab/gitlab-runner:{{ gitlab_runner_image_tag }}"
 
-gitlab_runner_container_image: "docker.io/gitlab/gitlab-runner:{{ gitlab_runner_container_image_version }}"
-gitlab_runner_container_image_version: v15.1.1
 
 # The runner needs to talk to Gitlab (`https://gitlab.DOMAIN`) over the public IP address.
 # `gitlab.DOMAIN` in the container would usually resolve to some internal docker network IP address, which is not really accessible.
@@ -134,7 +146,6 @@ gitlab_runner_container_image_version: v15.1.1
 # If not, override `gitlab_runner_container_add_host_ip_address`
 gitlab_runner_container_add_host_domain_name: "{{ gitlab_server_hostname }}"
 gitlab_runner_container_add_host_ip_address: "{{ ansible_host }}"
-
 gitlab_runner_docker_socket_path: /var/run/docker.sock
 
 # Controls how many jobs can be processed concurrently.
@@ -142,9 +153,6 @@ gitlab_runner_configuration_concurrent: 1
 
 # The interval length, in seconds, between new jobs check. If set to 0 or lower, a default value (3 seconds) is used.
 gitlab_runner_configuration_check_interval: 0
-
 gitlab_runner_configuration_log_level: info
-
 gitlab_runner_configuration_runners_name: runner.{{ gitlab_server_hostname }}
-
 gitlab_runner_configuration_runners_token: ''

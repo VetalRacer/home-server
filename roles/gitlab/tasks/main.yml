@@ -1,4 +1,7 @@
 ---
+- import_tasks: "{{ role_path }}/tasks/validate_config.yml"
+  tags:
+    - always
 
 - import_tasks: "{{ role_path }}/tasks/setup_main.yml"
   tags:
@@ -14,6 +17,15 @@
     - setup-runner
     - setup-all
 
+- import_tasks: "{{ role_path }}/tasks/setup_backup.yml"
+  tags:
+    - setup-backup
+    - setup-all
+
 - import_tasks: "{{ role_path }}/tasks/start.yml"
   tags:
     - start
+
+- import_tasks: "{{ role_path }}/tasks/restore_backup.yml"
+  tags:
+    - restore-backup

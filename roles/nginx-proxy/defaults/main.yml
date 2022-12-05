@@ -8,7 +8,7 @@ nginx_proxy_docker_image: "docker.io/nginx:1.23.0-alpine"
 # A list of extra arguments to pass to the container
 nginx_proxy_container_extra_arguments: []
 
-nginx_proxy_base_path: "{{ base_data_path }}/nginx-proxy"
+nginx_proxy_base_path: "{{ services_base_data_path }}/nginx-proxy"
 nginx_proxy_data_path: "{{ nginx_proxy_base_path }}/data"
 nginx_proxy_confd_path: "{{ nginx_proxy_base_path }}/conf.d"
 

@@ -1,0 +1,128 @@
+# Defaults
+
+- name: Set gitlab_services_start_wait_time, if not provided
+  set_fact:
+    gitlab_services_start_wait_time: 15
+  when: "gitlab_services_start_wait_time|default('') == ''"
+
+- name: Set gitlab_import_wait_time, if not provided
+  set_fact:
+    gitlab_import_wait_time: "{{ 4 * 3600 }}"
+  when: "gitlab_import_wait_time|default('') == ''"
+
+- name: Fail if playbook called incorrectly
+  fail: msg="The `gitlab_archive_name` variable needs to be provided to this playbook, via --extra-vars"
+  when: gitlab_archive_name is not defined
+
+- name: Ensure provided backup archive exists
+  stat:
+    path: "{{ gitlab_backup_directory }}/{{ gitlab_archive_name }}"
+  register: gitlab_archive_path_host_stat
+
+- name: Fail if provided backup archive doesn't exist on the server
+  fail: msg="Backup archive cannot be found at {{ gitlab_backup_directory }}/{{ gitlab_archive_name }}"
+  when: not gitlab_archive_path_host_stat.stat.exists
+
+- name: Unarchive backup file
+  unarchive:
+    src: "{{ gitlab_backup_directory }}/{{ gitlab_archive_name }}"
+    dest: "{{ gitlab_source_backups_dir_path }}"
+    exclude: gitlab-secrets.json
+    remote_src: yes
+
+- set_fact:
+    gitlab_backup_name: "{{ gitlab_archive_name|replace('.gz', '') }}"
+
+- set_fact:
+    gitlab_backup_path_host: "{{ gitlab_source_backups_dir_path }}/{{ gitlab_backup_name }}"
+
+- name: Ensure provided backup file exists
+  stat:
+    path: "{{ gitlab_backup_path_host }}"
+  register: gitlab_backup_path_host_stat
+
+- name: Fail if provided backup file doesn't exist on the server
+  fail: msg="Backup file cannot be found at {{ gitlab_backup_path_host }}"
+  when: not gitlab_backup_path_host_stat.stat.exists
+
+- name: Unarchive gitlab-secrets.json file
+  unarchive:
+    src: "{{ gitlab_backup_directory }}/{{ gitlab_archive_name }}"
+    dest: "{{ gitlab_config_dir_path }}"
+    exclude: "{{ gitlab_backup_name }}"
+    remote_src: yes
+
+- name: Ensure provided gitlab-secrets.json file exists
+  stat:
+    path: "{{ gitlab_config_dir_path }}/gitlab-secrets.json"
+  register: gitlab_secrets_json_stat
+
+- name: Fail if provided gitlab-secrets.json file doesn't exist on the server
+  fail: msg="gitlab-secrets.json file cannot be found at {{ gitlab_config_dir_path }}/gitlab-secrets.json"
+  when: not gitlab_secrets_json_stat.stat.exists
+
+# The /bin/true hack is just to prevent Ansible from complaining about us not using the `unarchive` module
+- name: Determine Gitlab version from the backup file (1/2)
+  shell: >-
+    /bin/true && tar xf {{ gitlab_backup_path_host|quote }} backup_information.yml -O | grep ':gitlab_version:' | cut -d ' ' -f 2
+  register: gitlab_backup_version_result
+  changed_when: False
+
+- name: Determine Gitlab version from the backup file (2/2)
+  set_fact:
+    gitlab_backup_version: "{{ gitlab_backup_version_result.stdout }}"
+  changed_when: False
+
+- name: Fail if determined backup version looks suspicious
+  fail: msg="Determined version `{{ gitlab_backup_version }}` looks suspicious"
+  when: not gitlab_backup_version is search("\d\.\d(\.\d)?")
+
+- set_fact:
+    gitlab_docker_image_expected: "{{ gitlab_docker_image_template|replace('__VERSION__', gitlab_backup_version) }}"
+    gitlab_docker_image_current: "{{ gitlab_docker_image|replace('.0', '')}}"
+
+- name: Fail if determined backup version is different than the installed Gitlab version
+  fail:
+    msg: |-
+      The backup was determined to be for Gitlab `{{ gitlab_backup_version }}`.
+      Your server, howerver, is running a Docker image for a different version (`{{ gitlab_docker_image_tag }}`).
+      You should force-install the other image first, do the restore, and then potentially upgrade.
+      Before restoring, re-run the playbook's installation with the following custom variables:
+      `gitlab_docker_image: {{ gitlab_docker_image_template|replace('__VERSION__', gitlab_backup_version) }}`
+  when: "gitlab_docker_image_expected != gitlab_docker_image_current"
+
+- name: Ensure systemd reloaded
+  service:
+    daemon_reload: yes
+
+- name: Ensure Gitlab services started
+  service:
+    name: "{{ item }}"
+    state: started
+  with_items: "{{ gitlab_services_list }}"
+
+- name: Wait a bit, so that services can start
+  wait_for:
+    timeout: "{{ gitlab_services_start_wait_time }}"
+  delegate_to: 127.0.0.1
+  become: false
+
+- name: Change gitlab backup permission
+  shell: docker exec gitlab /bin/chown git:git /var/opt/gitlab/backups/{{ gitlab_backup_name }}
+
+- name: Stop gitlab services
+  shell: docker exec -i gitlab gitlab-ctl stop {{ item }}
+  with_items:
+    - puma
+    - sidekiq
+
+- name: Backup restore
+  shell: docker exec -i gitlab gitlab-backup restore BACKUP={{ gitlab_backup_name|replace('_gitlab_backup.tar', '') }} force=yes
+
+- name: Gitlab reconfigure
+  shell: docker exec -i gitlab gitlab-ctl reconfigure
+
+- name: Ensure Gitlab restarted
+  service:
+    name: "gitlab"
+    state: restarted

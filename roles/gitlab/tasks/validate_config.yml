@@ -7,11 +7,13 @@
   when: "vars[item] == ''"
   with_items:
     - "gitlab_server_hostname"
-    - "gitlab_secrets_otp_key_base"
-    - "gitlab_secrets_secret_key_base"
-    - "gitlab_secrets_db_key_base"
-    - "gitlab_backup_cron_email_to"
-    - "gitlab_backup_encryption_password"
+#   - "gitlab_secrets_otp_key_base"
+#   - "gitlab_secrets_secret_key_base"
+#   - "gitlab_secrets_db_key_base"
+#   - "gitlab_backup_cron_email_to"
+#   - "gitlab_backup_encryption_password"
+    - "gitlab_docker_image_tag"
+    - "gitlab_runner_image_tag"
 
 - name: (Deprecation) Catch and report renamed variables
   fail:

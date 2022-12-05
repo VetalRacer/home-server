@@ -48,17 +48,17 @@
 - name: Unarchive gitlab-secrets.json file
   unarchive:
     src: "{{ gitlab_backup_directory }}/{{ gitlab_archive_name }}"
-    dest: "{{ gitlab_data_dir_path }}/config/"
+    dest: "{{ gitlab_config_dir_path }}"
     exclude: "{{ gitlab_backup_name }}"
     remote_src: yes
 
 - name: Ensure provided gitlab-secrets.json file exists
   stat:
-    path: "{{ gitlab_data_dir_path }}/config/gitlab-secrets.json"
+    path: "{{ gitlab_config_dir_path }}/gitlab-secrets.json"
   register: gitlab_secrets_json_stat
 
 - name: Fail if provided gitlab-secrets.json file doesn't exist on the server
-  fail: msg="gitlab-secrets.json file cannot be found at {{ gitlab_data_dir_path }}/config/gitlab-secrets.json"
+  fail: msg="gitlab-secrets.json file cannot be found at {{ gitlab_config_dir_path }}/gitlab-secrets.json"
   when: not gitlab_secrets_json_stat.stat.exists
 
 # The /bin/true hack is just to prevent Ansible from complaining about us not using the `unarchive` module

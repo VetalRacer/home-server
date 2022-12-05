@@ -114,7 +114,7 @@ docker exec -t gitlab gitlab-backup create CRON=1 --no-deprecation-warnings 2>&1
 for file_path in $(find $SOURCE_BACKUP_DIR -name '*.tar'); do
     backup_name=$(basename $file_path | sed 's/^[0-9]*\_[0-9]*\_[0-9]*\_[0-9]*\_//')
     cp $file_path $TARGET_BACKUP_DIR/${DATE}_${backup_name} && rm $file_path;
-    cp {{ gitlab_data_dir_path }}/config/gitlab-secrets.json $TARGET_BACKUP_DIR;
+    cp {{ gitlab_config_dir_path }}/gitlab-secrets.json $TARGET_BACKUP_DIR;
     tar -cvzf $TARGET_BACKUP_DIR/${DATE}_${backup_name}.gz --directory=$TARGET_BACKUP_DIR ${DATE}_${backup_name} gitlab-secrets.json;
     rm $TARGET_BACKUP_DIR/${DATE}_${backup_name} $TARGET_BACKUP_DIR/gitlab-secrets.json;
 done

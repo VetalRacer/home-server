@@ -1,0 +1,35 @@
+auth:
+  - user: admin
+    group: admin
+    uid: 1000
+    gid: 1000
+    password: admin
+  - user: onlyread
+    group: onlyread
+    uid: 1100
+    gid: 1200
+    password: onlyread
+
+global:
+  - "force user = {{ samba_force_user }}"
+  - "force group = {{ samba_force_group }}"
+
+share:
+  - name: public
+    comment: Public
+    path: /samba/public
+    browsable: yes
+    readonly: yes
+    guestok: no
+    veto: no
+    recycle: no
+  - name: media
+    comment: media
+    path: /samba/media
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: onlyread
+    veto: no
+    hidefiles: /_*
+    recycle: no

@@ -1,0 +1,17 @@
+---
+#- import_tasks: "{{ role_path }}/tasks/validate_config.yml"
+#  tags:
+#    - always
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_samba.yml"
+  tags:
+    - setup-samba
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  tags:
+    - start

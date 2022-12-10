@@ -33,6 +33,12 @@ gitlab_server_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
 gitlab_docker_image_tag: "15.5.1-ee.0"
 gitlab_runner_image_tag: v15.1.1
 
+# Samba services tag
+samba_docker_image_tag: 4.16.7
+
+# Nginx services tag
+nginx_proxy_docker_image_tag: 1.23.0-alpine
+
 # Required secrets (can be generated with something like `pwgen -Bsv1 64`)
 # We recommend encrypting the values using `ansible-vault encrypt_string`.
 gitlab_secrets_otp_key_base: ''

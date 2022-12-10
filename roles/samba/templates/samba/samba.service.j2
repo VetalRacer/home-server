@@ -1,0 +1,33 @@
+[Unit]
+Description=Samba server
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill samba 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm samba 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name samba \
+			--log-driver=none \
+			--network host \
+			--env TZ=Europe/Samara \
+			--env SAMBA_LOG_LEVEL={{ samba_log_level }} \
+{% for share_folder in samba_share_folders %}
+			{{ share_folder }} \
+{% endfor %}
+			-v {{ samba_data_path }}:/data \
+			-v {{ samba_data_path }}/config.yml:/data/config.yml \
+			{{ samba_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill samba 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm samba 2>/dev/null'
+ExecReload={{ host_command_docker }} exec samba /usr/sbin/nginx -s reload
+Restart=always
+RestartSec=30
+SyslogIdentifier=samba
+
+[Install]
+WantedBy=multi-user.target

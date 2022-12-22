@@ -23,6 +23,8 @@ samba_share_folders: |
     (['-v /sharefolder/public:/samba/public'])
     +
     (['-v /sharefolder/media:/samba/media'])
+    +
+    (['-v /mnt:/samba/mnt'])
   }}
 
 # Samba services

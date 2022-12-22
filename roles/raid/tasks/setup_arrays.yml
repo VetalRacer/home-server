@@ -1,0 +1,155 @@
+---
+# Checking for any existing raid arrays
+- name: setup_arrays | Checking Status Of Array(s)
+  shell: "cat /proc/mdstat | grep {{ item.name }}"
+  register: "array_check"
+  changed_when: false
+  failed_when: false
+  with_items: '{{ mdadm_arrays }}'
+  check_mode: no
+
+# Creating raid arrays
+# We pass yes in order to accept any questions prompted for yes|no
+- name: setup_arrays | Creating Array(s)
+  shell: "yes | mdadm --create /dev/{{ item.name }} --level={{ item.level }} --raid-devices={{ item.devices|count }} {{ item.devices| join (' ') }}"
+  register: "array_created"
+  with_items: '{{ mdadm_arrays }}'
+  when: >
+        item.state|lower == "present" and
+        array_check.results[0].rc != 0
+
+# Updates initramfs archives in /boot
+- name: setup_arrays | Updating Initramfs
+  command: "{{ update_initramfs }}"
+  when: array_created.changed
+
+# Capture the raid array details to append to mdadm.conf
+# in order to persist between reboots
+- name: setup_arrays | Capturing Array Details
+  command: "mdadm --detail --scan"
+  register: "array_details"
+  changed_when: false
+
+# Creating raid arrays filesystem
+- name: setup_arrays | Creating Array(s) Filesystem
+  filesystem:
+    fstype: "{{ item.filesystem }}"
+    opts: "{{ item.filesystem_opts | default(omit) }}"
+    dev: "/dev/{{ item.name }}"
+  with_items: '{{ mdadm_arrays }}'
+  when:
+  - item.state|lower == "present"
+  - item.filesystem is defined
+
+# Mounting raid arrays
+- name: setup_arrays | Mounting Array(s)
+  mount:
+    name: "{{ item.mountpoint }}"
+    src: "/dev/{{ item.name }}"
+    fstype: "{{ item.filesystem }}"
+    state: "mounted"
+    opts: "{{ item.opts | default(omit) }}"
+  with_items: '{{ mdadm_arrays }}'
+  when:
+  - item.state|lower == "present"
+  - item.filesystem is defined
+  - item.mountpoint is defined
+
+# Unmounting raid arrays in preparation of destroying
+- name: setup_arrays | Unmounting Array(s)
+  mount:
+    name: "{{ item.mountpoint }}"
+    src: "/dev/{{ item.name }}"
+    state: "unmounted"
+  with_items: '{{ mdadm_arrays }}'
+  when:
+  - item.state|lower == "absent"
+  - item.mountpoint is defined
+
+# Stopping raid arrays in preparation of destroying
+- name: setup_arrays | Stopping Array(s)
+  command: "mdadm --stop /dev/{{ item.name }}"
+  register: "array_stopped"
+  with_items: '{{ mdadm_arrays }}'
+  when: >
+        item.state|lower == "absent" and
+        array_check.results[0].rc == 0
+
+# Removing raid arrays
+- name: setup_arrays | Removing Array(s)
+  command: "mdadm --remove /dev/{{ item.name }}"
+  register: "array_removed"
+  with_items: '{{ mdadm_arrays }}'
+  when: >
+        item.state|lower == "absent" and
+        array_check.results[0].rc == 0
+
+# Zeroing out the disk devices which were part of the raid array
+- name: setup_arrays | Zeroing Out Array Devices
+  command: "mdadm --zero-superblock {{ item.1 }}"
+  with_subelements:
+    - '{{ mdadm_arrays }}'
+    - devices
+  when: >
+        item.0.state|lower == "absent" and
+        array_check.results[0].rc == 0 and
+        array_removed.changed
+        
+# Wiping out the disk devices which were part of the raid array
+- name: setup_arrays | Wiping Out Array Devices
+  command: "wipefs -af {{ item.1 }}"
+  with_subelements:
+    - '{{ mdadm_arrays }}'
+    - devices
+  when: >
+        item.0.state|lower == "absent" and
+        array_check.results[0].rc == 0 and
+        array_removed.changed
+
+- name: setup_arrays | Ensure {{ mdadm_conf }}'s directory exists
+  file:
+    path: "{{ mdadm_conf_path }}"
+    state: directory
+  when: mdadm_conf_path is defined
+
+- name: setup_arrays | Ensure {{ mdadm_conf }} file exists
+  copy:
+    content: ""
+    dest: "{{ mdadm_conf }}"
+    force: no
+
+# Updating mdadm.conf in order to persist between reboots
+- name: setup_arrays | Updating {{ mdadm_conf }}
+  lineinfile:
+    dest: "{{ mdadm_conf }}"
+    regexp: "^{{ item }}"
+    line: "{{ item }}"
+    state: "present"
+  with_items: '{{ array_details.stdout_lines }}'
+  when: array_created.changed
+
+# Updating mdadm.conf in order to not persist between reboots
+- name: setup_arrays | Updating {{ mdadm_conf }}
+  lineinfile:
+    dest: "{{ mdadm_conf }}"
+    regexp: "^ARRAY /dev/{{ item.name }}"
+    line: "ARRAY /dev/{{ item.name }}"
+    state: "absent"
+  with_items: '{{ mdadm_arrays }}'
+  when: >
+        item.state == "absent"
+
+# Updates initramfs archives in /boot
+- name: setup_arrays | Updating Initramfs
+  command: "{{ update_initramfs }}"
+  when: array_removed.changed and ansible_facts.os_family == "Debian"
+
+# Updates initramfs archives in /boot
+- name: setup_arrays | Updating Initramfs
+  command: "mv /boot/initramfs-$(uname -r).img /boot/initramfs-$(uname -r)-backup.img"
+  when: array_removed.changed and ansible_facts.os_family == "RedHat"
+
+# Updates initramfs archives in /boot
+- name: setup_arrays | Updating Initramfs
+  command: "dracut /boot/initramfs-$(uname -r).img $(uname -r)"
+  when: array_removed.changed and ansible_facts.os_family == "RedHat"

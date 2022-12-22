@@ -11,7 +11,7 @@ samba_docker_image: "{{ samba_docker_image_template|replace('__VERSION__', samba
 samba_data_path: "{{ samba_base_data_path }}/data"
 
 # Samba global envs
-samba_force_user: root
+samba_force_user: onlyread
 samba_force_group: root
 
 # Samba log level

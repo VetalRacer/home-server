@@ -1,0 +1,10 @@
+---
+- name: setup_raid_redhat | Installing mdadm
+  yum:
+    name: "mdadm"
+    state: "present"
+
+- name: setup_arrays | Setting distribution-specific facts
+  set_fact:
+    update_initramfs: "dracut -f"
+    mdadm_conf: "/etc/mdadm.conf"

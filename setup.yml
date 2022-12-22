@@ -1,6 +1,7 @@
 - hosts: home_server
   roles:
-    - { role: server-base }
-    - { role: nginx-proxy }
-    - { role: gitlab }
-    - { role: samba }
+#    - { role: server-base }
+    - { role: raid }
+#    - { role: nginx-proxy }
+#    - { role: gitlab }
+#    - { role: samba }

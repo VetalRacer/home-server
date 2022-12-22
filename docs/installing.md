@@ -7,6 +7,11 @@ Run the playbook: `make setup-all`.
 After installing, you can start services: `make start`.
 Gitlab may take a minute or so to actually start.
 
+## Initial RAID setup
+
+Before install you should change `raid_installation_enabled` variable in host-vars and change variables in raid task
+
+Original repository: `https://github.com/mrlesmithjr/ansible-mdadm`
 
 ## Initial Gitlab setup
 

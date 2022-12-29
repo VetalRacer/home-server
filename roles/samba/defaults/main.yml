@@ -20,11 +20,11 @@ samba_log_level: 0
 # Samba share folders
 samba_share_folders: |
   {{
-    (['-v /sharefolder/public:/samba/public'])
+    (['-v /datafolder/sharefolder/public:/samba/public'])
     +
-    (['-v /sharefolder/media:/samba/media'])
+    (['-v /datafolder/sharefolder/media:/samba/media'])
     +
-    (['-v /mnt:/samba/mnt'])
+    (['-v /datafolder/mnt:/samba/mnt'])
   }}
 
 # Samba services

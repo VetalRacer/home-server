@@ -11,10 +11,14 @@
     name: docker
     state: started
     enabled: yes
-  when: gitlab_docker_installation_enabled|bool
+  when: docker_installation_enabled|bool
 
-- name: "Ensure {{ gitlab_ntpd_service }} is started and autoruns"
+- name: "Ensure {{ ntpd_service }} is started and autoruns"
   service:
-    name: "{{ gitlab_ntpd_service }}"
+    name: "{{ ntpd_service }}"
     state: started
     enabled: yes
+
+- name: Set hostname "{{ hostname }}"
+  hostname:
+    name: "{{ hostname }}"

@@ -28,7 +28,8 @@
   register: gitlab_result_docker_network
   changed_when: false
 
-- name: Create Nginx-proxy network in Docker
-  shell:
-    cmd: "docker network create --driver=bridge {{ nginx_docker_network }}"
-  when: "gitlab_result_docker_network.stdout == ''"
+- name: Fail if docker network not defined
+  fail:
+    msg: >-
+      You need to define a docker network (`{{ nginx_docker_network }}`) for using this service.
+  when: gitlab_result_docker_network.stdout == ''

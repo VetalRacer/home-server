@@ -9,25 +9,25 @@
     mode: 0644
   with_items:
     - docker-ce.repo
-  when: gitlab_docker_installation_enabled|bool and gitlab_docker_package_name == 'docker-ce'
+  when: docker_installation_enabled|bool and docker_package_name == 'docker-ce'
 
 - name: Ensure Docker's RPM key is trusted
   rpm_key:
     state: present
     key: https://download.docker.com/linux/centos/gpg
-  when: gitlab_docker_installation_enabled|bool and gitlab_docker_package_name == 'docker-ce'
+  when: docker_installation_enabled|bool and docker_package_name == 'docker-ce'
 
 - name: Ensure yum packages are installed
   yum:
     name:
       - gnupg2
-      - "{{ gitlab_ntpd_package }}"
+      - "{{ ntpd_package }}"
     state: latest
     update_cache: yes
 
 - name: Ensure Docker is installed
   yum:
     name:
-      - "{{ gitlab_docker_package_name }}"
+      - "{{ docker_package_name }}"
     state: latest
-  when: gitlab_docker_installation_enabled|bool
+  when: docker_installation_enabled|bool

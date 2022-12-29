@@ -1,5 +1,7 @@
 # Table of Contents
 
+- [Prepare machine](prepare-machine.md)
+
 - [Prerequisites](prerequisites.md)
 
 - [Configuring the playbook](configuring-playbook.md)

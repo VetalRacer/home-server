@@ -1,12 +1,16 @@
 ---
 
 # General variables
+hostname: homeserver
 host_command_docker: "/usr/bin/env docker"
 host_command_sh: "/usr/bin/env sh"
 nginx_docker_network: nginx-proxy
 
 # Install raid
-raid_installation_enabled: false
+raid_installation_enabled: true
+nginx_proxy_installation_enabled: true
+gitlab_installation_enabled: true
+samba_installation_enabled: true
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -14,7 +18,7 @@ raid_installation_enabled: false
 systemd_unit_home_path: /root
 
 # Base directory that contains everything
-base_data_path: "/homeserver"
+base_data_path: "/datafolder/homeserver"
 
 # Base directory that contains services
 services_base_data_path: "{{ base_data_path }}/services"

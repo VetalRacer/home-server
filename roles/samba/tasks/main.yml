@@ -1,7 +1,4 @@
 ---
-#- import_tasks: "{{ role_path }}/tasks/validate_config.yml"
-#  tags:
-#    - always
 
 - import_tasks: "{{ role_path }}/tasks/setup_main.yml"
   when: samba_installation_enabled|bool == true

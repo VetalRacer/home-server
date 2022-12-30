@@ -19,8 +19,8 @@ gitlab_log_dir_path: "{{ gitlab_base_path }}/log"
 gitlab_data_ssh_dir_path: "{{ gitlab_data_dir_path }}/ssh"
 gitlab_source_backups_dir_path: "{{ gitlab_data_dir_path }}/backups"
 
-gitlab_uid: "1000"
-gitlab_gid: "1000"
+gitlab_uid: "0"
+gitlab_gid: "0"
 
 gitlab_puma_workers: 5
 gitlab_sidekiq_concurrency: 5

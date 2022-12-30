@@ -41,7 +41,7 @@ gitlab_docker_image_tag: "15.5.1-ee.0"
 gitlab_runner_image_tag: v15.1.1
 
 # Samba services tag
-samba_docker_image_tag: 4.16.7
+samba_docker_image_tag: 0.0.1
 
 # Nginx services tag
 nginx_proxy_docker_image_tag: 1.23.0-alpine

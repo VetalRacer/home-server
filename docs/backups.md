@@ -1,6 +1,6 @@
 # Backups
 
-Backups are created daily and automatically. After creating, they're gpg-encrypted (password specified by `gitlab_backup_encryption_password`) and then relocated to `gitlab_backup_directory` (default: `/homeserver/backup/`).
+Backups are created daily and automatically. After creating, they're gpg-encrypted (password specified by `gitlab_backup_encryption_password`) and then relocated to `gitlab_backup_directory` (default: `/datafolder/homeserver/backup/`).
 
 14 days worth of backups are kept locally by default (controllable by `gitlab_backup_days_to_keep_locally`).
 
@@ -42,7 +42,7 @@ To get SSH access to the server with the `backup` user, so you can pull the back
 
 - Rebuild the server using the Ansible playbook. See [Installing](installing.md). You may start services if you wish.
 
-- Make sure the `.tar.gz` backup file is available in the `/homeserver/backup/gitlab/` directory (e.g. `/homeserver/backup/gitlab/2022_12_05_15.5.1-ee_gitlab_backup.tar.gz`)
+- Make sure the `.tar.gz` backup file is available in the `/datafolder/homeserver/backup/gitlab/` directory (e.g. `/datafolder/homeserver/backup/gitlab/2022_12_05_15.5.1-ee_gitlab_backup.tar.gz`)
 
 - Ask the playbook to restore the backup:
 

@@ -16,7 +16,9 @@ To configure and install services on your home server, follow the [README in the
 
 This playbook sets up your server using the following Docker images:
 
-- [gitlab/gitlab-ce](https://hub.docker.com/r/gitlab/gitlab-ce) - the [gitlab/gitlab-ce](https://hub.docker.com/r/gitlab/gitlab-ce) Gitlab server image.
+- [gitlab/gitlab-ee](https://hub.docker.com/r/gitlab/gitlab-ee) - the [gitlab/gitlab-ce](https://hub.docker.com/r/gitlab/gitlab-ee) Gitlab server image.
+- [docker.io/nginx](https://hub.docker.com/_/nginx) - the [docker.io/nginx](https://hub.docker.com/_/nginx) Gitlab server image.
+- [vetalracer/docker-samba](https://hub.docker.com/r/vetalracer/docker-samba) - the fork [ghcr.io/crazy-max/samba](https://hub.docker.com/r/crazymax/samba) Gitlab server image.
 
 
 ## Support

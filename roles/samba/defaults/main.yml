@@ -4,14 +4,13 @@
 samba_base_data_path: "{{ services_base_data_path }}/samba"
 
 # Samba edition
-samba_docker_image_template: "ghcr.io/crazy-max/samba:__VERSION__"
+samba_docker_image_template: "vetalracer/docker-samba:__VERSION__"
 samba_docker_image: "{{ samba_docker_image_template|replace('__VERSION__', samba_docker_image_tag) }}"
 
 # Samba-related data
 samba_data_path: "{{ samba_base_data_path }}/data"
 
 # Samba global envs
-samba_force_user: onlyread
 samba_force_group: root
 
 # Samba log level
@@ -20,11 +19,21 @@ samba_log_level: 0
 # Samba share folders
 samba_share_folders: |
   {{
-    (['-v /sharefolder/public:/samba/public'])
+    (['-v /datafolder/sharefolder:/samba/sharefolder'])
     +
-    (['-v /sharefolder/media:/samba/media'])
+    (['-v /datafolder/sharefolder/program:/samba/program'])
     +
-    (['-v /mnt:/samba/mnt'])
+    (['-v /datafolder/sharefolder/media:/samba/media'])
+    +
+    (['-v /datafolder/sharefolder/game:/samba/game'])
+    +
+    (['-v /datafolder/sharefolder/music:/samba/music'])
+    +
+    (['-v /datafolder/sharefolder/a_bit_all:/samba/a_bit_all'])
+    +
+    (['-v /datafolder/sharefolder/exchanger:/samba/exchanger'])
+    +
+    (['-v /torrent:/samba/torrent'])
   }}
 
 # Samba services

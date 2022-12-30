@@ -1,17 +1,17 @@
 ---
-#- import_tasks: "{{ role_path }}/tasks/validate_config.yml"
-#  tags:
-#    - always
 
 - import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: samba_installation_enabled|bool == true
   tags:
     - setup-all
 
 - import_tasks: "{{ role_path }}/tasks/setup_samba.yml"
+  when: samba_installation_enabled|bool == true
   tags:
     - setup-samba
     - setup-all
 
 - import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: samba_installation_enabled|bool == true
   tags:
     - start

@@ -7,3 +7,15 @@
     mode: 0750
     owner: root
     group: root
+
+- name: Check existence of Nginx-proxy network in Docker
+  shell:
+    cmd: "docker network ls -q --filter='name=^{{ nginx_docker_network }}$'"
+  register: gitlab_result_docker_network
+  changed_when: false
+
+- name: Fail if docker network not defined
+  fail:
+    msg: >-
+      You need to define a docker network (`{{ nginx_docker_network }}`) for using this service.
+  when: gitlab_result_docker_network.stdout == ''

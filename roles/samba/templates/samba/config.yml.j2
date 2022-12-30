@@ -1,0 +1,110 @@
+auth:
+  - user: admin
+    group: users
+    uid: 1000
+    gid: 100
+    password: admin_password
+  - user: example
+    group: users
+    uid: 1100
+    gid: 100
+    password: example_password
+
+global:
+  - "force group = {{ samba_force_group }}"
+
+share:
+  - name: sharefolder
+    comment: sharefolder
+    path: /samba/sharefolder
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: admin, example
+    invalidusers: guest
+    readlist: example
+    writelist: admin
+    veto: no
+    hidefiles: /_*
+  - name: program
+    comment: program
+    path: /samba/program
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: admin, example
+    invalidusers: guest
+    readlist: example
+    writelist: admin
+    veto: no
+    hidefiles: /_*
+  - name: media
+    comment: media
+    path: /samba/media
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: admin, example
+    invalidusers: guest
+    readlist: example, guest
+    writelist: admin
+    veto: no
+    hidefiles: /_*
+  - name: game
+    comment: game
+    path: /samba/game
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: admin, example
+    invalidusers: guest
+    readlist: example
+    writelist: admin
+    veto: no
+    hidefiles: /_*
+  - name: music
+    comment: music
+    path: /samba/music
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: admin, example
+    invalidusers: guest
+    readlist: example
+    writelist: admin
+    veto: no
+    hidefiles: /_*
+  - name: a_bit_all
+    comment: a_bit_all
+    path: /samba/a_bit_all
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: admin, example
+    invalidusers: guest
+    readlist: example
+    writelist: admin
+    veto: no
+    hidefiles: /_*
+  - name: exchanger
+    comment: exchanger
+    path: /samba/exchanger
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: admin, example
+    invalidusers: guest
+    writelist: admin, example
+    veto: no
+    hidefiles: /_*
+  - name: torrent
+    comment: torrent
+    path: /samba/torrent
+    browsable: yes
+    readonly: no
+    guestok: no
+    validusers: admin, example
+    invalidusers: guest
+    writelist: admin, example
+    veto: no
+    hidefiles: /_*

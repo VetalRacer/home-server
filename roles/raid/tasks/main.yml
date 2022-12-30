@@ -1,0 +1,46 @@
+---
+# tasks file for ansible-mdadm
+#
+
+- include_tasks: "{{ role_path }}/tasks/setup_raid_debian.yml"
+  when: >
+        ansible_facts.os_family == "Debian" and
+        raid_installation_enabled|bool == true
+  args:
+    apply:
+      tags:
+        - setup-all
+  tags:
+    - always
+
+- include_tasks: "{{ role_path }}/tasks/setup_raid_redhat.yml"
+  when: >
+        ansible_facts.os_family == "RedHat" and
+        raid_installation_enabled|bool == true
+  args:
+    apply:
+      tags:
+        - setup-all
+  tags:
+    - always
+
+- include_tasks: wipe_disks.yml
+  when: >
+        mdadm_force_wipe is defined and
+        mdadm_force_wipe and
+        raid_installation_enabled|bool == true
+  args:
+    apply:
+      tags:
+        - setup-all
+  tags:
+    - always
+
+- include_tasks: setup_arrays.yml
+  when: raid_installation_enabled|bool == true
+  args:
+    apply:
+      tags:
+        - setup-all
+  tags:
+    - always

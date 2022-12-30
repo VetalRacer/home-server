@@ -1,0 +1,23 @@
+---
+
+# We use an official nginx image, which we fix-up to run unprivileged.
+# An alternative would be an `nginxinc/nginx-unprivileged` image, but
+# those as more frequently out of date.
+
+# Nginx edition
+nginx_proxy_docker_image_template: "docker.io/nginx:__VERSION__"
+nginx_proxy_docker_image: "{{ nginx_proxy_docker_image_template|replace('__VERSION__', nginx_proxy_docker_image_tag) }}"
+
+# A list of extra arguments to pass to the container
+nginx_proxy_container_extra_arguments: []
+
+# Nginx-related data
+nginx_proxy_base_path: "{{ services_base_data_path }}/nginx-proxy"
+nginx_proxy_data_path: "{{ nginx_proxy_base_path }}/data"
+nginx_proxy_confd_path: "{{ nginx_proxy_base_path }}/conf.d"
+
+# Samba services
+nginx_services_list: |
+  {{
+    (['nginx-proxy.service'])
+  }}

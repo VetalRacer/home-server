@@ -1,0 +1,13 @@
+server {
+  server_name gitlab.loc www.gitlab.loc;
+
+  location / {
+    resolver 127.0.0.11;
+    set $project http://gitlab:80;
+    
+    proxy_pass $project;
+
+    proxy_set_header Host $host;
+		proxy_set_header X-Forwarded-For $remote_addr;
+  }
+}

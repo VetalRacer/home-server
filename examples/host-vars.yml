@@ -1,0 +1,97 @@
+---
+
+# General variables
+hostname: homeserver
+host_command_docker: "/usr/bin/env docker"
+host_command_sh: "/usr/bin/env sh"
+nginx_docker_network: nginx-proxy
+
+# Install raid
+raid_installation_enabled: true
+nginx_proxy_installation_enabled: true
+gitlab_installation_enabled: true
+samba_installation_enabled: true
+
+# Specifies the path to use for the `HOME` environment variable for systemd unit files.
+# Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
+# if `$HOME` is not defined, so we define something to make it happy.
+systemd_unit_home_path: /root
+
+# Base directory that contains everything
+base_data_path: "/datafolder/homeserver"
+
+# Base directory that contains services
+services_base_data_path: "{{ base_data_path }}/services"
+
+# Base directory that contains scripts
+scripts_base_data_path: "{{ base_data_path }}/scripts"
+
+# Base directory that contains backups
+backups_base_data_path: "{{ base_data_path }}/backups"
+
+# Gitlab root password
+gitlab_root_password: ''
+
+# Gitlab variables
+# The fully-qualified name of your Gitlab server (e.g. `gitlab.example.com`)
+gitlab_server_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
+
+# Gitlab services tag
+gitlab_docker_image_tag: "15.5.1-ee.0"
+gitlab_runner_image_tag: v15.1.1
+
+# Samba services tag
+samba_docker_image_tag: 0.0.1
+
+# Nginx services tag
+nginx_proxy_docker_image_tag: 1.23.0-alpine
+
+# Required secrets (can be generated with something like `pwgen -Bsv1 64`)
+# We recommend encrypting the values using `ansible-vault encrypt_string`.
+gitlab_secrets_otp_key_base: ''
+gitlab_secrets_secret_key_base: ''
+gitlab_secrets_db_key_base: ''
+
+# Choose an encryption password (to be used for gpg).
+# We recommend encrypting the values using `ansible-vault encrypt_string`.
+gitlab_backup_encryption_password: ''
+
+gitlab_backup_cron_email_to: YOUR_EMAIL_ADDRESS_HERE
+
+# After you've installed Gitlab for the first time and everything is running,
+# you should uncomment and populate this.
+#
+# The SSH host keys are in `/gitlab/gitlab/data/ssh` (`gitlab_data_ssh_dir_path`) on the server.
+# You can paste the content for each key in the corresponding place.
+# We recommend encrypting the values using `ansible-vault encrypt_string`.
+#
+# gitlab_shell_ssh_host_keys:
+#   - name: ssh_host_ecdsa_key
+#     type: private
+#     content: |
+#       content will be here
+
+#   - name: ssh_host_ecdsa_key.pub
+#     type: public
+#     content: |
+#       content will be here
+
+#   - name: ssh_host_ed25519_key
+#     type: private
+#     content: |
+#       content will be here
+
+#   - name: ssh_host_ed25519_key.pub
+#     type: public
+#     content: |
+#       content will be here
+
+#   - name: ssh_host_rsa_key
+#     type: private
+#     content: |
+#       content will be here
+
+#   - name: ssh_host_rsa_key.pub
+#     type: public
+#     content: |
+#       content will be here

@@ -1,0 +1,24 @@
+---
+
+- include_tasks: "{{ role_path }}/tasks/setup_server_base_redhat.yml"
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: "{{ role_path }}/tasks/setup_server_base_debian.yml"
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure Docker is started and autoruns
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  when: docker_installation_enabled|bool
+
+- name: "Ensure {{ ntpd_service }} is started and autoruns"
+  service:
+    name: "{{ ntpd_service }}"
+    state: started
+    enabled: yes
+
+- name: Set hostname "{{ hostname }}"
+  hostname:
+    name: "{{ hostname }}"

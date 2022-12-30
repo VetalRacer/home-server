@@ -1,0 +1,43 @@
+---
+- import_tasks: "{{ role_path }}/tasks/validate_config.yml"
+  when: gitlab_installation_enabled|bool == true
+  tags:
+    - always
+
+- import_tasks: "{{ role_path }}/tasks/create_backup.yml"
+  when: gitlab_installation_enabled|bool == true
+  tags:
+    - backup
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: gitlab_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_gitlab.yml"
+  when: gitlab_installation_enabled|bool == true
+  tags:
+    - setup-gitlab
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_runner.yml"
+  when: gitlab_installation_enabled|bool == true
+  tags:
+    - setup-runner
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_backup.yml"
+  when: gitlab_installation_enabled|bool == true
+  tags:
+    - setup-backup
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: gitlab_installation_enabled|bool == true
+  tags:
+    - start
+
+- import_tasks: "{{ role_path }}/tasks/restore_backup.yml"
+  when: gitlab_installation_enabled|bool == true
+  tags:
+    - restore-backup

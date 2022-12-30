@@ -1,0 +1,42 @@
+---
+
+- name: Ensure nginx image is pulled
+  docker_image:
+    name: "{{ nginx_proxy_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure Nginx-proxy paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ nginx_proxy_base_path }}"
+    - "{{ nginx_proxy_data_path }}"
+    - "{{ nginx_proxy_confd_path }}"
+
+- name: Ensure Nginx-proxy configured (main config override)
+  template:
+    src: "{{ role_path }}/templates/nginx-proxy/nginx.conf.j2"
+    dest: "{{ nginx_proxy_base_path }}/nginx.conf"
+    mode: 0644
+
+- name: Ensure Nginx-proxy configured (Gitlab)
+  template:
+    src: "{{ role_path }}/templates/nginx-proxy/conf.d/gitlab.conf.j2"
+    dest: "{{ nginx_proxy_confd_path }}/gitlab.conf"
+    mode: 0644
+
+- name: Ensure Nginx-proxy.service installed
+  template:
+    src: "{{ role_path }}/templates/nginx-proxy/nginx-proxy.service.j2"
+    dest: "/etc/systemd/system/nginx-proxy.service"
+    mode: 0644
+  register: nginx_proxy_systemd_service_result
+
+- name: Ensure systemd reloaded after nginx-proxy.service installation
+  service:
+    daemon_reload: yes
+  when: nginx_proxy_systemd_service_result.changed

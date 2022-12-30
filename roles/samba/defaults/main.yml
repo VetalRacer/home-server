@@ -1,0 +1,43 @@
+---
+
+# Base directory that contains everything
+samba_base_data_path: "{{ services_base_data_path }}/samba"
+
+# Samba edition
+samba_docker_image_template: "vetalracer/docker-samba:__VERSION__"
+samba_docker_image: "{{ samba_docker_image_template|replace('__VERSION__', samba_docker_image_tag) }}"
+
+# Samba-related data
+samba_data_path: "{{ samba_base_data_path }}/data"
+
+# Samba global envs
+samba_force_group: root
+
+# Samba log level
+samba_log_level: 0
+
+# Samba share folders
+samba_share_folders: |
+  {{
+    (['-v /datafolder/sharefolder:/samba/sharefolder'])
+    +
+    (['-v /datafolder/sharefolder/program:/samba/program'])
+    +
+    (['-v /datafolder/sharefolder/media:/samba/media'])
+    +
+    (['-v /datafolder/sharefolder/game:/samba/game'])
+    +
+    (['-v /datafolder/sharefolder/music:/samba/music'])
+    +
+    (['-v /datafolder/sharefolder/a_bit_all:/samba/a_bit_all'])
+    +
+    (['-v /datafolder/sharefolder/exchanger:/samba/exchanger'])
+    +
+    (['-v /torrent:/samba/torrent'])
+  }}
+
+# Samba services
+samba_services_list: |
+  {{
+    (['samba.service'])
+  }}

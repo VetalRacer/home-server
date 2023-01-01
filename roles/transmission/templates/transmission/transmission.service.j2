@@ -1,0 +1,39 @@
+[Unit]
+Description=Transmission service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill transmission 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm transmission 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name transmission \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ=Europe/Samara \
+            --env PUID={{ transmission_uid }} \
+            --env PGID={{ transmission_gid }} \
+            --env TZ=Europe/London \
+            --env TRANSMISSION_WEB_HOME={{ transmission_theme }} \
+            --env USER={{ transmission_username }} \
+            --env PASS={{ transmission_password }} \
+            -p 9091:9091 \
+            -p 51413:51413 \
+            -p 51413:51413/udp \
+            -v {{ transmission_data_path }}:/config \
+            -v {{ transmission_file_path }}/downloads:/downloads \
+            -v {{ transmission_file_path }}/watch:/watch \
+			{{ transmission_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill transmission 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm transmission 2>/dev/null'
+ExecReload={{ host_command_docker }} exec transmission /usr/sbin/nginx -s reload
+Restart=always
+RestartSec=30
+SyslogIdentifier=transmission
+
+[Install]
+WantedBy=multi-user.target

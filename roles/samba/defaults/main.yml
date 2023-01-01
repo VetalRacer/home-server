@@ -33,7 +33,7 @@ samba_share_folders: |
     +
     (['-v /datafolder/sharefolder/exchanger:/samba/exchanger'])
     +
-    (['-v /torrent:/samba/torrent'])
+    (['-v /datafolder/sharefolder/torrent:/samba/torrent'])
   }}
 
 # Samba services

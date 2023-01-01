@@ -13,7 +13,6 @@
     owner: "root"
     group: "root"
   with_items:
-    - "{{ samba_base_data_path }}"
     - "{{ samba_data_path }}"
 
 - name: Ensure Samba configured (main config override)

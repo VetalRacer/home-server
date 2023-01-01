@@ -1,8 +1,8 @@
 ---
 
-- name: Ensure Samba base path exists
+- name: Ensure Transmission base path exists
   file:
-    path: "{{ samba_base_data_path }}"
+    path: "{{ transmission_base_data_path }}"
     state: directory
     mode: 0750
     owner: root

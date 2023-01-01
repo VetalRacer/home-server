@@ -29,6 +29,12 @@
     dest: "{{ nginx_proxy_confd_path }}/gitlab.conf"
     mode: 0644
 
+- name: Ensure Nginx-proxy configured (Transmission)
+  template:
+    src: "{{ role_path }}/templates/nginx-proxy/conf.d/transmission.conf.j2"
+    dest: "{{ nginx_proxy_confd_path }}/transmission.conf"
+    mode: 0644
+
 - name: Ensure Nginx-proxy.service installed
   template:
     src: "{{ role_path }}/templates/nginx-proxy/nginx-proxy.service.j2"

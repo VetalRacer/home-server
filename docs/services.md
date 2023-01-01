@@ -18,4 +18,4 @@ You can find all configs in `roles/samba/templates/samba/` folder
 
 Transmission is a light-weight and cross-platform BitTorrent client.
 
-You can read more about configured here `https://hub.docker.com/r/linuxserver/transmission`
+You can read more about configured [here](https://hub.docker.com/r/linuxserver/transmission)

@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: plex_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_plex.yml"
+  when: plex_installation_enabled|bool == true
+  tags:
+    - setup-plex
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: plex_installation_enabled|bool == true
+  tags:
+    - start

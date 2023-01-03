@@ -20,6 +20,7 @@ This playbook sets up your server using the following Docker images:
 - [docker.io/nginx](https://hub.docker.com/_/nginx) - the [docker.io/nginx](https://hub.docker.com/_/nginx) Nginx image.
 - [vetalracer/docker-samba](https://hub.docker.com/r/vetalracer/docker-samba) - the fork [ghcr.io/crazy-max/samba](https://hub.docker.com/r/crazymax/samba) Samba image.
 - [linuxserver/transmission](https://hub.docker.com/r/linuxserver/transmission) - the [linuxserver/transmission](https://hub.docker.com/r/linuxserver/transmission) Transmission image.
+- [linuxserver/plex](https://hub.docker.com/r/linuxserver/plex) - the [linuxserver/plex](https://hub.docker.com/r/linuxserver/plex) Plex image.
 
 
 ## Support

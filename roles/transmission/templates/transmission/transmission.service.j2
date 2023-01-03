@@ -30,7 +30,6 @@ ExecStart=/usr/bin/docker run --rm --name transmission \
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill transmission 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm transmission 2>/dev/null'
-ExecReload={{ host_command_docker }} exec transmission /usr/sbin/nginx -s reload
 Restart=always
 RestartSec=30
 SyslogIdentifier=transmission

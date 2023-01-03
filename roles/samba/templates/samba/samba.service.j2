@@ -25,7 +25,6 @@ ExecStart=/usr/bin/docker run --rm --name samba \
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill samba 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm samba 2>/dev/null'
-ExecReload={{ host_command_docker }} exec samba /usr/sbin/nginx -s reload
 Restart=always
 RestartSec=30
 SyslogIdentifier=samba

@@ -1,8 +1,8 @@
 ---
 
-- name: Ensure Transmission base path exists
+- name: Ensure Plex base path exists
   file:
-    path: "{{ transmission_base_data_path }}"
+    path: "{{ plex_base_data_path }}"
     state: directory
     mode: 0750
     owner: root

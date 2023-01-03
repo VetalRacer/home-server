@@ -11,6 +11,8 @@ raid_installation_enabled: true
 nginx_proxy_installation_enabled: true
 gitlab_installation_enabled: true
 samba_installation_enabled: true
+transmission_installation_enabled: true
+plex_installation_enabled: true
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -29,6 +31,9 @@ scripts_base_data_path: "{{ base_data_path }}/scripts"
 # Base directory that contains backups
 backups_base_data_path: "{{ base_data_path }}/backups"
 
+# Base directory that contains share folders
+sharefolder_base_data_path: "{{ base_data_path }}/sharefolder"
+
 # Gitlab root password
 gitlab_root_password: ''
 
@@ -36,15 +41,25 @@ gitlab_root_password: ''
 # The fully-qualified name of your Gitlab server (e.g. `gitlab.example.com`)
 gitlab_server_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
 
-# Gitlab services tag
+# Gitlab service tag
 gitlab_docker_image_tag: "15.5.1-ee.0"
 gitlab_runner_image_tag: v15.1.1
 
-# Samba services tag
+# Samba service tag
 samba_docker_image_tag: 0.0.1
 
-# Nginx services tag
+# Nginx service tag
 nginx_proxy_docker_image_tag: 1.23.0-alpine
+
+# Transmission service tag
+transmission_docker_image_tag: version-3.00-r6
+
+# Plex service tag
+plex_docker_image_tag: 1.30.0
+
+# Transmission creds
+transmission_username: admin
+transmission_password: password
 
 # Required secrets (can be generated with something like `pwgen -Bsv1 64`)
 # We recommend encrypting the values using `ansible-vault encrypt_string`.

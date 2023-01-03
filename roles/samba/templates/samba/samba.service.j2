@@ -1,5 +1,5 @@
 [Unit]
-Description=Samba server
+Description=Samba service
 Requires=docker.service
 After=docker.service
 DefaultDependencies=no
@@ -18,13 +18,13 @@ ExecStart=/usr/bin/docker run --rm --name samba \
 {% for share_folder in samba_share_folders %}
 			{{ share_folder }} \
 {% endfor %}
+			-p 445:445/tcp \
 			-v {{ samba_data_path }}:/data \
 			-v {{ samba_data_path }}/config.yml:/data/config.yml \
 			{{ samba_docker_image }}
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill samba 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm samba 2>/dev/null'
-ExecReload={{ host_command_docker }} exec samba /usr/sbin/nginx -s reload
 Restart=always
 RestartSec=30
 SyslogIdentifier=samba

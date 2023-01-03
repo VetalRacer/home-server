@@ -1,0 +1,24 @@
+# Base directory that contains everything
+plex_base_data_path: "{{ services_base_data_path }}/plex"
+
+# Plex edition
+plex_docker_image_template: "lscr.io/linuxserver/plex:__VERSION__"
+plex_docker_image: "{{ plex_docker_image_template|replace('__VERSION__', plex_docker_image_tag) }}"
+
+# Plex-related data
+plex_data_path: "{{ plex_base_data_path }}/data"
+
+# Transmission download data
+plex_base_file_path: "{{ sharefolder_base_data_path }}/media"
+plex_tvseries_path: "{{ plex_base_file_path }}/tvseries"
+plex_movies_path: "{{ plex_base_file_path }}/movies"
+
+# Plex global envs
+plex_uid: "0"
+plex_gid: "0"
+
+# Plex services
+plex_services_list: |
+  {{
+    (['plex.service'])
+  }}

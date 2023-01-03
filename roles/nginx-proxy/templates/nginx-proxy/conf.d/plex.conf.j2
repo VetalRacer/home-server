@@ -1,0 +1,13 @@
+server {
+  server_name plex.loc www.plex.loc;
+
+  location / {
+    resolver 127.0.0.11;
+    set $project http://plex:32400;
+    
+    proxy_pass $project;
+
+    proxy_set_header Host $host;
+		proxy_set_header X-Forwarded-For $remote_addr;
+  }
+}

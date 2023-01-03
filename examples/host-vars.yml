@@ -12,6 +12,7 @@ nginx_proxy_installation_enabled: true
 gitlab_installation_enabled: true
 samba_installation_enabled: true
 transmission_installation_enabled: true
+plex_installation_enabled: true
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -52,6 +53,9 @@ nginx_proxy_docker_image_tag: 1.23.0-alpine
 
 # Transmission service tag
 transmission_docker_image_tag: version-3.00-r6
+
+# Plex service tag
+plex_docker_image_tag: 1.30.0
 
 # Transmission creds
 transmission_username: admin

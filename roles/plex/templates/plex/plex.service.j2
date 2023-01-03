@@ -1,0 +1,45 @@
+[Unit]
+Description=Plex service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill plex 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm plex 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name plex \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ=Europe/Samara \
+            --env PUID={{ plex_uid }} \
+            --env PGID={{ plex_gid }} \
+            --env TZ=Europe/London \
+            --env VERSION=docker \
+            --env PLEX_CLAIM=claim-aZ8u6p9qLqxgvpcVLnSk \
+            -p 32400:32400 \
+            -p 1900:1900/udp \
+            -p 3005:3005 \
+            -p 5353:5353/udp \
+            -p 8324:8324 \
+            -p 32410:32410/udp \
+            -p 32412:32412/udp \
+            -p 32413:32413/udp \
+            -p 32414:32414/udp \
+            -p 32469:32469 \
+            -v {{ plex_data_path }}:/config \
+            -v {{ plex_tvseries_path }}:/tv \
+            -v {{ plex_movies_path }}:/movies \
+            -v {{ transmission_file_path }}/downloads:/torrent \
+			{{ plex_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill plex 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm plex 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=plex
+
+[Install]
+WantedBy=multi-user.target

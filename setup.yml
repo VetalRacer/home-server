@@ -6,3 +6,4 @@
     - { role: gitlab }
     - { role: samba }
     - { role: transmission }
+    - { role: plex }

@@ -67,7 +67,7 @@ transmission_password: password
 
 # Plex settings
 plex_claim: ''
-plex_apikey: ''
+plex_apikey: '' # see https://www.plexopedia.com/plex-media-server/general/plex-token/
 
 # Required secrets (can be generated with something like `pwgen -Bsv1 64`)
 # We recommend encrypting the values using `ansible-vault encrypt_string`.

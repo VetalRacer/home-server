@@ -1,0 +1,22 @@
+# Base directory that contains everything
+homepage_base_data_path: "{{ services_base_data_path }}/homepage"
+
+# Homepage edition
+homepage_docker_image_template: "ghcr.io/benphelps/homepage:__VERSION__"
+homepage_docker_image: "{{ homepage_docker_image_template|replace('__VERSION__', homepage_docker_image_tag) }}"
+
+# Homepage-related data
+homepage_data_path: "{{ homepage_base_data_path }}/data"
+
+# Homepage weather widget
+homepage_weather_enable: false
+homepage_weather_city: Samara
+homepage_weather_latitude: 53.241505
+homepage_weather_longitude: 50.221245
+homepage_weather_timezone: Europe/Samara
+
+# Homepage services
+homepage_services_list: |
+  {{
+    (['homepage.service'])
+  }}

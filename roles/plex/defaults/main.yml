@@ -8,7 +8,7 @@ plex_docker_image: "{{ plex_docker_image_template|replace('__VERSION__', plex_do
 # Plex-related data
 plex_data_path: "{{ plex_base_data_path }}/data"
 
-# Transmission download data
+# Plex content data
 plex_base_file_path: "{{ sharefolder_base_data_path }}/media"
 plex_tvseries_path: "{{ plex_base_file_path }}/tvseries"
 plex_movies_path: "{{ plex_base_file_path }}/movies"

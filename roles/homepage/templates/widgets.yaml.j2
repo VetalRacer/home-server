@@ -1,0 +1,27 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/en/configs/widgets
+
+- resources:
+    label: System
+    cpu: true
+    memory: true
+    disk: /
+
+- resources:
+    label: Storage
+    disk: /datafolder
+
+- search:
+    provider: google
+    target: _blank
+
+{% if homepage_weather_enable == true %}
+- openmeteo:
+    label: {{ homepage_weather_city }}
+    latitude: {{ homepage_weather_latitude }}
+    longitude: {{ homepage_weather_longitude }}
+    timezone: {{ homepage_weather_timezone }}
+    units: metric
+    cache: 5
+{% endif %}

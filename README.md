@@ -21,6 +21,7 @@ This playbook sets up your server using the following Docker images:
 - [vetalracer/docker-samba](https://hub.docker.com/r/vetalracer/docker-samba) - the fork [ghcr.io/crazy-max/samba](https://hub.docker.com/r/crazymax/samba) Samba image.
 - [linuxserver/transmission](https://hub.docker.com/r/linuxserver/transmission) - the [linuxserver/transmission](https://hub.docker.com/r/linuxserver/transmission) Transmission image.
 - [linuxserver/plex](https://hub.docker.com/r/linuxserver/plex) - the [linuxserver/plex](https://hub.docker.com/r/linuxserver/plex) Plex image.
+- [ghcr.io/benphelps/homepage](https://ghcr.io/benphelps/homepage) - the [benphelps/homepage](https://github.com/benphelps/homepage) Homepage image.
 
 
 ## Support

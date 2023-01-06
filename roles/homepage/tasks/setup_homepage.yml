@@ -1,0 +1,58 @@
+---
+
+- name: Ensure Homepage image is pulled
+  docker_image:
+    name: "{{ homepage_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure Homepage paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ homepage_data_path }}"
+
+- name: Ensure Homepage services.yaml config
+  template:
+    src: "{{ role_path }}/templates/services.yaml.j2"
+    dest: "{{ homepage_data_path }}/services.yaml"
+    mode: 0644
+
+- name: Ensure Homepage widgets.yaml config
+  template:
+    src: "{{ role_path }}/templates/widgets.yaml.j2"
+    dest: "{{ homepage_data_path }}/widgets.yaml"
+    mode: 0644
+
+- name: Ensure Homepage bookmarks.yaml config
+  template:
+    src: "{{ role_path }}/templates/bookmarks.yaml.j2"
+    dest: "{{ homepage_data_path }}/bookmarks.yaml"
+    mode: 0644
+
+- name: Ensure Homepage docker.yaml config
+  template:
+    src: "{{ role_path }}/templates/docker.yaml.j2"
+    dest: "{{ homepage_data_path }}/docker.yaml"
+    mode: 0644
+
+- name: Ensure Homepage settings.yaml config
+  template:
+    src: "{{ role_path }}/templates/settings.yaml.j2"
+    dest: "{{ homepage_data_path }}/settings.yaml"
+    mode: 0644
+
+- name: Ensure Homepage.service installed
+  template:
+    src: "{{ role_path }}/templates/homepage/homepage.service.j2"
+    dest: "/etc/systemd/system/homepage.service"
+    mode: 0644
+  register: homepage_systemd_service_result
+
+- name: Ensure systemd reloaded after homepage.service installation
+  service:
+    daemon_reload: yes
+  when: homepage_systemd_service_result.changed

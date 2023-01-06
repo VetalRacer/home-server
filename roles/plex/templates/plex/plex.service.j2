@@ -18,7 +18,7 @@ ExecStart=/usr/bin/docker run --rm --name plex \
             --env PGID={{ plex_gid }} \
             --env TZ=Europe/London \
             --env VERSION=docker \
-            --env PLEX_CLAIM=claim-aZ8u6p9qLqxgvpcVLnSk \
+            --env PLEX_CLAIM={{ plex_claim }} \
             -p 32400:32400 \
             -p 1900:1900/udp \
             -p 3005:3005 \

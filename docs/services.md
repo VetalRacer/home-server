@@ -25,3 +25,9 @@ You can read more about configured [here](https://hub.docker.com/r/linuxserver/t
 Plex is an American streaming media service and a client–server media player platform, made by Plex, Inc. The Plex Media Server organizes video, audio, and photos from a user's collections and from online services, and streams it to the players. The official clients and unofficial third-party clients run on mobile devices, smart TVs, streaming boxes, and in web apps.
 
 You can read more about configured [here](https://hub.docker.com/r/linuxserver/plex)
+
+# Homepage
+
+A modern (fully static, fast), secure (fully proxied), highly customizable application dashboard with integrations for more than 25 services and translations for over 15 languages. Easily configured via YAML files (or discovery via docker labels)
+
+You can read more about configured [here](https://gethomepage.dev/en/installation/)

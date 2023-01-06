@@ -13,6 +13,7 @@ gitlab_installation_enabled: true
 samba_installation_enabled: true
 transmission_installation_enabled: true
 plex_installation_enabled: true
+homepage_installation_enabled: true
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -57,9 +58,16 @@ transmission_docker_image_tag: version-3.00-r6
 # Plex service tag
 plex_docker_image_tag: 1.30.0
 
+# Homepage service tag
+homepage_docker_image_tag: v0.5.9
+
 # Transmission creds
 transmission_username: admin
 transmission_password: password
+
+# Plex settings
+plex_claim: ''
+plex_apikey: ''
 
 # Required secrets (can be generated with something like `pwgen -Bsv1 64`)
 # We recommend encrypting the values using `ansible-vault encrypt_string`.

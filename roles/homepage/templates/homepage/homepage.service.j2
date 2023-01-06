@@ -1,0 +1,30 @@
+[Unit]
+Description=Homepage service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill homepage 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm homepage 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name homepage \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ=Europe/Samara \
+            -p 3000:3000 \
+            -v {{ homepage_data_path }}:/app/config \
+            -v /datafolder:/datafolder \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+			{{ homepage_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill homepage 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm homepage 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=homepage
+
+[Install]
+WantedBy=multi-user.target

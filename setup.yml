@@ -7,3 +7,4 @@
     - { role: samba }
     - { role: transmission }
     - { role: plex }
+    - { role: homepage }

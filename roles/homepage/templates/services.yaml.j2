@@ -1,0 +1,49 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/en/configs/services
+
+- Media:
+{% if plex_installation_enabled == true %}
+    - Plex:
+        icon: plex.png
+        href: http://plex.loc:32400
+        description: Media server
+        server: homeserver
+        container: plex
+        widget:
+          type: plex
+          url: http://plex:32400
+          key: {{ plex_apikey }}
+{% endif %}
+
+- Tools:
+{% if transmission_installation_enabled == true %}
+    - Transmission:
+        icon: transmission.png
+        href: http://transmission.loc:9091
+        description: Torrent downloader
+        server: homeserver
+        container: transmission
+        widget:
+          type: transmission
+          url: http://transmission:9091
+          username: {{ transmission_username }}
+          password: {{ transmission_password }}
+{% endif %}
+
+- Services:
+{% if gitlab_installation_enabled == true %}
+    - GitLab:
+        icon: gitlab.png
+        href: http://gitlab.loc
+        description: Development platform
+        server: homeserver
+        container: gitlab
+{% endif %}
+{% if nginx_proxy_installation_enabled == true %}
+    - Nginx-proxy:
+        icon: nginx.png
+        description: Reverse proxy server
+        server: homeserver
+        container: nginx-proxy
+{% endif %}

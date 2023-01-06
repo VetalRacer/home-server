@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: homepage_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_homepage.yml"
+  when: homepage_installation_enabled|bool == true
+  tags:
+    - setup-homepage
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: homepage_installation_enabled|bool == true
+  tags:
+    - start

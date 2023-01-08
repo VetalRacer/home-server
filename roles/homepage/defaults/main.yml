@@ -9,7 +9,7 @@ homepage_docker_image: "{{ homepage_docker_image_template|replace('__VERSION__',
 homepage_data_path: "{{ homepage_base_data_path }}/data"
 
 # Homepage weather widget
-homepage_weather_enable: false
+homepage_weather_enable: true
 homepage_weather_city: Samara
 homepage_weather_latitude: 53.241505
 homepage_weather_longitude: 50.221245

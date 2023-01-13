@@ -45,6 +45,19 @@
     mode: "{{ '0600' if item.type == 'private' else '0644' }}"
   with_items: "{{ gitlab_shell_ssh_host_keys }}"
 
+- name: Ensure Nginx-proxy configured (Gitlab)
+  template:
+    src: "{{ role_path }}/templates/conf.d/gitlab.conf.j2"
+    dest: "{{ nginx_proxy_confd_path }}/gitlab.conf"
+    mode: 0644
+  register: nginx_proxy_gitlab_configured_result
+
+- name: Ensure systemd reloaded after gitlab nginx-proxy configured
+  service:
+    name: nginx-proxy.service
+    state: restarted
+  when: nginx_proxy_gitlab_configured_result.changed
+
 - name: Ensure gitlab.service installed
   template:
     src: "{{ role_path }}/templates/gitlab/gitlab.service.j2"

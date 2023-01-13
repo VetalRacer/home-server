@@ -5,6 +5,7 @@ hostname: homeserver
 host_command_docker: "/usr/bin/env docker"
 host_command_sh: "/usr/bin/env sh"
 nginx_docker_network: nginx-proxy
+timezone: Etc/UTC
 
 # Install raid
 raid_installation_enabled: true

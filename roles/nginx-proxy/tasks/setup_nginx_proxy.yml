@@ -23,30 +23,6 @@
     dest: "{{ nginx_proxy_base_path }}/nginx.conf"
     mode: 0644
 
-- name: Ensure Nginx-proxy configured (Gitlab)
-  template:
-    src: "{{ role_path }}/templates/nginx-proxy/conf.d/gitlab.conf.j2"
-    dest: "{{ nginx_proxy_confd_path }}/gitlab.conf"
-    mode: 0644
-
-- name: Ensure Nginx-proxy configured (Transmission)
-  template:
-    src: "{{ role_path }}/templates/nginx-proxy/conf.d/transmission.conf.j2"
-    dest: "{{ nginx_proxy_confd_path }}/transmission.conf"
-    mode: 0644
-
-- name: Ensure Nginx-proxy configured (Plex)
-  template:
-    src: "{{ role_path }}/templates/nginx-proxy/conf.d/plex.conf.j2"
-    dest: "{{ nginx_proxy_confd_path }}/plex.conf"
-    mode: 0644
-
-- name: Ensure Nginx-proxy configured (Homepage)
-  template:
-    src: "{{ role_path }}/templates/nginx-proxy/conf.d/homepage.conf.j2"
-    dest: "{{ nginx_proxy_confd_path }}/homepage.conf"
-    mode: 0644
-
 - name: Ensure Nginx-proxy.service installed
   template:
     src: "{{ role_path }}/templates/nginx-proxy/nginx-proxy.service.j2"

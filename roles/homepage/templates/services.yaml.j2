@@ -47,3 +47,10 @@
         server: homeserver
         container: nginx-proxy
 {% endif %}
+{% if samba_installation_enabled == true %}
+    - Nginx-proxy:
+        icon: files.png
+        description: Fileshare service
+        server: homeserver
+        container: samba
+{% endif %}

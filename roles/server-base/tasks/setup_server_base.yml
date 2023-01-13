@@ -22,3 +22,7 @@
 - name: Set hostname "{{ hostname }}"
   hostname:
     name: "{{ hostname }}"
+
+- name: Set timezone to "{{ timezone }}"
+  timezone:
+    name: "{{ timezone }}"

@@ -123,6 +123,15 @@ gitlab_services_list: |
 # --url=https://gitlab.DOMAIN \
 # --executor=docker \
 # --non-interactive
+
+docker exec -t gitlab-runner /entrypoint register \
+--registration-token=RRapzbfjTYdpksBsdTdW \
+--docker-image=docker.io/docker:20.10 \
+--name=runner.gitlab.loc \
+--url=http://gitlab.loc \
+--executor=docker \
+--non-interactive
+
 #
 # ^^ Replace `REGISTRATION_TOKEN` (value from step 3) and `DOMAIN`
 #

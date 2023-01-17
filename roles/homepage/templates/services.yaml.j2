@@ -30,6 +30,14 @@
           username: {{ transmission_username }}
           password: {{ transmission_password }}
 {% endif %}
+{% if home_assistant_installation_enabled == true %}
+    - Home-Assistant:
+        icon: home-assistant-circle.png
+        href: http://home-assistant.loc:8123
+        description: Development platform
+        server: homeserver
+        container: home-assistant
+{% endif %}
 
 - Services:
 {% if gitlab_installation_enabled == true %}

@@ -1,0 +1,13 @@
+server {
+  server_name home-assistant.loc www.home-assistant.loc;
+
+  location / {
+    resolver 127.0.0.11;
+    set $project http://home-assistant:8123;
+    
+    proxy_pass $project;
+
+    proxy_set_header Host $host;
+		proxy_set_header X-Forwarded-For $remote_addr;
+  }
+}

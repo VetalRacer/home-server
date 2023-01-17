@@ -1,0 +1,23 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: home_assistant_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_home_assistant.yml"
+  when: home_assistant_installation_enabled|bool == true
+  tags:
+    - setup-home-assistant
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_integration.yml"
+  when: home_assistant_installation_enabled|bool == true
+  tags:
+    - setup-home-assistant
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: home_assistant_installation_enabled|bool == true
+  tags:
+    - start

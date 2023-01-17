@@ -1,0 +1,55 @@
+---
+
+- name: Ensure Home-Assistant image is pulled
+  docker_image:
+    name: "{{ home_assistant_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure Home-Assistant paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ home_assistant_data_path }}"
+    - "{{ home_assistant_custom_components_path }}"
+    - "{{ home_assistant_dashboards_path }}"
+
+- name: Ensure Nginx-proxy configured (Home-Assistants)
+  template:
+    src: "{{ role_path }}/templates/conf.d/home-assistant.conf.j2"
+    dest: "{{ nginx_proxy_confd_path }}/home-assistant.conf"
+    mode: 0644
+  register: nginx_proxy_home_assistant_configured_result
+
+- name: Ensure systemd reloaded after home-assistant nginx-proxy configured
+  service:
+    name: nginx-proxy.service
+    state: restarted
+  when: nginx_proxy_home_assistant_configured_result.changed
+
+- name: Ensure Home-Assistant configuration.yaml config
+  template:
+    src: "{{ role_path }}/templates/configuration.yaml.j2"
+    dest: "{{ home_assistant_data_path }}/configuration.yaml"
+    mode: 0644
+
+- name: Ensure Home-Assistant ui-myhome.yaml config
+  template:
+    src: "{{ role_path }}/templates/ui-myhome.yaml.j2"
+    dest: "{{ home_assistant_dashboards_path }}/ui-myhome.yaml"
+    mode: 0644
+
+- name: Ensure Home_Assistant.service installed
+  template:
+    src: "{{ role_path }}/templates/home-assistant/home-assistant.service.j2"
+    dest: "/etc/systemd/system/home-assistant.service"
+    mode: 0644
+  register: home_assistant_systemd_service_result
+
+- name: Ensure systemd reloaded after home-assistant.service installation
+  service:
+    daemon_reload: yes
+  when: home_assistant_systemd_service_result.changed

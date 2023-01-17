@@ -1,0 +1,32 @@
+# Base directory that contains everything
+home_assistant_base_data_path: "{{ services_base_data_path }}/home_assistant"
+
+# Home-Assistant edition
+home_assistant_docker_image_template: "ghcr.io/home-assistant/home-assistant:__VERSION__"
+home_assistant_docker_image: "{{ home_assistant_docker_image_template|replace('__VERSION__', home_assistant_docker_image_tag) }}"
+
+# Home-Assistant-related data
+home_assistant_data_path: "{{ home_assistant_base_data_path }}/data"
+
+# Home-Assistant configurations data
+home_assistant_custom_components_path: "{{ home_assistant_data_path }}/custom_components"
+home_assistant_dashboards_path: "{{ home_assistant_data_path }}/dashboards"
+
+# Home-Assistant services
+home_assistant_services_list: |
+  {{
+    (['home-assistant.service'])
+  }}
+
+# Home-Assistant integrations
+home_assistant_integrations_list:
+#   - repo: https://github.com/AlexxIT/XiaomiGateway3.git
+#     tag: v2.1.2
+   - repo: https://github.com/al-one/hass-xiaomi-miot.git
+     tag: v0.7.0
+#   - repo: https://github.com/dext0r/yandex_smart_home.git
+#     tag: v0.6.1
+   - repo: https://github.com/AlexxIT/YandexStation.git
+     tag: v3.11.0
+#   - repo: https://github.com/hacs/integration.git
+#     tag: main

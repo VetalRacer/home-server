@@ -1,0 +1,18 @@
+---
+
+- name: Clone a repo with separate git directory
+  git:
+    repo: "{{ item.repo }}"
+    dest: /datafolder/homeserver/temp/git/{{ item.repo | regex_replace ('^.*\/([^\/]+).git$', '\1' ) }}
+    version: "{{ item.tag }}"
+    clone: yes
+    update: yes
+    single_branch: yes
+  with_items: "{{ home_assistant_integrations_list }}"
+
+- name: Copy content of directory 'files'^.*\/([^\/]+).git$
+  copy:
+    remote_src: yes
+    src: /datafolder/homeserver/temp/git/{{ item.repo | regex_replace ('^.*\/([^\/]+).git$', '\1' ) }}/custom_components/
+    dest: "{{ home_assistant_custom_components_path }}"
+  with_items: "{{ home_assistant_integrations_list }}"

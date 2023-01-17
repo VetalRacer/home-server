@@ -1,0 +1,478 @@
+---
+########## Dashboard ###########
+title: Thuis
+icon: mdi:home-assistant
+path: home
+cards:
+  ########## Stack 1 ###########
+  - type: vertical-stack
+    cards:
+      # Personal status
+      - type: horizontal-stack
+        cards:
+          - image: /local/klaas-overlay.jpg
+            elements:
+              - style:
+                  color: white
+                  top: 93%
+                  left: 20%
+                type: state-label
+                entity: sensor.klaas_status
+              - style:
+                  color: white
+                  top: 93%
+                  left: 55%
+                type: state-label
+                entity: proximity.home
+            type: picture-elements
+          - image: /local/marlene-overlay.jpg
+            elements:
+              - style:
+                  color: white
+                  top: 93%
+                  left: 20%
+                type: state-label
+                entity: sensor.marlene_status
+              - style:
+                  color: white
+                  top: 93%
+                  left: 55%
+                type: state-label
+                entity: binary_sensor.marlene_thuis
+            type: picture-elements
+      # People and home status
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            color_type: card
+            entity: alarm_control_panel.alarmsysteem
+            tap_action:
+              action: none
+            name: Noodgeval
+            state:
+              - value: "triggered"
+                color: red
+                name: Er is ingebroken!
+                icon: mdi:alert
+                styles:
+                  card:
+                    - animation: blink 2s for 60s ease infinite
+              - value: "armed_away"
+                color: '#e37907'
+                name: Beveiliging ingeschakeld
+                icon: mdi:shield-lock
+              - value: "pending"
+                color: '#0897c7'
+                name: Beveiliging in afwachting
+                icon: mdi:timer-sand
+                styles:
+                  card:
+                    - animation: blink 2s ease infinite
+              - value: "armed_home"
+                color: '#e37907'
+                name: Beveiliging ingeschakeld
+                icon: mdi:shield-lock
+              - operator: default
+                color: green
+                name: Huis is veilig
+                icon: mdi:shield-home
+          - type: custom:button-card
+            color_type: card
+            entity: input_boolean.emergency
+            tap_action:
+              action: call-service
+              service: script.false_alarm_emergency
+              confirmation:
+                text: Weet je zeker dat je de melding wil intrekken?
+            hold_action:
+              action: more-info
+            name: Noogeval
+            state:
+              - value: "on"
+                color: red
+                name: Emergency call - Klaas
+                icon: mdi:alert
+                styles:
+                  card:
+                    - animation: blink 2s ease infinite
+              - operator: default
+                color: green
+                name: Klaas is veilig
+                icon: mdi:shield-account
+      - type: vertical-stack
+        cards:
+          # Start scenes
+          - type: horizontal-stack
+            cards:
+              # Cooking
+              - type: picture-entity
+                entity: scene.koken
+                image: /local/images/cooking.png
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  service_data:
+                    entity_id: scene.koken
+              # Evening
+              - type: picture-entity
+                entity: scene.avond
+                image: /local/images/evening.png
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  service_data:
+                    entity_id: scene.avond
+              # Go to sleep
+              - type: picture-entity
+                name: Slapen
+                entity: input_boolean.go_to_sleep
+                state_image:
+                  "on": /local/images/sleeping_on.png
+                  "off": /local/images/sleeping_off.png
+                tap_action:
+                  action: toggle
+
+      # Extra explanation
+      - type: markdown
+        title: Google Assistant
+        content: |
+          **Ik wil koken** -> voor als je gaat koken.
+          **Het is avond** -> voor gedimde lampen in de avond.
+          **Ik wil morgen vroeg op** -> wakker worden met wekker.
+          **Ik spreek je morgen weer** -> slapen gaan zonder wekker.
+          **Goedemorgen** -> zodat HA weet dat je wakker bent.
+          **Kanaal X graag** (IFTTT) -> om TV van kanaal te veranderen.
+          **Zet TV aan/uit** -> om de tv aan of uit te doen.
+          **Ik pak me fiets en ga** -> om het huis af te sluiten.
+  ########## Stack 2 ###########
+  # Show the lights in house
+  - type: vertical-stack
+    cards:
+      - type: custom:banner-card
+        background: 'var(--primary-color)'
+        color: 'white'
+        heading:
+          - mdi:lightbulb-multiple-outline
+          - Lights
+        style: |
+          ha-card .heading {
+            font-size: 1.1rem;
+            font-weight: 500;
+          }
+      # Light slider groups
+      - type: entities
+        show_header_toggle: false
+        entities:
+          - type: custom:fold-entity-row
+            head: input_boolean.climate_automated
+            padding: 0
+            entities:
+              - input_number.temp_value_climate_high
+              - input_number.temp_value_climate_low
+          - type: custom:fold-entity-row
+            head: input_boolean.lights_automated
+            padding: 0
+            entities:
+              - input_number.brightness_dimmed
+              - input_number.brightness_normal
+              - type: custom:fold-entity-row
+                head:
+                  type: section
+                  label: Keuken & Hal
+                entities:
+                  - input_number.lux_value_kitchen_high
+                  - input_number.lux_value_kitchen_low
+              - type: custom:fold-entity-row
+                head:
+                  type: section
+                  label: Woonkamer
+                entities:
+                  - input_number.lux_value_living_high
+                  - input_number.lux_value_living_low
+          - type: divider
+          # Entree
+          - type: custom:fold-entity-row
+            head:
+              type: custom:slider-entity-row
+              entity: light.hall
+              toggle: true
+              hide_when_off: true
+            group_config:
+              secondary_info: last-changed
+            entities:
+              - light.hall_wardrobe
+              - light.hall_front_door
+              - light.hall_floor
+          # Kitchen
+          - type: custom:fold-entity-row
+            head:
+              type: custom:slider-entity-row
+              entity: light.kitchen
+              toggle: true
+              hide_when_off: true
+            group_config:
+              secondary_info: last-changed
+            entities:
+              - light.kitchen_fridge
+              - light.kitchen_cooker
+              - light.kitchen_floor
+          # Living room
+          - type: custom:fold-entity-row
+            head:
+              type: custom:slider-entity-row
+              entity: light.livingroom
+              toggle: true
+              hide_when_off: true
+            group_config:
+              secondary_info: last-changed
+            entities:
+              - light.livingroom_bed
+              - light.livingroom_radiator
+              - light.livingroom_floor
+          - type: divider
+          # Desk
+          - type: custom:fold-entity-row
+            head:
+              type: custom:slider-entity-row
+              entity: light.bureau
+              toggle: true
+              hide_when_off: true
+            entities:
+              # Desk light - above
+              - type: custom:fold-entity-row
+                head:
+                  type: custom:slider-entity-row
+                  entity: light.wled_workdesk
+                  toggle: true
+                  hide_when_off: true
+                group_config:
+                  secondary_info: last-changed
+                entities:
+                  - sensor.wled_workdesk_estimated_current
+              # Stellingkast
+              - type: custom:fold-entity-row
+                head:
+                  type: custom:slider-entity-row
+                  entity: light.stellingkast
+                  toggle: true
+                  hide_when_off: true
+                group_config:
+                  secondary_info: last-changed
+                entities:
+                  - light.desk_light_left_led_strip
+                  - light.desk_light_right_led_strip
+          # Specific colors for Shelving unit
+          - type: custom:rgb-light-card
+            entity: light.stellingkast
+            justify: center
+            colors:
+              # White
+              - rgb_color:
+                  - 255
+                  - 255
+                  - 255
+              # Orange
+              - rgb_color:
+                  - 255
+                  - 127
+                  - 0
+              # Light blue
+              - rgb_color:
+                  - 0
+                  - 191
+                  - 255
+          - type: divider
+          # Bathroom
+          - type: custom:slider-entity-row
+            entity: light.bathroom
+            toggle: true
+            hide_when_off: true
+      - type: horizontal-stack
+        cards:
+          - type: 'custom:button-card'
+            icon: mdi:desk
+            color: auto
+            color_type: card
+            tap_action:
+              action: call-service
+              service: scene.turn_on
+              service_data:
+                entity_id: scene.bureau_normal
+                transition: 1.5
+            name: Normal
+            styles:
+              card:
+                - font-size: 14px
+                - font-weight: bold
+          - type: 'custom:button-card'
+            icon: mdi:briefcase
+            color: auto
+            color_type: card
+            tap_action:
+              action: call-service
+              service: scene.turn_on
+              service_data:
+                entity_id: scene.bureau_work
+                transition: 1.5
+            name: Work
+            styles:
+              card:
+                - font-size: 14px
+                - font-weight: bold
+          - type: 'custom:button-card'
+            icon: mdi:party-popper
+            color: auto
+            color_type: card
+            tap_action:
+              action: call-service
+              service: scene.turn_on
+              service_data:
+                entity_id: scene.bureau_party
+                transition: 1.5
+            name: Party
+            styles:
+              card:
+                - font-size: 14px
+                - font-weight: bold
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+          - type: custom:time-picker-card
+            entity: input_datetime.alarm_wakeup
+          - type: entities
+            entities:
+              - sensor.klaas_samsung_s20_plus_volgende_alarm
+
+  ########## Stack 3 ###########
+  - type: vertical-stack
+    cards:
+      - type: custom:banner-card
+        background: 'var(--primary-color)'
+        color: 'white'
+        heading:
+          - mdi:home
+          - House
+        style: |
+          ha-card .heading {
+            font-size: 1.1rem;
+            font-weight: 500;
+          }
+      # Show door and window sensors
+      - type: custom:stack-in-card
+        mode: vertical
+        # title: Sensoren
+        cards:
+          - type: glance
+            columns: 3
+            entities:
+              - entity: binary_sensor.front_door_contact
+              - entity: binary_sensor.meter_cupboard
+              - entity: binary_sensor.home_motion_occupancy
+                name: Huis
+              - entity: binary_sensor.window_left_contact
+              - entity: binary_sensor.window_right_contact
+              - entity: binary_sensor.airco
+          - type: glance
+            title: Kledingkast
+            entities:
+              - entity: binary_sensor.wardrobe_left_contact
+                name: Links
+              - entity: binary_sensor.wardrobe_middle_contact
+                name: Midden
+              - entity: binary_sensor.wardrobe_right_contact
+                name: Rechts
+          - type: glance
+            title: Badkamer
+            entities:
+              - entity: binary_sensor.bathroom_door_contact
+                name: Deur
+              - entity: binary_sensor.bathroom_motion_occupancy
+                name: Badkamer
+              - entity: binary_sensor.shower
+          # Curtains
+          - type: 'custom:love-lock-card'
+            tite: Gordijnen
+            popup: confirm
+            cards:
+              - type: entities
+                title: Gordijnen
+                show_header_toggle: false
+                entities:
+                  - entity: cover.curtain_window
+                    name: Gordijn
+                  - entity: binary_sensor.curtain
+                    state_color: true
+                    name: Status van de gordijn
+
+  ########## Stack 4 ###########
+  # Temperature and humidity in house
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            entity: switch.airco
+            state_color: true
+            lock:
+              enabled: true
+          - type: gauge
+            entity: sensor.glow_house_power_consumption
+            name: Power usage
+            needle: true
+            max: 300
+            severity:
+              green: 0
+              yellow: 100
+              red: 150
+      - type: custom:swipe-card
+        cards:
+          - type: custom:mini-graph-card
+            name: Temperatuur
+            entities:
+              - entity: sensor.home_sensor_temperature
+                name: Huis
+            hours_to_show: 72
+            points_per_hour: 0.3
+            show:
+              fill: true
+              extrema: true
+            height: 75
+            animate: true
+            hour24: true
+            line_color: var(--primary-color)
+
+          - type: custom:mini-graph-card
+            name: Vochtigheid
+            entities:
+              - entity: sensor.home_sensor_humidity
+                name: Huis
+            hours_to_show: 72
+            points_per_hour: 0.3
+            show:
+              fill: true
+              extrema: true
+            height: 75
+            animate: true
+            hour24: true
+            line_color: var(--primary-color)
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:mini-graph-card
+            entities:
+              - entity: sensor.livingroom_light_sensor_illuminance_lux
+                name: Woonkamer
+            show:
+              fill: true
+              extrema: true
+            animate: true
+            hour24: true
+          - type: custom:mini-graph-card
+            entities:
+              - entity: sensor.kitchen_light_sensor_illuminance_lux
+                name: Keuken
+            show:
+              fill: true
+              extrema: true
+            animate: true
+            hour24: true

@@ -45,19 +45,6 @@
     dest: "{{ homepage_data_path }}/settings.yaml"
     mode: 0644
 
-- name: Ensure Nginx-proxy configured (Homepage)
-  template:
-    src: "{{ role_path }}/templates/conf.d/homepage.conf.j2"
-    dest: "{{ nginx_proxy_confd_path }}/homepage.conf"
-    mode: 0644
-  register: nginx_proxy_homepage_configured_result
-
-- name: Ensure systemd reloaded after homepage nginx-proxy configured
-  service:
-    name: nginx-proxy.service
-    state: restarted
-  when: nginx_proxy_homepage_configured_result.changed
-
 - name: Ensure Homepage.service installed
   template:
     src: "{{ role_path }}/templates/homepage/homepage.service.j2"

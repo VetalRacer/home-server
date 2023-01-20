@@ -5,7 +5,8 @@
 # those as more frequently out of date.
 
 # Nginx edition
-nginx_proxy_docker_image_template: "docker.io/nginx:__VERSION__"
+nginx_proxy_docker_image_template: "jwilder/nginx-proxy:__VERSION__"
+#nginx_proxy_docker_image_template: "docker.io/nginx:__VERSION__"
 nginx_proxy_docker_image: "{{ nginx_proxy_docker_image_template|replace('__VERSION__', nginx_proxy_docker_image_tag) }}"
 
 # A list of extra arguments to pass to the container

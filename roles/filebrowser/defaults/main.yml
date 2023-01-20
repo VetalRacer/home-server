@@ -1,0 +1,23 @@
+# Base directory that contains everything
+filebrowser_base_data_path: "{{ services_base_data_path }}/filebrowser"
+
+# FileBrowser edition
+filebrowser_docker_image_template: "filebrowser/filebrowser:__VERSION__"
+filebrowser_docker_image: "{{ filebrowser_docker_image_template|replace('__VERSION__', filebrowser_docker_image_tag) }}"
+
+# FileBrowser-related data
+filebrowser_data_path: "{{ filebrowser_base_data_path }}/data"
+
+# FileBrowser config data
+filebrowser_config_path: "{{ filebrowser_data_path }}/config"
+filebrowser_database_path: "{{ filebrowser_data_path }}/database"
+
+# FileBrowser global envs
+filebrowser_uid: "0"
+filebrowser_gid: "0"
+
+# FileBrowser services
+filebrowser_services_list: |
+  {{
+    (['filebrowser.service'])
+  }}

@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: filebrowser_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_filebrowser.yml"
+  when: filebrowser_installation_enabled|bool == true
+  tags:
+    - setup-filebrowser
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: filebrowser_installation_enabled|bool == true
+  tags:
+    - start

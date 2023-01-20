@@ -6,7 +6,7 @@
       You need to define a required configuration setting (`{{ item }}`) for using this role.
   when: "vars[item] == ''"
   with_items:
-    - "gitlab_server_hostname"
+    - "gitlab_service_hostname"
 #   - "gitlab_secrets_otp_key_base"
 #   - "gitlab_secrets_secret_key_base"
 #   - "gitlab_secrets_db_key_base"

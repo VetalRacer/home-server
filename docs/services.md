@@ -31,3 +31,9 @@ You can read more about configured [here](https://hub.docker.com/r/linuxserver/p
 A modern (fully static, fast), secure (fully proxied), highly customizable application dashboard with integrations for more than 25 services and translations for over 15 languages. Easily configured via YAML files (or discovery via docker labels)
 
 You can read more about configured [here](https://gethomepage.dev/en/installation/)
+
+# FileBrowser
+
+File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview, rename and edit your files. It allows the creation of multiple users and each user can have its own directory.
+
+You can read more about configured [here](https://filebrowser.org/)

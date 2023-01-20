@@ -9,7 +9,7 @@ SOURCE_BACKUP_DIR='{{ gitlab_source_backups_dir_path }}'
 TARGET_BACKUP_DIR='{{ gitlab_backup_directory }}'
 
 # Backup project name
-PROJECT='{{ gitlab_server_hostname }}'
+PROJECT='{{ gitlab_service_hostname }}'
 
 # Maximum number of backups stored on Yandex.Disk (0 - store all backups):
 MAX_BACKUPS_YANDEX='{{ gitlab_backup_yandex_days_to_keep }}'

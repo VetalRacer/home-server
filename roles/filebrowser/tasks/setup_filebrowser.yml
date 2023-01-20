@@ -1,0 +1,28 @@
+---
+
+- name: Ensure FileBrowser image is pulled
+  docker_image:
+    name: "{{ filebrowser_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure FileBrowser paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ filebrowser_data_path }}"
+
+- name: Ensure FileBrowser.service installed
+  template:
+    src: "{{ role_path }}/templates/filebrowser/filebrowser.service.j2"
+    dest: "/etc/systemd/system/filebrowser.service"
+    mode: 0644
+  register: filebrowser_systemd_service_result
+
+- name: Ensure systemd reloaded after filebrowser.service installation
+  service:
+    daemon_reload: yes
+  when: filebrowser_systemd_service_result.changed

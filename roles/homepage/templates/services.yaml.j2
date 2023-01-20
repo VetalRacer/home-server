@@ -6,7 +6,7 @@
 {% if plex_installation_enabled == true %}
     - Plex:
         icon: plex.png
-        href: http://plex.loc:32400
+        href: http://{{ plex_service_hostname }}
         description: Media server
         server: homeserver
         container: plex
@@ -20,7 +20,7 @@
 {% if transmission_installation_enabled == true %}
     - Transmission:
         icon: transmission.png
-        href: http://transmission.loc:9091
+        href: http://{{ transmission_service_hostname }}
         description: Torrent downloader
         server: homeserver
         container: transmission
@@ -30,12 +30,20 @@
           username: {{ transmission_username }}
           password: {{ transmission_password }}
 {% endif %}
+{% if filebrowser_installation_enabled == true %}
+    - FileBrowser:
+        icon: filebrowser.png
+        href: http://{{ filebrowser_service_hostname }}
+        description: Torrent downloader
+        server: homeserver
+        container: filebrowser
+{% endif %}
 
 - Services:
 {% if gitlab_installation_enabled == true %}
     - GitLab:
         icon: gitlab.png
-        href: http://gitlab.loc
+        href: http://{{ gitlab_service_hostname }}
         description: Development platform
         server: homeserver
         container: gitlab
@@ -48,7 +56,7 @@
         container: nginx-proxy
 {% endif %}
 {% if samba_installation_enabled == true %}
-    - Nginx-proxy:
+    - Samba:
         icon: files.png
         description: Fileshare service
         server: homeserver

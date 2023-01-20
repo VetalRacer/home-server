@@ -14,7 +14,9 @@ ExecStart={{ host_command_docker }} run --rm --name gitlab \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
 			--env TZ=Europe/Samara \
-			--hostname={{ gitlab_server_hostname }} \
+            --env VIRTUAL_HOST={{ gitlab_service_hostname }} \
+			--env VIRTUAL_PORT={{ gitlab_service_port }} \
+			--hostname={{ gitlab_service_hostname }} \
 			--env-file={{ gitlab_base_path }}/env-gitlab \
 			--volume {{ gitlab_config_dir_path }}:/etc/gitlab \
 			--volume {{ gitlab_data_dir_path }}:/var/opt/gitlab \

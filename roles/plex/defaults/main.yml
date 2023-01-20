@@ -13,9 +13,10 @@ plex_base_file_path: "{{ sharefolder_base_data_path }}/media"
 plex_tvseries_path: "{{ plex_base_file_path }}/tvseries"
 plex_movies_path: "{{ plex_base_file_path }}/movies"
 
-# Plex global envs
+# Plex envs
 plex_uid: "0"
 plex_gid: "0"
+plex_service_port: 32400
 
 # Plex services
 plex_services_list: |

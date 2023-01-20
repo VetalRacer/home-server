@@ -14,7 +14,8 @@ ExecStart=/usr/bin/docker run --rm --name homepage \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
 			--env TZ=Europe/Samara \
-            -p 3000:3000 \
+            --env VIRTUAL_HOST={{ homepage_service_hostname }} \
+            --env VIRTUAL_PORT={{ homepage_service_port }} \
             -v {{ homepage_data_path }}:/app/config \
             -v /datafolder:/datafolder \
             -v /var/run/docker.sock:/var/run/docker.sock \

@@ -21,6 +21,7 @@ ExecStart=/usr/bin/docker run --rm --name plex \
             --env PLEX_CLAIM={{ plex_claim }} \
             --env VIRTUAL_HOST={{ plex_service_hostname }} \
             --env VIRTUAL_PORT={{ plex_service_port }} \
+            -p 32400:32400 \
             -v {{ plex_data_path }}:/config \
             -v {{ plex_tvseries_path }}:/tv \
             -v {{ plex_movies_path }}:/movies \

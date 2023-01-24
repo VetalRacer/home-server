@@ -48,6 +48,18 @@
         server: homeserver
         container: gitlab
 {% endif %}
+{% if pihole_installation_enabled == true %}
+    - PiHole:
+        icon: pihole.png
+        href: http://{{ pihole_service_hostname }}
+        description: Development platform
+        server: homeserver
+        container: pihole
+        widget:
+          type: pihole
+          url: http://pihole:3080
+          key: d0420bca5add10af983b8532cfe3204885c498f0b1ed65d5fc9354052b5f860b
+{% endif %}
 {% if nginx_proxy_installation_enabled == true %}
     - Nginx-proxy:
         icon: nginx.png

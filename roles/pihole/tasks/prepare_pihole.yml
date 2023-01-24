@@ -1,0 +1,13 @@
+---
+
+- name: Stop and disable systemd-resolved service
+  service:
+    name: systemd-resolved
+    enabled: no
+    state: stopped
+
+- name: Ensure resolv.conf installed
+  template:
+    src: "{{ role_path }}/templates/resolv.conf.j2"
+    dest: "/etc/resolv.conf"
+    mode: 0777

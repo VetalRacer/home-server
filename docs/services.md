@@ -37,3 +37,9 @@ You can read more about configured [here](https://gethomepage.dev/en/installatio
 File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview, rename and edit your files. It allows the creation of multiple users and each user can have its own directory.
 
 You can read more about configured [here](https://filebrowser.org/)
+
+# Pi-hole
+
+Pi-hole is a Linux network-level advertisement and Internet tracker blocking application which acts as a DNS sinkhole and optionally a DHCP server, intended for use on a private network.
+
+You can read more about configured [here](https://github.com/pi-hole/docker-pi-hole) or [here](https://docs.pi-hole.net/)

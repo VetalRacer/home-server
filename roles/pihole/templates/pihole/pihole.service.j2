@@ -1,0 +1,37 @@
+[Unit]
+Description=Pihole service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill pihole 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm pihole 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name pihole \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ=Europe/Samara \
+            --env DNSMASQ_LISTENING=all \
+            --env WEBPASSWORD={{ pihole_service_webpassword }} \
+            --env WEB_PORT={{ pihole_service_port }} \
+            -p 53:53/tcp \
+            -p 53:53/udp \
+            -p 67:67/udp \
+            --env VIRTUAL_HOST={{ pihole_service_hostname }} \
+            --env VIRTUAL_PORT={{ pihole_service_port }} \
+            --hostname={{ pihole_service_hostname }} \
+            -v {{ pihole_data_path }}:/etc/pihole \
+            -v {{ pihole_dnsmasq_path }}:/etc/dnsmasq.d \
+			{{ pihole_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill pihole 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm pihole 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=pihole
+
+[Install]
+WantedBy=multi-user.target

@@ -15,6 +15,9 @@ homepage_weather_latitude: 53.241505
 homepage_weather_longitude: 50.221245
 homepage_weather_timezone: Europe/Samara
 
+# Homepage envs
+homepage_service_port: 3000
+
 # Homepage services
 homepage_services_list: |
   {{

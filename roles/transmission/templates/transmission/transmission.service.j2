@@ -20,9 +20,8 @@ ExecStart=/usr/bin/docker run --rm --name transmission \
             --env TRANSMISSION_WEB_HOME={{ transmission_theme }} \
             --env USER={{ transmission_username }} \
             --env PASS={{ transmission_password }} \
-            -p 9091:9091 \
-            -p 51413:51413 \
-            -p 51413:51413/udp \
+            --env VIRTUAL_HOST={{ transmission_service_hostname }} \
+            --env VIRTUAL_PORT={{ transmission_service_port }} \
             -v {{ transmission_data_path }}:/config \
             -v {{ transmission_file_path }}/downloads:/downloads \
             -v {{ transmission_file_path }}/watch:/watch \

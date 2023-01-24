@@ -21,6 +21,7 @@ gitlab_source_backups_dir_path: "{{ gitlab_data_dir_path }}/backups"
 
 gitlab_uid: "0"
 gitlab_gid: "0"
+gitlab_service_port: 80
 
 gitlab_puma_workers: 5
 gitlab_sidekiq_concurrency: 5
@@ -41,7 +42,7 @@ gitlab_projects_issues: true
 # - enabling TLS below (`gitlab_smtp_tls: true`)
 # - using `gitlab_smtp_authentication: login`, etc.
 gitlab_smtp_enabled: true
-gitlab_smtp_domain: "{{ gitlab_server_hostname }}"
+gitlab_smtp_domain: "{{ gitlab_service_hostname }}"
 gitlab_smtp_host: "gitlab-mailer"
 gitlab_smtp_port: 8025
 gitlab_smtp_tls: false
@@ -49,7 +50,7 @@ gitlab_smtp_user: ""
 gitlab_smtp_pass: ""
 gitlab_smtp_authentication: ""
 
-gitlab_email: "gitlab@{{ gitlab_server_hostname }}"
+gitlab_email: "gitlab@{{ gitlab_service_hostname }}"
 gitlab_email_reply_to: "{{ gitlab_email }}"
 
 # Required secrets (can be generated with something like `pwgen -Bsv1 64`)
@@ -144,7 +145,7 @@ gitlab_runner_container_image: "docker.io/gitlab/gitlab-runner:{{ gitlab_runner_
 #
 # With the definition below, we assume that `ansible_host` (coming from `inventory/hosts`) is a public IP address.
 # If not, override `gitlab_runner_container_add_host_ip_address`
-gitlab_runner_container_add_host_domain_name: "{{ gitlab_server_hostname }}"
+gitlab_runner_container_add_host_domain_name: "{{ gitlab_service_hostname }}"
 gitlab_runner_container_add_host_ip_address: "{{ ansible_host }}"
 gitlab_runner_docker_socket_path: /var/run/docker.sock
 
@@ -154,5 +155,5 @@ gitlab_runner_configuration_concurrent: 1
 # The interval length, in seconds, between new jobs check. If set to 0 or lower, a default value (3 seconds) is used.
 gitlab_runner_configuration_check_interval: 0
 gitlab_runner_configuration_log_level: info
-gitlab_runner_configuration_runners_name: runner.{{ gitlab_server_hostname }}
+gitlab_runner_configuration_runners_name: runner.{{ gitlab_service_hostname }}
 gitlab_runner_configuration_runners_token: ''

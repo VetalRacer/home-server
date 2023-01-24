@@ -15,6 +15,17 @@ samba_installation_enabled: true
 transmission_installation_enabled: true
 plex_installation_enabled: true
 homepage_installation_enabled: true
+filebrowser_installation_enabled: true
+pihole_installation_enabled: true
+
+# The fully-qualified name of your services (e.g. `gitlab.example.com`)
+gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
+samba_service_hostname: "samba.YOUR_DOMAIN_NAME_HERE"
+transmission_service_hostname: "transmission.YOUR_DOMAIN_NAME_HERE"
+plex_service_hostname: "plex.YOUR_DOMAIN_NAME_HERE"
+homepage_service_hostname: "homepage.YOUR_DOMAIN_NAME_HERE"
+filebrowser_service_hostname: "filebrowser.YOUR_DOMAIN_NAME_HERE"
+pihole_service_hostname: "pihole.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -39,10 +50,6 @@ sharefolder_base_data_path: "{{ base_data_path }}/sharefolder"
 # Gitlab root password
 gitlab_root_password: ''
 
-# Gitlab variables
-# The fully-qualified name of your Gitlab server (e.g. `gitlab.example.com`)
-gitlab_server_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
-
 # Gitlab service tag
 gitlab_docker_image_tag: "15.5.1-ee.0"
 gitlab_runner_image_tag: v15.1.1
@@ -62,9 +69,18 @@ plex_docker_image_tag: 1.30.0
 # Homepage service tag
 homepage_docker_image_tag: v0.5.9
 
+# FileBrowser service tag
+filebrowser_docker_image_tag: s6
+
+# Pihole service tag
+pihole_docker_image_tag: 2023.01.5
+
 # Transmission creds
 transmission_username: admin
 transmission_password: password
+
+# Pihole creds
+pihole_service_webpassword: admin
 
 # Plex settings
 plex_claim: ''

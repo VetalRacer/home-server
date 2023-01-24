@@ -15,19 +15,6 @@
   with_items:
     - "{{ transmission_data_path }}"
 
-- name: Ensure Nginx-proxy configured (Transmission)
-  template:
-    src: "{{ role_path }}/templates/conf.d/transmission.conf.j2"
-    dest: "{{ nginx_proxy_confd_path }}/transmission.conf"
-    mode: 0644
-  register: nginx_proxy_transmission_configured_result
-
-- name: Ensure systemd reloaded after transmission nginx-proxy configured
-  service:
-    name: nginx-proxy.service
-    state: restarted
-  when: nginx_proxy_transmission_configured_result.changed
-
 - name: Ensure Transmission.service installed
   template:
     src: "{{ role_path }}/templates/transmission/transmission.service.j2"

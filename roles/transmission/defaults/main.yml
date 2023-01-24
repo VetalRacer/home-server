@@ -11,10 +11,11 @@ transmission_data_path: "{{ transmission_base_data_path }}/data"
 # Transmission download data
 transmission_file_path: "{{ sharefolder_base_data_path }}/torrent"
 
-# Transmission global envs
+# Transmission envs
 transmission_theme: /transmission-web-control/
 transmission_uid: "0"
 transmission_gid: "0"
+transmission_service_port: 9091
 
 # Transmission services
 transmission_services_list: |

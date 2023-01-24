@@ -8,3 +8,5 @@
     - { role: transmission }
     - { role: plex }
     - { role: homepage }
+    - { role: filebrowser }
+    - { role: pihole }

@@ -1,0 +1,23 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: pihole_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/prepare_pihole.yml"
+  when: pihole_installation_enabled|bool == true
+  tags:
+    - setup-pihole
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_pihole.yml"
+  when: pihole_installation_enabled|bool == true
+  tags:
+    - setup-pihole
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: pihole_installation_enabled|bool == true
+  tags:
+    - start

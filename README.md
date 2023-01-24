@@ -23,6 +23,7 @@ This playbook sets up your server using the following Docker images:
 - [linuxserver/plex](https://hub.docker.com/r/linuxserver/plex) - the [linuxserver/plex](https://hub.docker.com/r/linuxserver/plex) Plex image.
 - [ghcr.io/benphelps/homepage](https://ghcr.io/benphelps/homepage) - the [benphelps/homepage](https://github.com/benphelps/homepage) Homepage image.
 - [filebrowser/filebrowser](https://hub.docker.com/r/filebrowser/filebrowser) - the [filebrowser/filebrowser](https://hub.docker.com/r/filebrowser/filebrowser) FileBrowser image.
+- [pihole/pihole](https://hub.docker.com/r/pihole/pihole) - the [pihole/pihole](https://hub.docker.com/r/pihole/pihole) Pi-hole image.
 
 
 ## Support

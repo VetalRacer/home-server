@@ -1,0 +1,19 @@
+# Base directory that contains everything
+pihole_base_data_path: "{{ services_base_data_path }}/pihole"
+
+# Pihole edition
+pihole_docker_image_template: "pihole/pihole:__VERSION__"
+pihole_docker_image: "{{ pihole_docker_image_template|replace('__VERSION__', pihole_docker_image_tag) }}"
+
+# Pihole-related data
+pihole_data_path: "{{ pihole_base_data_path }}/data"
+pihole_dnsmasq_path: "{{ pihole_base_data_path }}/dnsmasq"
+
+# Pihole envs
+pihole_service_port: 3080
+
+# Pihole services
+pihole_services_list: |
+  {{
+    (['pihole.service'])
+  }}

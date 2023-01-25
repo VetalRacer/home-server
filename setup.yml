@@ -10,3 +10,4 @@
     - { role: homepage }
     - { role: filebrowser }
     - { role: pihole }
+    - { role: ps3netsrv }

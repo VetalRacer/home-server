@@ -24,6 +24,7 @@ This playbook sets up your server using the following Docker images:
 - [ghcr.io/benphelps/homepage](https://ghcr.io/benphelps/homepage) - the [benphelps/homepage](https://github.com/benphelps/homepage) Homepage image.
 - [filebrowser/filebrowser](https://hub.docker.com/r/filebrowser/filebrowser) - the [filebrowser/filebrowser](https://hub.docker.com/r/filebrowser/filebrowser) FileBrowser image.
 - [pihole/pihole](https://hub.docker.com/r/pihole/pihole) - the [pihole/pihole](https://hub.docker.com/r/pihole/pihole) Pi-hole image.
+- [shawly/ps3netsrv](https://hub.docker.com/r/shawly/ps3netsrv) - the [shawly/ps3netsrv](https://hub.docker.com/r/shawly/ps3netsrv) ps3netsrv image.
 
 
 ## Support

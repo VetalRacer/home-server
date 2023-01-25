@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: ps3netsrv_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_ps3netsrv.yml"
+  when: ps3netsrv_installation_enabled|bool == true
+  tags:
+    - setup-ps3netsrv
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: ps3netsrv_installation_enabled|bool == true
+  tags:
+    - start

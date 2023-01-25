@@ -17,6 +17,7 @@ plex_installation_enabled: true
 homepage_installation_enabled: true
 filebrowser_installation_enabled: true
 pihole_installation_enabled: true
+ps3netsrv_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -75,12 +76,16 @@ filebrowser_docker_image_tag: s6
 # Pihole service tag
 pihole_docker_image_tag: 2023.01.5
 
+# ps3netsrv service tag
+ps3netsrv_docker_image_tag: v1.6.0
+
 # Transmission creds
 transmission_username: admin
 transmission_password: password
 
 # Pihole creds
 pihole_service_webpassword: admin
+pihole_apikey: ''
 
 # Plex settings
 plex_claim: ''

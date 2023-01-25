@@ -1,0 +1,18 @@
+---
+
+- name: Ensure systemd reloaded
+  service:
+    daemon_reload: yes
+
+- name: Ensure ps3netsrv services stopped
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items: "{{ ps3netsrv_services_list }}"
+
+- name: Ensure ps3netsrv services started
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items: "{{ ps3netsrv_services_list }}"

@@ -43,3 +43,9 @@ You can read more about configured [here](https://filebrowser.org/)
 Pi-hole is a Linux network-level advertisement and Internet tracker blocking application which acts as a DNS sinkhole and optionally a DHCP server, intended for use on a private network.
 
 You can read more about configured [here](https://github.com/pi-hole/docker-pi-hole) or [here](https://docs.pi-hole.net/)
+
+# ps3netsrv
+
+Is a server application used to stream content from a remote server to the PS3.
+
+You can read more about configured [here](https://github.com/shawly/docker-ps3netsrv) or [here](https://github.com/aldostools/webMAN-MOD/wiki/~-PS3-NET-Server)

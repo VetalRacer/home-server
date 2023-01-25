@@ -1,0 +1,28 @@
+---
+
+- name: Ensure ps3netsrv image is pulled
+  docker_image:
+    name: "{{ ps3netsrv_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure ps3netsrv paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ ps3netsrv_game_path }}"
+
+- name: Ensure ps3netsrv.service installed
+  template:
+    src: "{{ role_path }}/templates/ps3netsrv/ps3netsrv.service.j2"
+    dest: "/etc/systemd/system/ps3netsrv.service"
+    mode: 0644
+  register: ps3netsrv_systemd_service_result
+
+- name: Ensure systemd reloaded after ps3netsrv.service installation
+  service:
+    daemon_reload: yes
+  when: ps3netsrv_systemd_service_result.changed

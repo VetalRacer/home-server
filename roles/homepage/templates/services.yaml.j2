@@ -38,16 +38,6 @@
         server: homeserver
         container: filebrowser
 {% endif %}
-
-- Services:
-{% if gitlab_installation_enabled == true %}
-    - GitLab:
-        icon: gitlab.png
-        href: http://{{ gitlab_service_hostname }}
-        description: Development platform
-        server: homeserver
-        container: gitlab
-{% endif %}
 {% if pihole_installation_enabled == true %}
     - PiHole:
         icon: pihole.png
@@ -58,7 +48,17 @@
         widget:
           type: pihole
           url: http://pihole:3080
-          key: d0420bca5add10af983b8532cfe3204885c498f0b1ed65d5fc9354052b5f860b
+          key: {{ pihole_apikey }}
+{% endif %}
+
+- Services:
+{% if gitlab_installation_enabled == true %}
+    - GitLab:
+        icon: gitlab.png
+        href: http://{{ gitlab_service_hostname }}
+        description: Development platform
+        server: homeserver
+        container: gitlab
 {% endif %}
 {% if nginx_proxy_installation_enabled == true %}
     - Nginx-proxy:
@@ -73,4 +73,11 @@
         description: Fileshare service
         server: homeserver
         container: samba
+{% endif %}
+{% if ps3netsrv_installation_enabled == true %}
+    - ps3netsrv:
+        icon: stash.png
+        description: PS3 remote server
+        server: homeserver
+        container: ps3netsrv
 {% endif %}

@@ -49,3 +49,9 @@ You can read more about configured [here](https://github.com/pi-hole/docker-pi-h
 Is a server application used to stream content from a remote server to the PS3.
 
 You can read more about configured [here](https://github.com/shawly/docker-ps3netsrv) or [here](https://github.com/aldostools/webMAN-MOD/wiki/~-PS3-NET-Server)
+
+# Speedtest-Tracker
+
+This service runs a speedtest check every hour and graphs the results. The back-end is written in Laravel and the front-end uses React. It uses Ookla's Speedtest cli to get the data and uses Chart.js to plot the results.
+
+You can read more about configured [here](https://github.com/henrywhitaker3/Speedtest-Tracker) or [here](https://hub.docker.com/r/henrywhitaker3/speedtest-tracker)

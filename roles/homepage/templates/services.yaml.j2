@@ -34,7 +34,7 @@
     - FileBrowser:
         icon: filebrowser.png
         href: http://{{ filebrowser_service_hostname }}
-        description: Torrent downloader
+        description: Web filebrowser
         server: homeserver
         container: filebrowser
 {% endif %}
@@ -42,7 +42,7 @@
     - PiHole:
         icon: pihole.png
         href: http://{{ pihole_service_hostname }}
-        description: Development platform
+        description: Network-wide protection
         server: homeserver
         container: pihole
         widget:
@@ -50,6 +50,18 @@
           url: http://pihole:3080
           key: {{ pihole_apikey }}
 {% endif %}
+{% if speedtest_installation_enabled == true %}
+    - Speedtest:
+        icon: speedtest-tracker.png
+        href: http://{{ speedtest_service_hostname }}
+        description: Speedtest Tracking
+        server: homeserver
+        container: speedtest
+        widget:
+          type: speedtest
+          url: http://speedtest:80
+{% endif %}
+
 
 - Services:
 {% if gitlab_installation_enabled == true %}

@@ -11,3 +11,4 @@
     - { role: filebrowser }
     - { role: pihole }
     - { role: ps3netsrv }
+    - { role: speedtest-tracker }

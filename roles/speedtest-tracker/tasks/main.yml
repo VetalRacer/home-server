@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: speedtest_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_speedtest.yml"
+  when: speedtest_installation_enabled|bool == true
+  tags:
+    - setup-speedtest
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: speedtest_installation_enabled|bool == true
+  tags:
+    - start

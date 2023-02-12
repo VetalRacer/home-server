@@ -1,0 +1,23 @@
+# Base directory that contains everything
+speedtest_base_data_path: "{{ services_base_data_path }}/speedtest"
+
+# Speedtest-Tracker edition
+speedtest_docker_image_template: "henrywhitaker3/speedtest-tracker:__VERSION__"
+speedtest_docker_image: "{{ speedtest_docker_image_template|replace('__VERSION__', speedtest_docker_image_tag) }}"
+
+# Speedtest-Tracker-related data
+speedtest_data_path: "{{ speedtest_base_data_path }}/data"
+
+# Speedtest-Tracker config data
+speedtest_config_path: "{{ speedtest_data_path }}/config"
+speedtest_database_path: "{{ speedtest_data_path }}/database"
+
+# Speedtest-Tracker global envs
+speedtest_uid: "0"
+speedtest_gid: "0"
+
+# Speedtest-Tracker services
+speedtest_services_list: |
+  {{
+    (['speedtest.service'])
+  }}

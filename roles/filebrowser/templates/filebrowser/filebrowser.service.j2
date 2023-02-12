@@ -17,8 +17,8 @@ ExecStart=/usr/bin/docker run --rm --name filebrowser \
       --env VIRTUAL_HOST={{ filebrowser_service_hostname }} \
       -v /datafolder/sharefolder:/srv \
 #      -p 49080:80 \
-      -v {{ filebrowser_config_path }}:/database \
-      -v {{ filebrowser_database_path }}:/config \
+      -v {{ filebrowser_config_path }}:/config \
+      -v {{ filebrowser_database_path }}:/database \
       -e PUID={{ filebrowser_uid }} \
       -e PGID={{ filebrowser_gid }} \
 			{{ filebrowser_docker_image }}

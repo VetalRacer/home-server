@@ -1,0 +1,29 @@
+[Unit]
+Description=Speedtest-Tracker service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill speedtest 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm speedtest 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name speedtest \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ=Europe/Samara \
+      		--env VIRTUAL_HOST={{ speedtest_service_hostname }} \
+      		-v {{ speedtest_config_path }}:/config \
+      		-e OOKLA_EULA_GDPR=true \
+			{{ speedtest_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill speedtest 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm speedtest 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=speedtest
+
+[Install]
+WantedBy=multi-user.target

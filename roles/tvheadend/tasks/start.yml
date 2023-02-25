@@ -1,0 +1,18 @@
+---
+
+- name: Ensure systemd reloaded
+  service:
+    daemon_reload: yes
+
+- name: Ensure TVheadend services stopped
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items: "{{ tvheadend_services_list }}"
+
+- name: Ensure TVheadend services started
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items: "{{ tvheadend_services_list }}"

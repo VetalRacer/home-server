@@ -1,0 +1,29 @@
+[Unit]
+Description=MeTube service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill metube 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm metube 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name metube \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+      		--env VIRTUAL_HOST={{ metube_service_hostname }} \
+#			-p 8081:8081 \
+			-v {{ metube_downloads_path }}:/downloads \
+			{{ metube_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill metube 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm metube 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=metube
+
+[Install]
+WantedBy=multi-user.target

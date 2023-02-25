@@ -1,0 +1,15 @@
+# Base directory that contains everything
+metube_base_data_path: "{{ services_base_data_path }}/metube"
+
+# MeTube edition
+metube_docker_image_template: "alexta69/metube:__VERSION__"
+metube_docker_image: "{{ metube_docker_image_template|replace('__VERSION__', metube_docker_image_tag) }}"
+
+# MeTube media data
+metube_downloads_path: "{{ sharefolder_base_data_path }}/media/youtube/downloads"
+
+# MeTube services
+metube_services_list: |
+  {{
+    (['metube.service'])
+  }}

@@ -1,0 +1,26 @@
+# Base directory that contains everything
+tvheadend_base_data_path: "{{ services_base_data_path }}/tvheadend"
+
+# TVheadend edition
+tvheadend_docker_image_template: "lscr.io/linuxserver/tvheadend:__VERSION__"
+tvheadend_docker_image: "{{ tvheadend_docker_image_template|replace('__VERSION__', tvheadend_docker_image_tag) }}"
+
+# TVheadend-related data
+tvheadend_data_path: "{{ tvheadend_base_data_path }}/data"
+
+# TVheadend config data
+tvheadend_config_path: "{{ tvheadend_data_path }}/config"
+
+# TVheadend media data
+tvheadend_recordings_path: "{{ tvheadend_data_path }}/recordings"
+
+# TVheadend global envs
+tvheadend_uid: "1000"
+tvheadend_gid: "1000"
+tvheadend_service_port: 9981
+
+# TVheadend services
+tvheadend_services_list: |
+  {{
+    (['tvheadend.service'])
+  }}

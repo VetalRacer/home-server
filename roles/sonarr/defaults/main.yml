@@ -1,0 +1,26 @@
+# Base directory that contains everything
+sonarr_base_data_path: "{{ services_base_data_path }}/sonarr"
+
+# Sonarr edition
+sonarr_docker_image_template: "lscr.io/linuxserver/sonarr:__VERSION__"
+sonarr_docker_image: "{{ sonarr_docker_image_template|replace('__VERSION__', sonarr_docker_image_tag) }}"
+
+# Sonarr-related data
+sonarr_data_path: "{{ sonarr_base_data_path }}/data"
+
+# Sonarr config data
+sonarr_config_path: "{{ sonarr_data_path }}/config"
+
+# Sonarr media data
+sonarr_tv_path: "{{ sharefolder_base_data_path }}/media/movies"
+sonarr_downloads_path: "{{ sharefolder_base_data_path }}/torrent"
+
+# Sonarr global envs
+sonarr_uid: "0"
+sonarr_gid: "0"
+
+# Sonarr services
+sonarr_services_list: |
+  {{
+    (['sonarr.service'])
+  }}

@@ -19,6 +19,12 @@ filebrowser_installation_enabled: true
 pihole_installation_enabled: true
 ps3netsrv_installation_enabled: true
 speedtest_installation_enabled: true
+sonarr_installation_enabled: true
+radarr_installation_enabled: true
+jackett_installation_enabled: true
+overseerr_installation_enabled: true
+tvheadend_installation_enabled: true
+metube_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -29,6 +35,12 @@ homepage_service_hostname: "homepage.YOUR_DOMAIN_NAME_HERE"
 filebrowser_service_hostname: "filebrowser.YOUR_DOMAIN_NAME_HERE"
 pihole_service_hostname: "pihole.YOUR_DOMAIN_NAME_HERE"
 speedtest_service_hostname: "speedtest.YOUR_DOMAIN_NAME_HERE"
+sonarr_service_hostname: "sonarr.YOUR_DOMAIN_NAME_HERE"
+radarr_service_hostname: "radarr.YOUR_DOMAIN_NAME_HERE"
+jackett_service_hostname: "jackett.YOUR_DOMAIN_NAME_HERE"
+overseerr_service_hostname: "overseerr.YOUR_DOMAIN_NAME_HERE"
+tvheadend_service_hostname: "tvheadend.YOUR_DOMAIN_NAME_HERE"
+metube_service_hostname: "metube.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -83,6 +95,24 @@ ps3netsrv_docker_image_tag: v1.6.0
 
 # Speedtest-Tracker service tag
 speedtest_docker_image_tag: latest
+
+# Sonarr service tag
+sonarr_docker_image_tag: latest
+
+# Radarr service tag
+radarr_docker_image_tag: latest
+
+# Jakett service tag
+jackett_docker_image_tag: 0.20.3105
+
+# Overseerr service tag
+overseerr_docker_image_tag: latest
+
+# TVheadend service tag
+tvheadend_docker_image_tag: latest
+
+# MeTube service tag
+metube_docker_image_tag: 2023-02-18
 
 # Transmission creds
 transmission_username: admin

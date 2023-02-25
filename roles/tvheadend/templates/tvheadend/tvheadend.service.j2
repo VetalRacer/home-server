@@ -1,0 +1,35 @@
+[Unit]
+Description=TVheadend service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tvheadend 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tvheadend 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name tvheadend \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ=Europe/Samara \
+      		--env VIRTUAL_HOST={{ tvheadend_service_hostname }} \
+			--env VIRTUAL_PORT={{ tvheadend_service_port }} \
+			--env PUID={{ tvheadend_uid }} \
+  			--env PGID={{ tvheadend_gid }} \
+#			-p 9981:9981 \
+#			-p 9982:9982 \
+      		-v {{ tvheadend_config_path }}:/config \
+			-v {{ tvheadend_recordings_path }}:/recordings \
+			{{ tvheadend_docker_image }}
+
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tvheadend 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tvheadend 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=tvheadend
+
+[Install]
+WantedBy=multi-user.target

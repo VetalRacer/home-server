@@ -1,0 +1,22 @@
+# Base directory that contains everything
+overseerr_base_data_path: "{{ services_base_data_path }}/overseerr"
+
+# Overseerr edition
+overseerr_docker_image_template: "lscr.io/linuxserver/overseerr:__VERSION__"
+overseerr_docker_image: "{{ overseerr_docker_image_template|replace('__VERSION__', overseerr_docker_image_tag) }}"
+
+# Overseerr-related data
+overseerr_data_path: "{{ overseerr_base_data_path }}/data"
+
+# Overseerr config data
+overseerr_config_path: "{{ overseerr_data_path }}/config"
+
+# Overseerr global envs
+overseerr_uid: "0"
+overseerr_gid: "0"
+
+# Overseerr services
+overseerr_services_list: |
+  {{
+    (['overseerr.service'])
+  }}

@@ -1,0 +1,28 @@
+---
+
+- name: Ensure Radarr image is pulled
+  docker_image:
+    name: "{{ radarr_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure Radarr paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ radarr_data_path }}"
+
+- name: Ensure radarr.service installed
+  template:
+    src: "{{ role_path }}/templates/radarr/radarr.service.j2"
+    dest: "/etc/systemd/system/radarr.service"
+    mode: 0644
+  register: radarr_systemd_service_result
+
+- name: Ensure systemd reloaded after radarr.service installation
+  service:
+    daemon_reload: yes
+  when: radarr_systemd_service_result.changed

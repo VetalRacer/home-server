@@ -16,7 +16,7 @@ ExecStart=/usr/bin/docker run --rm --name nginx-proxy \
 			--env TZ=Europe/Samara \
 			-p 80:80 \
 			-v /var/run/docker.sock:/tmp/docker.sock:ro \
-#			-v {{ nginx_proxy_base_path }}/nginx.conf:/etc/nginx/nginx.conf:ro \
+			-v {{ nginx_proxy_base_path }}/nginx.conf:/etc/nginx/nginx.conf:ro \
 #			-v {{ nginx_proxy_data_path }}:/nginx-data:ro \
 #			-v {{ nginx_proxy_confd_path }}:/etc/nginx/conf.d:ro \
 {% for arg in nginx_proxy_container_extra_arguments %}

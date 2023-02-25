@@ -8,7 +8,7 @@ log_level = "{{ gitlab_runner_configuration_log_level }}"
 {% if gitlab_runner_configuration_runners_token %}
 [[runners]]
   name = {{ gitlab_runner_configuration_runners_name|to_json }}
-  url = "https://{{ gitlab_service_hostname }}"
+  url = "http://{{ gitlab_service_hostname }}"
   token = {{ gitlab_runner_configuration_runners_token|to_json }}
   executor = "docker"
   [runners.custom_build_dir]

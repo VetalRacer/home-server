@@ -55,3 +55,33 @@ You can read more about configured [here](https://github.com/shawly/docker-ps3ne
 This service runs a speedtest check every hour and graphs the results. The back-end is written in Laravel and the front-end uses React. It uses Ookla's Speedtest cli to get the data and uses Chart.js to plot the results.
 
 You can read more about configured [here](https://github.com/henrywhitaker3/Speedtest-Tracker) or [here](https://hub.docker.com/r/henrywhitaker3/speedtest-tracker)
+
+# Overseerr
+This is a request management and media discovery tool built to work with your existing Plex ecosystem.
+
+You can read more about configured [here](https://hub.docker.com/r/linuxserver/overseerr)
+
+# Sonarr
+This is a PVR for usenet and bittorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them. It can also be configured to automatically upgrade the quality of files already downloaded when a better quality format becomes available.
+
+You can read more about configured [here](https://hub.docker.com/r/linuxserver/overseerr)
+
+# Radarr
+A fork of Sonarr to work with movies à la Couchpotato.
+
+You can read more about configured [here](https://hub.docker.com/r/linuxserver/radarr)
+
+# Jackett
+Jackett works as a proxy server: it translates queries from apps (Sonarr, SickRage, CouchPotato, Mylar, etc) into tracker-site-specific http queries, parses the html response, then sends results back to the requesting software. This allows for getting recent uploads (like RSS) and performing searches. Jackett is a single repository of maintained indexer scraping & translation logic - removing the burden from other apps.
+
+You can read more about configured [here](https://hub.docker.com/r/linuxserver/jackett)
+
+# TVHeadend
+Tvheadend works as a proxy server: is a TV streaming server and recorder for Linux, FreeBSD and Android supporting DVB-S, DVB-S2, DVB-C, DVB-T, ATSC, ISDB-T, IPTV, SAT>IP and HDHomeRun as input sources. Tvheadend offers the HTTP (VLC, MPlayer), HTSP (Kodi, Movian) and SAT>IP streaming. Multiple EPG sources are supported (over-the-air DVB and ATSC including OpenTV DVB extensions, XMLTV, PyXML).
+
+You can read more about configured [here](https://hub.docker.com/r/linuxserver/tvheadend)
+
+# MeTube
+Web GUI for youtube-dl (using the yt-dlp fork) with playlist support. Allows you to download videos from YouTube and dozens of other sites (https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
+
+You can read more about configured [here](https://hub.docker.com/r/alexta69/metube)

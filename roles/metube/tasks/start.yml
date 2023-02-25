@@ -1,0 +1,18 @@
+---
+
+- name: Ensure systemd reloaded
+  service:
+    daemon_reload: yes
+
+- name: Ensure MeTube services stopped
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items: "{{ metube_services_list }}"
+
+- name: Ensure MeTube services started
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items: "{{ metube_services_list }}"

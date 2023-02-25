@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: metube_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_metube.yml"
+  when: metube_installation_enabled|bool == true
+  tags:
+    - setup-metube
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: metube_installation_enabled|bool == true
+  tags:
+    - start

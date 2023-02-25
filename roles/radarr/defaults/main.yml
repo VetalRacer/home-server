@@ -1,0 +1,26 @@
+# Base directory that contains everything
+radarr_base_data_path: "{{ services_base_data_path }}/radarr"
+
+# Radarr edition
+radarr_docker_image_template: "lscr.io/linuxserver/radarr:__VERSION__"
+radarr_docker_image: "{{ radarr_docker_image_template|replace('__VERSION__', radarr_docker_image_tag) }}"
+
+# Radarr-related data
+radarr_data_path: "{{ radarr_base_data_path }}/data"
+
+# Radarr config data
+radarr_config_path: "{{ radarr_data_path }}/config"
+
+# Sonarr media data
+radarr_tv_path: "{{ sharefolder_base_data_path }}/media/tvseries"
+radarr_downloads_path: "{{ sharefolder_base_data_path }}/torrent"
+
+# Radarr global envs
+radarr_uid: "0"
+radarr_gid: "0"
+
+# Radarr services
+radarr_services_list: |
+  {{
+    (['radarr.service'])
+  }}

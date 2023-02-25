@@ -12,7 +12,7 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm ps3netsrv 2
 
 ExecStart=/usr/bin/docker run --rm --name ps3netsrv \
 			--log-driver=none \
-			--env TZ=Europe/Samara \
+			--env TZ={{ timezone }} \
             -p {{ ps3netsrv_service_port }}:{{ ps3netsrv_service_port }} \
             -v {{ ps3netsrv_game_path }}:/games:rw \
             -e PUID={{ ps3netsrv_uid }} \

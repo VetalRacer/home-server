@@ -13,7 +13,7 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm filebrowser
 ExecStart=/usr/bin/docker run --rm --name filebrowser \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--env TZ=Europe/Samara \
+			--env TZ={{ timezone }} \
       --env VIRTUAL_HOST={{ filebrowser_service_hostname }} \
       -v /datafolder/sharefolder:/srv \
 #      -p 49080:80 \

@@ -15,6 +15,46 @@
           url: http://plex:32400
           key: {{ plex_apikey }}
 {% endif %}
+{% if overseerr_installation_enabled == true %}
+    - Overseerr:
+        icon: overseerr.png
+        href: http://{{ overseerr_service_hostname }}
+        description: Request TV Shows and Movies via WebUI
+        server: homeserver
+        container: overseerr
+{% endif %}
+{% if sonarr_installation_enabled == true %}
+    - Sonarr:
+        icon: sonarr.png
+        href: http://{{ sonarr_service_hostname }}
+        description: TV Shows Management
+        server: homeserver
+        container: sonarr
+{% endif %}
+{% if radarr_installation_enabled == true %}
+    - Radarr:
+        icon: radarr.png
+        href: http://{{ radarr_service_hostname }}
+        description: Movies Management
+        server: homeserver
+        container: radarr
+{% endif %}
+{% if tvheadend_installation_enabled == true %}
+    - TVHeadend:
+        icon: tvheadend.png
+        href: http://{{ tvheadend_service_hostname }}
+        description: TV Channels over LAN
+        server: homeserver
+        container: tvheadend
+{% endif %}
+{% if metube_installation_enabled == true %}
+    - MeTube:
+        icon: metube.png
+        href: http://{{ metube_service_hostname }}
+        description: Video Downloader WebUI
+        server: homeserver
+        container: metube
+{% endif %}
 
 - Tools:
 {% if transmission_installation_enabled == true %}
@@ -92,4 +132,12 @@
         description: PS3 remote server
         server: homeserver
         container: ps3netsrv
+{% endif %}
+{% if jackett_installation_enabled == true %}
+    - Jackett:
+        icon: jackett.png
+        href: http://{{ jackett_service_hostname }}
+        description: Movies and TV Shows indexer
+        server: homeserver
+        container: jackett
 {% endif %}

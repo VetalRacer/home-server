@@ -15,7 +15,7 @@
   with_items:
     - "{{ filebrowser_data_path }}"
 
-- name: Ensure FileBrowser.service installed
+- name: Ensure filebrowser.service installed
   template:
     src: "{{ role_path }}/templates/filebrowser/filebrowser.service.j2"
     dest: "/etc/systemd/system/filebrowser.service"

@@ -13,7 +13,7 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm gitlab-runn
 ExecStart={{ host_command_docker }} run --rm --name gitlab-runner \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--env TZ=Europe/Samara \
+			--env TZ={{ timezone }} \
 			--mount type=bind,src={{ gitlab_runner_docker_socket_path }},dst=/var/run/docker.sock \
 			--mount type=bind,src={{ gitlab_runner_config_path }},dst=/etc/gitlab-runner \
 			--add-host {{ gitlab_runner_container_add_host_domain_name }}:{{ gitlab_runner_container_add_host_ip_address }} \

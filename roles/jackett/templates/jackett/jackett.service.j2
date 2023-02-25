@@ -1,0 +1,34 @@
+[Unit]
+Description=Jackett service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill jackett 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm jackett 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name jackett \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+      		--env VIRTUAL_HOST={{ jackett_service_hostname }} \
+			--env PUID={{ jackett_uid }} \
+  			--env PGID={{ jackett_gid }} \
+  			--env AUTO_UPDATE={{ jackett_auto_update }} \
+			-p 9117:9117 \
+      		-v {{ jackett_config_path }}:/config \
+#			-v {{ jackett_blackhole }}:/downloads \
+			{{ jackett_docker_image }}
+
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill jackett 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm jackett 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=jackett
+
+[Install]
+WantedBy=multi-user.target

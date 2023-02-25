@@ -1,0 +1,32 @@
+[Unit]
+Description=Overseerr service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill overseerr 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm overseerr 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name overseerr \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+      		--env VIRTUAL_HOST={{ overseerr_service_hostname }} \
+			--env PUID={{ overseerr_uid }} \
+  			--env PGID={{ overseerr_gid }} \
+#			-p 5055:5055 \
+      		-v {{ overseerr_config_path }}:/config \
+			{{ overseerr_docker_image }}
+
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill overseerr 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm overseerr 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=overseerr
+
+[Install]
+WantedBy=multi-user.target

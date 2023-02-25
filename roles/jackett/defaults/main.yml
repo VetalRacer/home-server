@@ -1,0 +1,26 @@
+# Base directory that contains everything
+jackett_base_data_path: "{{ services_base_data_path }}/jackett"
+
+# Jackett edition
+jackett_docker_image_template: "lscr.io/linuxserver/jackett:__VERSION__"
+jackett_docker_image: "{{ jackett_docker_image_template|replace('__VERSION__', jackett_docker_image_tag) }}"
+
+# Jackett-related data
+jackett_data_path: "{{ jackett_base_data_path }}/data"
+
+# Jackett config data
+jackett_config_path: "{{ jackett_data_path }}/config"
+jackett_blackhole: "{{ sharefolder_base_data_path }}/torrent"
+
+# Jackett options
+jackett_auto_update: true
+
+# Jackett global envs
+jackett_uid: "1000"
+jackett_gid: "1000"
+
+# Jackett services
+jackett_services_list: |
+  {{
+    (['jackett.service'])
+  }}

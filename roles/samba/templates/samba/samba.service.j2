@@ -13,7 +13,7 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm samba 2>/de
 ExecStart=/usr/bin/docker run --rm --name samba \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--env TZ=Europe/Samara \
+			--env TZ={{ timezone }} \
 			--env SAMBA_LOG_LEVEL={{ samba_log_level }} \
 {% for share_folder in samba_share_folders %}
 			{{ share_folder }} \

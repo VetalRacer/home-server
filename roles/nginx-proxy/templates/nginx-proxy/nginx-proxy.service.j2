@@ -13,7 +13,7 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm nginx-proxy
 ExecStart=/usr/bin/docker run --rm --name nginx-proxy \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--env TZ=Europe/Samara \
+			--env TZ={{ timezone }} \
 			-p 80:80 \
 			-v /var/run/docker.sock:/tmp/docker.sock:ro \
 			-v {{ nginx_proxy_base_path }}/nginx.conf:/etc/nginx/nginx.conf:ro \

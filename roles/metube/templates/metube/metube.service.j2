@@ -13,7 +13,7 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm metube 2>/d
 ExecStart=/usr/bin/docker run --rm --name metube \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--env TZ=Europe/Samara \
+			--env TZ={{ timezone }} \
       		--env VIRTUAL_HOST={{ metube_service_hostname }} \
 #			-p 8081:8081 \
 			-v {{ metube_downloads_path }}:/downloads \

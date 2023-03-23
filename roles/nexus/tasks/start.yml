@@ -1,0 +1,18 @@
+---
+
+- name: Ensure systemd reloaded
+  service:
+    daemon_reload: yes
+
+- name: Ensure Nexus services stopped
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items: "{{ nexus_services_list }}"
+
+- name: Ensure Nexus services started
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items: "{{ nexus_services_list }}"

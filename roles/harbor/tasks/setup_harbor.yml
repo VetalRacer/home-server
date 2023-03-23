@@ -1,0 +1,28 @@
+---
+
+- name: Ensure Harbor image is pulled
+  docker_image:
+    name: "{{ harbor_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure Harbor paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: 200
+    group: 200
+  with_items:
+    - "{{ harbor_data_path }}"
+
+- name: Ensure harbor.service installed
+  template:
+    src: "{{ role_path }}/templates/harbor/harbor.service.j2"
+    dest: "/etc/systemd/system/harbor.service"
+    mode: 0644
+  register: harbor_systemd_service_result
+
+- name: Ensure systemd reloaded after harbor.service installation
+  service:
+    daemon_reload: yes
+  when: harbor_systemd_service_result.changed

@@ -1,0 +1,15 @@
+# Base directory that contains everything
+harbor_base_data_path: "{{ services_base_data_path }}/harbor"
+
+# Harbor edition
+harbor_docker_image_template: "sonatype/nexus3:__VERSION__"
+harbor_docker_image: "{{ harbor_docker_image_template|replace('__VERSION__', harbor_docker_image_tag) }}"
+
+# Harbor-related data
+harbor_data_path: "{{ harbor_base_data_path }}/data"
+
+# Harbor services
+harbor_services_list: |
+  {{
+    (['harbor.service'])
+  }}

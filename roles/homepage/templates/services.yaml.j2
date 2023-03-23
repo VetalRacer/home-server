@@ -104,14 +104,6 @@
 
 
 - Services:
-{% if gitlab_installation_enabled == true %}
-    - GitLab:
-        icon: gitlab.png
-        href: http://{{ gitlab_service_hostname }}
-        description: Development platform
-        server: homeserver
-        container: gitlab
-{% endif %}
 {% if nginx_proxy_installation_enabled == true %}
     - Nginx-proxy:
         icon: nginx.png
@@ -140,4 +132,36 @@
         description: Movies and TV Shows indexer
         server: homeserver
         container: jackett
+{% endif %}
+
+
+- Development:
+{% if gitlab_installation_enabled == true %}
+    - GitLab:
+        icon: gitlab.png
+        href: http://{{ gitlab_service_hostname }}
+        description: Development platform
+        server: homeserver
+        container: gitlab
+{% endif %}
+{% if grafana_installation_enabled == true %}
+    - Grafana:
+        icon: grafana.png
+        href: http://{{ grafana_service_hostname }}
+        description: Monitoring Service
+        server: homeserver
+        container: grafana
+        widget:
+          type: grafana
+          url: http://grafana:3000
+          username: {{ grafana_username }}
+          password: {{ grafana_password }}
+{% endif %}
+{% if nexus_installation_enabled == true %}
+    - Nexus:
+        icon: emqx.png
+        href: http://{{ nexus_service_hostname }}
+        description: Repository Manager
+        server: homeserver
+        container: nexus
 {% endif %}

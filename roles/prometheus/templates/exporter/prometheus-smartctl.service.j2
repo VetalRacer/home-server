@@ -1,0 +1,30 @@
+[Unit]
+Description=Prometheus-smartctl service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus-smartctl 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-smartctl 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name prometheus-smartctl \
+			--log-driver=none \
+			--privileged \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+			-p 9902:9902 \
+      		-v {{ prometheus_data_path }}:/etc/prometheus \
+			{{ prometheus_smartctl_exporter_docker_image }}
+
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus-smartctl 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-smartctl 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=prometheus-smartctl
+
+[Install]
+WantedBy=multi-user.target

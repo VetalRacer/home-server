@@ -1,0 +1,31 @@
+[Unit]
+Description=Prometheus-node service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus-node 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-node 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name prometheus-node \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+			-p 9100:9100 \
+			-v "/:/host:ro,rslave" \
+			{{ prometheus_node_exporter_docker_image }} \
+			--path.rootfs=/host
+
+
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus-node 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-node 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=prometheus-node
+
+[Install]
+WantedBy=multi-user.target

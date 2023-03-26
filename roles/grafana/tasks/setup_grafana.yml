@@ -1,0 +1,51 @@
+---
+
+- name: Ensure Grafana image is pulled
+  docker_image:
+    name: "{{ grafana_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure Grafana paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0770
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ grafana_data_path }}"
+    - "{{ grafana_config_path }}"
+    - "{{ grafana_data_path }}/dashboards"
+    - "{{ grafana_config_path }}/dashboards"
+    - "{{ grafana_config_path }}/datasources"
+
+- name: Ensure grafana dashboard config installed
+  template:
+    src: "{{ role_path }}/templates/dashboards/local.yml.j2"
+    dest: "{{ grafana_config_path }}/dashboards/local.yml"
+    mode: 0644
+
+- name: Ensure grafana datasources installed
+  template:
+    src: "{{ role_path }}/templates/dashboards/datasources.yml.j2"
+    dest: "{{ grafana_config_path }}/datasources/datasources.yml"
+    mode: 0644
+
+- name: Ensure grafana dashboards installed
+  copy:
+    src: "{{ role_path }}/templates/dashboards/{{ item }}.json"
+    dest: "{{ grafana_data_path }}/dashboards/{{ item }}.json"
+    mode: 0644
+  with_items: "{{ grafana_dashboards_list }}"
+
+- name: Ensure grafana.service installed
+  template:
+    src: "{{ role_path }}/templates/grafana/grafana.service.j2"
+    dest: "/etc/systemd/system/grafana.service"
+    mode: 0644
+  register: grafana_systemd_service_result
+
+- name: Ensure systemd reloaded after grafana.service installation
+  service:
+    daemon_reload: yes
+  when: grafana_systemd_service_result.changed

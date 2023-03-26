@@ -1,0 +1,23 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: prometheus_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_exporter.yml"
+  when: prometheus_installation_enabled|bool == true
+  tags:
+    - setup-exporter
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_prometheus.yml"
+  when: prometheus_installation_enabled|bool == true
+  tags:
+    - setup-prometheus
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: prometheus_installation_enabled|bool == true
+  tags:
+    - start

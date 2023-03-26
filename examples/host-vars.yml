@@ -25,6 +25,9 @@ jackett_installation_enabled: true
 overseerr_installation_enabled: true
 tvheadend_installation_enabled: true
 metube_installation_enabled: true
+nexus_installation_enabled: true
+grafana_installation_enabled: true
+prometheus_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -41,6 +44,9 @@ jackett_service_hostname: "jackett.YOUR_DOMAIN_NAME_HERE"
 overseerr_service_hostname: "overseerr.YOUR_DOMAIN_NAME_HERE"
 tvheadend_service_hostname: "tvheadend.YOUR_DOMAIN_NAME_HERE"
 metube_service_hostname: "metube.YOUR_DOMAIN_NAME_HERE"
+nexus_service_hostname: "nexus.YOUR_DOMAIN_NAME_HERE"
+grafana_service_hostname: "grafana.YOUR_DOMAIN_NAME_HERE"
+prometheus_service_hostname: "prometheus.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -82,7 +88,7 @@ transmission_docker_image_tag: version-3.00-r6
 plex_docker_image_tag: 1.30.0
 
 # Homepage service tag
-homepage_docker_image_tag: v0.5.9
+homepage_docker_image_tag: v0.6.9
 
 # FileBrowser service tag
 filebrowser_docker_image_tag: s6
@@ -114,9 +120,22 @@ tvheadend_docker_image_tag: latest
 # MeTube service tag
 metube_docker_image_tag: 2023-02-18
 
+# Nexus service tag
+nexus_docker_image_tag: 3.47.1
+
+# Grafana service tag
+grafana_docker_image_tag: 9.2.8
+
+# Prometheus service tag
+prometheus_docker_image_tag: latest
+
 # Transmission creds
 transmission_username: admin
-transmission_password: password
+transmission_password: admin
+
+# Grafana creds
+transmission_username: admin
+transmission_password: admin
 
 # Pihole creds
 pihole_service_webpassword: admin

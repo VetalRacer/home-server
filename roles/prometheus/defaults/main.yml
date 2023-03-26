@@ -1,0 +1,31 @@
+# Base directory that contains everything
+prometheus_base_data_path: "{{ services_base_data_path }}/prometheus"
+
+# Prometheus edition
+prometheus_docker_image_template: "prom/prometheus:__VERSION__"
+prometheus_docker_image: "{{ prometheus_docker_image_template|replace('__VERSION__', prometheus_docker_image_tag) }}"
+
+# Prometheus-related data
+prometheus_data_path: "{{ prometheus_base_data_path }}/data"
+prometheus_config_path: "{{ prometheus_base_data_path }}/config"
+
+# Exporters edition
+prometheus_node_exporter_docker_image: quay.io/prometheus/node-exporter:latest
+prometheus_smartctl_exporter_docker_image: matusnovak/prometheus-smartctl:latest
+prometheus_cadvisor_exporter_docker_image: gcr.io/cadvisor/cadvisor:latest
+
+# Exporter services
+exporter_services_list: |
+  {{
+    (['prometheus-smartctl.service'])
+    +
+    (['prometheus-node.service'])
+    +
+    (['prometheus-cadvisor.service'])
+  }}
+
+# Prometheus services
+prometheus_services_list: |
+  {{
+    (['prometheus.service'])
+  }}

@@ -1,0 +1,15 @@
+# Base directory that contains everything
+nexus_base_data_path: "{{ services_base_data_path }}/nexus"
+
+# Nexus edition
+nexus_docker_image_template: "sonatype/nexus3:__VERSION__"
+nexus_docker_image: "{{ nexus_docker_image_template|replace('__VERSION__', nexus_docker_image_tag) }}"
+
+# Nexus-related data
+nexus_data_path: "{{ nexus_base_data_path }}/data"
+
+# Nexus services
+nexus_services_list: |
+  {{
+    (['nexus.service'])
+  }}

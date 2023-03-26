@@ -1,0 +1,31 @@
+[Unit]
+Description=Prometheus service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name prometheus \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+      		--env VIRTUAL_HOST={{ prometheus_service_hostname }} \
+#			-p 9090:9090 \
+      		-v {{ prometheus_config_path }}:/etc/prometheus \
+			-v {{ prometheus_data_path }}:/prometheus \
+			{{ prometheus_docker_image }}
+
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=prometheus
+
+[Install]
+WantedBy=multi-user.target

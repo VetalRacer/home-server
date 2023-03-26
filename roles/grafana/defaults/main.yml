@@ -1,0 +1,34 @@
+# Base directory that contains everything
+grafana_base_data_path: "{{ services_base_data_path }}/grafana"
+
+# Grafana edition
+grafana_docker_image_template: "grafana/grafana:__VERSION__"
+grafana_docker_image: "{{ grafana_docker_image_template|replace('__VERSION__', grafana_docker_image_tag) }}"
+
+# Grafana-related data
+grafana_data_path: "{{ grafana_base_data_path }}/data"
+grafana_config_path: "{{ grafana_base_data_path }}/config"
+
+# Grafana dashboards
+grafana_dashboards_list: |
+  {{
+    (['smart'])
+    +
+    (['node'])
+    +
+    (['docker-containers'])
+    +
+    (['docker-host'])
+    +
+    (['monitor-services'])
+    +
+    (['mdadm'])
+    +
+    (['general'])
+  }}
+
+# Grafana services
+grafana_services_list: |
+  {{
+    (['grafana.service'])
+  }}

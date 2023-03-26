@@ -1,0 +1,35 @@
+[Unit]
+Description=Prometheus-cadvisor service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus-cadvisor 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-cadvisor 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name prometheus-cadvisor \
+			--log-driver=none \
+			--privileged \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+			--publish=8080:8080 \
+			--volume=/:/rootfs:ro \
+			--volume=/var/run:/var/run:ro \
+			--volume=/sys:/sys:ro \
+			--volume=/var/lib/docker/:/var/lib/docker:ro \
+			--volume=/dev/disk/:/dev/disk:ro \
+			--device=/dev/kmsg \
+			{{ prometheus_cadvisor_exporter_docker_image }}
+
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus-cadvisor 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-cadvisor 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=prometheus-cadvisor
+
+[Install]
+WantedBy=multi-user.target

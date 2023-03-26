@@ -156,4 +156,4 @@ gitlab_runner_configuration_concurrent: 1
 gitlab_runner_configuration_check_interval: 0
 gitlab_runner_configuration_log_level: info
 gitlab_runner_configuration_runners_name: runner.{{ gitlab_service_hostname }}
-gitlab_runner_configuration_runners_token: 'v1Tc3dns_USNHqKxk19p'
+gitlab_runner_configuration_runners_token: ''

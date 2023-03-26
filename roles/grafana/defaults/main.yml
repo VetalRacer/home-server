@@ -21,6 +21,10 @@ grafana_dashboards_list: |
     (['docker-host'])
     +
     (['monitor-services'])
+    +
+    (['mdadm'])
+    +
+    (['general'])
   }}
 
 # Grafana services

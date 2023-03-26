@@ -19,5 +19,5 @@
     - { role: tvheadend }
     - { role: metube }
     - { role: nexus }
-    - { role: grafana }
     - { role: prometheus }
+    - { role: grafana }

@@ -85,3 +85,18 @@ You can read more about configured [here](https://hub.docker.com/r/linuxserver/t
 Web GUI for youtube-dl (using the yt-dlp fork) with playlist support. Allows you to download videos from YouTube and dozens of other sites (https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 
 You can read more about configured [here](https://hub.docker.com/r/alexta69/metube)
+
+# Nexus
+Nexus3 Disaster Recovery (N3DR) is a tool that is capable of downloading all artifacts from a Nexus3 server and to migrate them to another one.
+
+You can read more about configured [here](https://hub.docker.com/r/sonatype/nexus3)
+
+# Prometheus
+Prometheus is a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts if some condition is observed to be true.
+
+You can read more about configured [here](https://hub.docker.com/r/prom/prometheus)
+
+# Grafana
+Grafana allows you to query, visualize, alert on and understand your metrics no matter where they are stored. Create, explore, and share dashboards with your team and foster a data-driven culture.
+
+You can read more about configured [here](https://hub.docker.com/r/grafana/grafana) or [here](https://github.com/grafana/grafana)

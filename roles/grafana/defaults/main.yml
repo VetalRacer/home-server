@@ -8,6 +8,8 @@ grafana_docker_image: "{{ grafana_docker_image_template|replace('__VERSION__', g
 # Grafana-related data
 grafana_data_path: "{{ grafana_base_data_path }}/data"
 grafana_config_path: "{{ grafana_base_data_path }}/config"
+grafana_config_dashboards_path: "{{ grafana_config_path }}/provisioning/dashboards"
+grafana_config_datasources_path: "{{ grafana_config_path }}/provisioning/datasources"
 
 # Grafana dashboards
 grafana_dashboards_list: |

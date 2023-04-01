@@ -1,0 +1,15 @@
+# Base directory that contains everything
+pgadmin_base_data_path: "{{ services_base_data_path }}/pgadmin"
+
+# pgAdmin edition
+pgadmin_docker_image_template: "dpage/pgadmin4:__VERSION__"
+pgadmin_docker_image: "{{ pgadmin_docker_image_template|replace('__VERSION__', pgadmin_docker_image_tag) }}"
+
+# pgAdmin-related data
+pgadmin_data_path: "{{ pgadmin_base_data_path }}/data"
+
+# pgAdmin services
+pgadmin_services_list: |
+  {{
+    (['pgadmin.service'])
+  }}

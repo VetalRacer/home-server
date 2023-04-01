@@ -16,7 +16,6 @@ ExecStart=/usr/bin/docker run --rm --name plex \
 			--env TZ={{ timezone }} \
             --env PUID={{ plex_uid }} \
             --env PGID={{ plex_gid }} \
-            --env TZ=Europe/London \
             --env VERSION=docker \
             --env PLEX_CLAIM={{ plex_claim }} \
             --env VIRTUAL_HOST={{ plex_service_hostname }} \

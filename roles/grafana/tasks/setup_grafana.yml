@@ -16,19 +16,25 @@
     - "{{ grafana_data_path }}"
     - "{{ grafana_config_path }}"
     - "{{ grafana_data_path }}/dashboards"
-    - "{{ grafana_config_path }}/dashboards"
-    - "{{ grafana_config_path }}/datasources"
+    - "{{ grafana_config_dashboards_path }}"
+    - "{{ grafana_config_datasources_path }}"
+
+- name: Ensure grafana.ini config installed
+  template:
+    src: "{{ role_path }}/templates/grafana/grafana.ini.j2"
+    dest: "{{ grafana_config_path }}/grafana.ini"
+    mode: 0644
 
 - name: Ensure grafana dashboard config installed
   template:
     src: "{{ role_path }}/templates/dashboards/local.yml.j2"
-    dest: "{{ grafana_config_path }}/dashboards/local.yml"
+    dest: "{{ grafana_config_dashboards_path }}/local.yml"
     mode: 0644
 
 - name: Ensure grafana datasources installed
   template:
     src: "{{ role_path }}/templates/dashboards/datasources.yml.j2"
-    dest: "{{ grafana_config_path }}/datasources/datasources.yml"
+    dest: "{{ grafana_config_datasources_path }}/datasources.yml"
     mode: 0644
 
 - name: Ensure grafana dashboards installed

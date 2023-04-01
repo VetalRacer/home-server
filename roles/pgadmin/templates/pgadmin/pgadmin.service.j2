@@ -1,0 +1,31 @@
+[Unit]
+Description=pgAdmin service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill pgadmin 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm pgadmin 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name pgadmin \
+			      --log-driver=none \
+			      --network={{ nginx_docker_network }} \
+			      -e TZ={{ timezone }} \
+            -e VIRTUAL_HOST={{ pgadmin_service_hostname }} \
+            -e PGADMIN_DEFAULT_EMAIL={{ pgadmin_user }} \
+            -e PGADMIN_DEFAULT_PASSWORD={{ pgadmin_password }} \
+#            -p 80:80 \
+            -v {{ pgadmin_data_path }}:/var/lib/pgadmin \
+			      {{ pgadmin_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill pgadmin 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm pgadmin 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=pgadmin
+
+[Install]
+WantedBy=multi-user.target

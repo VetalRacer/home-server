@@ -35,6 +35,8 @@ This playbook sets up your server using the following Docker images:
 - [sonatype/nexus3](https://hub.docker.com/r/sonatype/nexus3) - the [sonatype/nexus3](https://hub.docker.com/r/sonatype/nexus3) Nexus image.
 - [prom/prometheus](https://hub.docker.com/r/prom/prometheus) - the [prom/prometheus](https://hub.docker.com/r/prom/prometheus) Prometheus image.
 - [grafana/grafana](https://hub.docker.com/r/grafana/grafana) - the [grafana/grafana](https://hub.docker.com/r/grafana/grafana) Grafana image.
+- [postgres](https://hub.docker.com/_/postgres) - the [postgres](https://hub.docker.com/_/postgres) Postgres image.
+- [dpage/pgadmin4](https://hub.docker.com/r/dpage/pgadmin4) - the [dpage/pgadmin4](https://hub.docker.com/r/dpage/pgadmin4) pgAdmin image.
 
 ## Support
 

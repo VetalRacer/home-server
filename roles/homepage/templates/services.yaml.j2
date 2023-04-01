@@ -111,12 +111,27 @@
         server: homeserver
         container: nginx-proxy
 {% endif %}
+{% if prometheus_installation_enabled == true %}
+    - Prometheus:
+        icon: prometheus.png
+        href: http://{{ prometheus_service_hostname }}
+        description: Metrics service
+        server: homeserver
+        container: prometheus
+{% endif %}
 {% if samba_installation_enabled == true %}
     - Samba:
         icon: files.png
         description: Fileshare service
         server: homeserver
         container: samba
+{% endif %}
+{% if postgres_installation_enabled == true %}
+    - Postgres:
+        icon: postgres.png
+        description: SQL database
+        server: homeserver
+        container: postgres
 {% endif %}
 {% if ps3netsrv_installation_enabled == true %}
     - ps3netsrv:
@@ -156,6 +171,14 @@
           url: http://grafana:3000
           username: {{ grafana_username }}
           password: {{ grafana_password }}
+{% endif %}
+{% if pgadmin_installation_enabled == true %}
+    - pgAdmin:
+        icon: pgadmin.png
+        href: http://{{ pgadmin_service_hostname }}
+        description: GUI tool for Postgres
+        server: homeserver
+        container: pgadmin
 {% endif %}
 {% if nexus_installation_enabled == true %}
     - Nexus:

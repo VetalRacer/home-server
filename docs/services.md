@@ -100,3 +100,13 @@ You can read more about configured [here](https://hub.docker.com/r/prom/promethe
 Grafana allows you to query, visualize, alert on and understand your metrics no matter where they are stored. Create, explore, and share dashboards with your team and foster a data-driven culture.
 
 You can read more about configured [here](https://hub.docker.com/r/grafana/grafana) or [here](https://github.com/grafana/grafana)
+
+# Postgres
+Postgres is a free and open-source relational database management system (RDBMS) emphasizing extensibility and SQL compliance.
+
+You can read more about configured [here](https://hub.docker.com/_/postgres)
+
+# pgAdmin
+pgAdmin 4 is a web based administration tool for the PostgreSQL database. 
+
+You can read more about configured [here](https://www.pgadmin.org/support/list/)

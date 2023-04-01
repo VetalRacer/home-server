@@ -1,0 +1,15 @@
+# Base directory that contains everything
+postgres_base_data_path: "{{ services_base_data_path }}/postgres"
+
+# Postgres edition
+postgres_docker_image_template: "postgres:__VERSION__"
+postgres_docker_image: "{{ postgres_docker_image_template|replace('__VERSION__', postgres_docker_image_tag) }}"
+
+# Postgres-related data
+postgres_data_path: "{{ postgres_base_data_path }}/data"
+
+# Postgres services
+postgres_services_list: |
+  {{
+    (['postgres.service'])
+  }}

@@ -28,6 +28,8 @@ metube_installation_enabled: true
 nexus_installation_enabled: true
 grafana_installation_enabled: true
 prometheus_installation_enabled: true
+postgres_installation_enabled: true
+pgadmin_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -47,6 +49,8 @@ metube_service_hostname: "metube.YOUR_DOMAIN_NAME_HERE"
 nexus_service_hostname: "nexus.YOUR_DOMAIN_NAME_HERE"
 grafana_service_hostname: "grafana.YOUR_DOMAIN_NAME_HERE"
 prometheus_service_hostname: "prometheus.YOUR_DOMAIN_NAME_HERE"
+postgres_service_hostname: "postgres.YOUR_DOMAIN_NAME_HERE"
+pgadmin_service_hostname: "pgadmin.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -129,6 +133,12 @@ grafana_docker_image_tag: 9.2.8
 # Prometheus service tag
 prometheus_docker_image_tag: latest
 
+# Postgres service tag
+postgres_docker_image_tag: 15.2
+
+# pgAdmin service tag
+pgadmin_docker_image_tag: 6.21
+
 # Transmission creds
 transmission_username: admin
 transmission_password: admin
@@ -140,6 +150,14 @@ transmission_password: admin
 # Pihole creds
 pihole_service_webpassword: admin
 pihole_apikey: ''
+
+# Postgres creds
+postgres_user: admin
+postgres_password: admin
+
+# pgAdmin creds
+pgadmin_user: admin@localhost
+pgadmin_password: admin
 
 # Plex settings
 plex_claim: ''

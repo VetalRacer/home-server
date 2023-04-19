@@ -8,6 +8,16 @@ nexus_docker_image: "{{ nexus_docker_image_template|replace('__VERSION__', nexus
 # Nexus-related data
 nexus_data_path: "{{ nexus_base_data_path }}/data"
 
+# Nexus envs
+nexus_service_port: 8081
+
+# Nexus repository
+nexus_repository:
+  - url: proxy.nexus.loc
+    port: 49001
+  - url: registry.nexus.loc
+    port: 49002
+
 # Nexus services
 nexus_services_list: |
   {{

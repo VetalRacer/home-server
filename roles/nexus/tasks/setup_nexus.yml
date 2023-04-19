@@ -15,6 +15,19 @@
   with_items:
     - "{{ nexus_data_path }}"
 
+- name: Ensure Nginx-proxy configured (Nexus)
+  template:
+    src: "{{ role_path }}/templates/conf.d/nexus.conf.j2"
+    dest: "{{ nginx_proxy_confd_path }}/nexus.conf"
+    mode: 0644
+  register: nginx_proxy_plex_configured_result
+
+- name: Ensure systemd reloaded after plex nginx-proxy configured
+  service:
+    name: nginx-proxy.service
+    state: restarted
+  when: nginx_proxy_plex_configured_result.changed
+
 - name: Ensure nexus.service installed
   template:
     src: "{{ role_path }}/templates/nexus/nexus.service.j2"

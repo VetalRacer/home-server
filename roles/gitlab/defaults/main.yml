@@ -22,6 +22,7 @@ gitlab_source_backups_dir_path: "{{ gitlab_data_dir_path }}/backups"
 gitlab_uid: "0"
 gitlab_gid: "0"
 gitlab_service_port: 80
+gitlab_ssh_port: 22
 
 gitlab_puma_workers: 5
 gitlab_sidekiq_concurrency: 5

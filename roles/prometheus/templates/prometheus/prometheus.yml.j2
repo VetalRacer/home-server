@@ -39,3 +39,11 @@ scrape_configs:
   - job_name: "prometheus-cadvisor"
     static_configs:
       - targets: ["prometheus-cadvisor:8080"]
+
+  - job_name: "grafana-thinkpad-node"
+    static_configs:
+      - targets: ["grafana-thinkpad.loc:9100"]
+
+  - job_name: "grafana-thinkpad-runner"
+    static_configs:
+      - targets: ["grafana-thinkpad.loc:9252"]

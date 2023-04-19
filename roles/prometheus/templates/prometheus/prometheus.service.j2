@@ -15,7 +15,7 @@ ExecStart=/usr/bin/docker run --rm --name prometheus \
 			--network={{ nginx_docker_network }} \
 			--env TZ={{ timezone }} \
       		--env VIRTUAL_HOST={{ prometheus_service_hostname }} \
-#			-p 9090:9090 \
+			-p 9090:9090 \
       		-v {{ prometheus_config_path }}:/etc/prometheus \
 			-v {{ prometheus_data_path }}:/prometheus \
 			{{ prometheus_docker_image }}

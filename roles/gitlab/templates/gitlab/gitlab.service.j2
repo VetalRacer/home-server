@@ -16,6 +16,7 @@ ExecStart={{ host_command_docker }} run --rm --name gitlab \
 			--env TZ={{ timezone }} \
             --env VIRTUAL_HOST={{ gitlab_service_hostname }} \
 			--env VIRTUAL_PORT={{ gitlab_service_port }} \
+			-p {{ gitlab_ssh_port }}:{{ gitlab_ssh_port }} \
 			--hostname={{ gitlab_service_hostname }} \
 			--env-file={{ gitlab_base_path }}/env-gitlab \
 			--volume {{ gitlab_config_dir_path }}:/etc/gitlab \

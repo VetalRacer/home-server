@@ -1,0 +1,17 @@
+{% for repository in nexus_repository %}
+# {{ repository.url }}/
+upstream {{ repository.url }} {
+    ## Can be connected with "nginx-proxy" network
+    # nexus
+    server nexus:{{ repository.port }};
+}
+server {
+    server_name {{ repository.url }};
+    access_log /var/log/nginx/access.log vhost;
+    listen 80 ;
+    location / {
+        proxy_pass http://{{ repository.url }};
+    }
+}
+
+{% endfor %}

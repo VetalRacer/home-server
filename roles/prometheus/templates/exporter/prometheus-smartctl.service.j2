@@ -16,7 +16,6 @@ ExecStart=/usr/bin/docker run --rm --name prometheus-smartctl \
 			--network={{ nginx_docker_network }} \
 			--env TZ={{ timezone }} \
 			-p 9902:9902 \
-      		-v {{ prometheus_data_path }}:/etc/prometheus \
 			{{ prometheus_smartctl_exporter_docker_image }}
 
 

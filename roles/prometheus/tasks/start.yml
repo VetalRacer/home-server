@@ -4,13 +4,13 @@
   service:
     daemon_reload: yes
 
-- name: Ensure Prometheus services stopped
+- name: Ensure Exporter services stopped
   service:
     name: "{{ item }}"
     state: stopped
   with_items: "{{ exporter_services_list }}"
 
-- name: Ensure Prometheus services started
+- name: Ensure Exporter services started
   service:
     name: "{{ item }}"
     enabled: yes

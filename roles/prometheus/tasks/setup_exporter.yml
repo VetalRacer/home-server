@@ -8,6 +8,14 @@
   with_items: "{{ exporter_services_list }}"
   register: prometheus_exporter_systemd_service_result
 
+- name: Ensure blackbox_exporter configs installed
+  template:
+    src: "{{ role_path }}/templates/exporter/{{ item }}.j2"
+    dest: "{{ prometheus_blackbox_exporter_config_path }}/{{ item }}"
+    mode: 0644
+  with_items: "blackbox.yml"
+  register: prometheus_exporter_systemd_service_result
+
 - name: Ensure systemd reloaded after prometheus_exporter services installation
   service:
     daemon_reload: yes

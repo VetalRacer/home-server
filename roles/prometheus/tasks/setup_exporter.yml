@@ -1,5 +1,13 @@
 ---
 
+- name: Ensure Exporters paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0644
+  with_items:
+    - "{{ prometheus_blackbox_exporter_config_path }}"
+
 - name: Ensure prometheus_exporter services installed
   template:
     src: "{{ role_path }}/templates/exporter/{{ item }}.j2"

@@ -104,7 +104,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 7,
         "x": 0,
         "y": 1
@@ -129,7 +129,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(sum by(instance) (irate(node_cpu_seconds_total{instance=\"$node\",job=\"$job\", mode!=\"idle\"}[$__rate_interval])) / on(instance) group_left sum by (instance)((irate(node_cpu_seconds_total{instance=\"$node\",job=\"$job\"}[$__rate_interval])))) * 100",
+          "expr": "(sum by(instance) (irate(node_cpu_seconds_total{instance=\"$node\", mode!=\"idle\"}[$__rate_interval])) / on(instance) group_left sum by (instance)((irate(node_cpu_seconds_total{instance=\"$node\"}[$__rate_interval])))) * 100",
+          "format": "time_series",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -200,8 +201,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
+        "h": 6,
+        "w": 6,
         "x": 7,
         "y": 1
       },
@@ -229,7 +230,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "node_filesystem_size_bytes{instance=\"$node\",job=\"$job\",mountpoint=\"/\"} - node_filesystem_avail_bytes{instance=\"$node\",job=\"$job\",mountpoint=\"/\"}",
+          "expr": "node_filesystem_size_bytes{instance=\"$node\",mountpoint=\"/\"} - node_filesystem_avail_bytes{instance=\"$node\",mountpoint=\"/\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{mountpoint}}",
@@ -243,7 +244,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "node_filesystem_size_bytes{instance=\"$node\",job=\"$job\",mountpoint=\"/datafolder\"} - node_filesystem_avail_bytes{instance=\"$node\",job=\"$job\",mountpoint=\"/datafolder\"}",
+          "expr": "node_filesystem_size_bytes{instance=\"$node\",mountpoint=\"/datafolder\"} - node_filesystem_avail_bytes{instance=\"$node\",mountpoint=\"/datafolder\"}",
           "hide": false,
           "legendFormat": "{{mountpoint}}",
           "range": true,
@@ -312,9 +313,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 6,
-        "x": 14,
+        "x": 13,
         "y": 1
       },
       "id": 21,
@@ -345,7 +346,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "smartprom_temperature_celsius_raw",
+          "expr": "smartprom_temperature_celsius_raw{instance=\"$node\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -400,8 +401,8 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 4,
-        "x": 20,
+        "w": 5,
+        "x": 19,
         "y": 1
       },
       "hideTimeOverride": true,
@@ -429,8 +430,10 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "node_time_seconds{instance=\"$node\",job=\"$job\"} - node_boot_time_seconds{instance=\"$node\",job=\"$job\"}",
+          "editorMode": "code",
+          "expr": "node_time_seconds{instance=\"$node\"} - node_boot_time_seconds{instance=\"$node\"}",
           "intervalFactor": 1,
+          "range": true,
           "refId": "A",
           "step": 240
         }
@@ -480,7 +483,7 @@
       "gridPos": {
         "h": 2,
         "w": 2,
-        "x": 20,
+        "x": 19,
         "y": 3
       },
       "id": 9,
@@ -507,10 +510,12 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count(count(node_cpu_seconds_total{instance=\"$node\",job=\"$job\"}) by (cpu))",
+          "editorMode": "code",
+          "expr": "count(count(node_cpu_seconds_total{instance=\"$node\"}) by (cpu))",
           "interval": "",
           "intervalFactor": 1,
           "legendFormat": "",
+          "range": true,
           "refId": "A",
           "step": 240
         }
@@ -560,8 +565,8 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 2,
-        "x": 22,
+        "w": 3,
+        "x": 21,
         "y": 3
       },
       "id": 15,
@@ -588,8 +593,10 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "node_memory_MemTotal_bytes{instance=\"$node\",job=\"$job\"}",
+          "editorMode": "code",
+          "expr": "node_memory_MemTotal_bytes{instance=\"$node\"}",
           "intervalFactor": 1,
+          "range": true,
           "refId": "A",
           "step": 240
         }
@@ -651,9 +658,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
+        "h": 2,
+        "w": 5,
+        "x": 19,
         "y": 5
       },
       "id": 30,
@@ -759,7 +766,7 @@
         "h": 6,
         "w": 7,
         "x": 0,
-        "y": 8
+        "y": 7
       },
       "id": 3,
       "options": {
@@ -781,7 +788,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "node_memory_MemTotal_bytes{instance=\"$node\",job=\"$job\"} - node_memory_MemAvailable_bytes{instance=\"$node\",job=\"$job\"}",
+          "expr": "node_memory_MemTotal_bytes{instance=\"$node\"} - node_memory_MemAvailable_bytes{instance=\"$node\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -792,7 +799,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "node_memory_MemTotal_bytes{instance=\"$node\",job=\"$job\"}",
+          "expr": "node_memory_MemTotal_bytes{instance=\"$node\"}",
           "hide": false,
           "legendFormat": "__auto",
           "range": true,
@@ -866,9 +873,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 7,
+        "w": 6,
         "x": 7,
-        "y": 8
+        "y": 7
       },
       "id": 7,
       "links": [],
@@ -892,7 +899,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "100 - ((node_filesystem_avail_bytes{instance=\"$node\",job=\"$job\",mountpoint=\"/\"} * 100) / node_filesystem_size_bytes{instance=\"$node\",job=\"$job\",mountpoint=\"/\"})",
+          "expr": "100 - ((node_filesystem_avail_bytes{instance=\"$node\",mountpoint=\"/\"} * 100) / node_filesystem_size_bytes{instance=\"$node\",mountpoint=\"/\"})",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{mountpoint}}",
@@ -906,7 +913,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "100 - ((node_filesystem_avail_bytes{instance=\"$node\",job=\"$job\",mountpoint=\"/datafolder\"} * 100) / node_filesystem_size_bytes{instance=\"$node\",job=\"$job\",mountpoint=\"/datafolder\"})",
+          "expr": "100 - ((node_filesystem_avail_bytes{instance=\"$node\",mountpoint=\"/datafolder\"} * 100) / node_filesystem_size_bytes{instance=\"$node\",mountpoint=\"/datafolder\"})",
           "hide": false,
           "legendFormat": "{{mountpoint}}",
           "range": true,
@@ -925,25 +932,23 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-GrYlRd",
-            "seriesBy": "last"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMin": 3,
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 2,
-            "gradientMode": "scheme",
+            "fillOpacity": 10,
+            "gradientMode": "hue",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "smooth",
+            "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -959,10 +964,7 @@
               "mode": "off"
             }
           },
-          "decimals": 0,
           "mappings": [],
-          "max": 110,
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -975,41 +977,15 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "celsius"
-        },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "{__name__=\"node_hwmon_temp_celsius\", chip=\"thermal_thermal_zone0\", instance=\"prometheus-node:9100\", job=\"prometheus-node\", sensor=\"temp0\"}"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
           }
-        ]
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
         "w": 6,
-        "x": 14,
-        "y": 8
+        "x": 13,
+        "y": 7
       },
       "id": 22,
       "options": {
@@ -1017,7 +993,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -1031,7 +1007,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "node_hwmon_temp_celsius{instance=\"$node\",job=\"$job\",sensor=\"temp0\"}",
+          "expr": "node_hwmon_temp_celsius{instance=\"$node\",sensor=\"temp0\"}",
+          "format": "table",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1094,10 +1071,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
-        "y": 8
+        "h": 2,
+        "w": 5,
+        "x": 19,
+        "y": 7
       },
       "id": 32,
       "links": [],
@@ -1138,12 +1115,107 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Ping resources",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 19,
+        "y": 9
+      },
+      "id": 33,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "probe_duration_seconds",
+          "format": "time_series",
+          "legendFormat": "{{instance}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Ping",
+      "type": "timeseries"
+    },
+    {
       "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 13
       },
       "id": 19,
       "panels": [],
@@ -1169,7 +1241,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 15
+        "y": 14
       },
       "hiddenSeries": false,
       "id": 24,
@@ -1211,10 +1283,12 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{image!=\"\",container_label_org_label_schema_group=\"\"}[1m])) / scalar(count(node_cpu_seconds_total{mode=\"user\"})) * 100",
+          "editorMode": "code",
+          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{instance=\"$node\", image!=\"\",container_label_org_label_schema_group=\"\"}[1m])) / scalar(count(node_cpu_seconds_total{instance=\"$node\", mode=\"user\"})) * 100",
           "intervalFactor": 10,
           "legendFormat": "{{ name }}",
           "metric": "container_cpu_user_seconds_total",
+          "range": true,
           "refId": "A",
           "step": 10
         }
@@ -1270,7 +1344,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 15
+        "y": 14
       },
       "hiddenSeries": false,
       "id": 26,
@@ -1310,10 +1384,12 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum by (name)(container_memory_usage_bytes{image!=\"\",container_label_org_label_schema_group=\"\"})",
+          "editorMode": "code",
+          "expr": "sum by (name)(container_memory_usage_bytes{instance=\"$node\", image!=\"\",container_label_org_label_schema_group=\"\"})",
           "intervalFactor": 1,
           "legendFormat": "{{ name }}",
           "metric": "container_memory_usage",
+          "range": true,
           "refId": "A",
           "step": 1
         }
@@ -1369,7 +1445,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 20
       },
       "hiddenSeries": false,
       "id": 28,
@@ -1405,10 +1481,12 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "scalar(count(container_memory_usage_bytes{image!=\"\"}) > 0)",
+          "editorMode": "code",
+          "expr": "scalar(count(container_memory_usage_bytes{instance=\"$node\", image!=\"\"}) > 0)",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "containers",
+          "range": true,
           "refId": "A",
           "step": 2
         }
@@ -1455,41 +1533,14 @@
       {
         "current": {
           "selected": false,
-          "text": "prometheus-node",
-          "value": "prometheus-node"
+          "text": "home-server",
+          "value": "home-server"
         },
         "datasource": {
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(node_uname_info, job)",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Job",
-        "multi": false,
-        "name": "job",
-        "options": [],
-        "query": {
-          "query": "label_values(node_uname_info, job)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "prometheus-node:9100",
-          "value": "prometheus-node:9100"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
-        "definition": "label_values(node_uname_info{job=\"$job\"}, instance)",
+        "definition": "label_values(up, instance)",
         "hide": 0,
         "includeAll": false,
         "label": "Host:",
@@ -1497,11 +1548,11 @@
         "name": "node",
         "options": [],
         "query": {
-          "query": "label_values(node_uname_info{job=\"$job\"}, instance)",
+          "query": "label_values(up, instance)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
-        "regex": "",
+        "regex": "/.*-server/",
         "skipUrlSync": false,
         "sort": 1,
         "type": "query"
@@ -1519,6 +1570,7 @@
         "name": "DS_PROMETHEUS",
         "options": [],
         "query": "prometheus",
+        "queryValue": "",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1534,6 +1586,6 @@
   "timezone": "Europe/Samara",
   "title": "General Dashboard",
   "uid": "YGTBx5BVz",
-  "version": 2,
+  "version": 13,
   "weekStart": "monday"
 }

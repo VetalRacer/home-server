@@ -28,22 +28,69 @@ scrape_configs:
     static_configs:
       - targets: ["prometheus:9090"]
 
-  - job_name: "prometheus-smartctl"
+  # Home_server
+  - job_name: "prometheus-smartctl-home-server"
     static_configs:
       - targets: ["prometheus-smartctl:9902"]
+        labels:
+          instance: 'home-server'
 
-  - job_name: "prometheus-node"
+  - job_name: "prometheus-node-home-server"
     static_configs:
       - targets: ["prometheus-node:9100"]
+        labels:
+          instance: 'home-server'
 
-  - job_name: "prometheus-cadvisor"
+  - job_name: "prometheus-cadvisor-home-server"
     static_configs:
       - targets: ["prometheus-cadvisor:8080"]
+        labels:
+          instance: 'home-server'
 
-  - job_name: "grafana-thinkpad-node"
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets:
+        - 8.8.8.8
+        - ya.ru
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: prometheus-blackbox:9115  # This is your blackbox exporter.
+
+  # Grafana/Runner_server      
+  - job_name: "prometheus-node-grafana"
     static_configs:
       - targets: ["grafana-thinkpad.loc:9100"]
+        labels:
+          instance: 'grafana&runner-server'
 
-  - job_name: "grafana-thinkpad-runner"
+  - job_name: "prometheus-runner-grafana"
     static_configs:
       - targets: ["grafana-thinkpad.loc:9252"]
+        labels:
+          instance: 'grafana&runner-server'
+
+  # App_server
+  - job_name: "prometheus-smartctl-app-server"
+    static_configs:
+      - targets: ["app.loc:9902"]
+        labels:
+          instance: 'app-server'
+
+  - job_name: "prometheus-node-app-server"
+    static_configs:
+      - targets: ["app.loc:9100"]
+        labels:
+          instance: 'app-server'
+
+  - job_name: "prometheus-cadvisor-app-server"
+    static_configs:
+      - targets: ["app.loc:8080"]
+        labels:
+          instance: 'app-server'

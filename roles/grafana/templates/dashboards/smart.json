@@ -140,8 +140,9 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "smartprom_smart_passed",
+          "expr": "smartprom_smart_passed{instance=\"$node\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -349,8 +350,9 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "smartprom_reallocated_sector_ct_raw",
+          "expr": "smartprom_reallocated_sector_ct_raw{instance=\"$node\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -364,8 +366,9 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "smartprom_reported_uncorrect_raw",
+          "expr": "smartprom_reported_uncorrect_raw{instance=\"$node\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -379,8 +382,9 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "smartprom_command_timeout_raw",
+          "expr": "smartprom_command_timeout_raw{instance=\"$node\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -394,8 +398,9 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "smartprom_current_pending_sector_raw",
+          "expr": "smartprom_current_pending_sector_raw{instance=\"$node\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -409,8 +414,9 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "smartprom_offline_uncorrectable_raw",
+          "expr": "smartprom_offline_uncorrectable_raw{instance=\"$node\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -610,8 +616,9 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "smartprom_temperature_celsius_raw",
+          "expr": "smartprom_temperature_celsius_raw{instance=\"$node\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -625,8 +632,9 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "smartprom_power_cycle_count_raw",
+          "expr": "smartprom_power_cycle_count_raw{instance=\"$node\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -640,8 +648,9 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "smartprom_power_on_hours_raw",
+          "expr": "smartprom_power_on_hours_raw{instance=\"$node\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -836,7 +845,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "smartprom_temperature_celsius_raw",
+          "expr": "smartprom_temperature_celsius_raw{instance=\"$node\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -868,6 +877,33 @@
         "name": "Filters",
         "skipUrlSync": false,
         "type": "adhoc"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "home-server",
+          "value": "home-server"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(up, instance)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Host:",
+        "multi": false,
+        "name": "node",
+        "options": [],
+        "query": {
+          "query": "label_values(up, instance)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/.*-server/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
       },
       {
         "current": {
@@ -922,6 +958,6 @@
   "timezone": "Europe/Samara",
   "title": "SMART HDD|SSD",
   "uid": "hmXXiWPnk",
-  "version": 7,
+  "version": 8,
   "weekStart": "monday"
 }

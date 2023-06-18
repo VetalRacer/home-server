@@ -110,3 +110,8 @@ You can read more about configured [here](https://hub.docker.com/_/postgres)
 pgAdmin 4 is a web based administration tool for the PostgreSQL database. 
 
 You can read more about configured [here](https://www.pgadmin.org/support/list/)
+
+# MotionEye
+MotionEye is an online interface for the software motion, a video surveillance program with motion detection.
+
+You can read more about configured [here](https://github.com/motioneye-project/motioneye/tree/dev)

@@ -1,0 +1,19 @@
+# Base directory that contains everything
+motioneye_base_data_path: "{{ services_base_data_path }}/motioneye"
+
+# MotionEye edition
+motioneye_docker_image_template: "ccrisan/motioneye:__VERSION__"
+motioneye_docker_image: "{{ motioneye_docker_image_template|replace('__VERSION__', motioneye_docker_image_tag) }}"
+
+# MotionEye-related data
+motioneye_config_path: "{{ motioneye_base_data_path }}/config"
+motioneye_media_path: "{{ motioneye_base_data_path }}/media"
+
+# MotionEye envs
+motioneye_service_port: 8765
+
+# MotionEye services
+motioneye_services_list: |
+  {{
+    (['motioneye.service'])
+  }}

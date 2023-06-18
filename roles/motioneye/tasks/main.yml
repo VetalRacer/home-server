@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: motioneye_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_motioneye.yml"
+  when: motioneye_installation_enabled|bool == true
+  tags:
+    - setup-motioneye
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: motioneye_installation_enabled|bool == true
+  tags:
+    - start

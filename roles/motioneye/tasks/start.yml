@@ -1,0 +1,18 @@
+---
+
+- name: Ensure systemd reloaded
+  service:
+    daemon_reload: yes
+
+- name: Ensure MotionEye services stopped
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items: "{{ motioneye_services_list }}"
+
+- name: Ensure MotionEye services started
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items: "{{ motioneye_services_list }}"

@@ -70,6 +70,14 @@
           username: {{ transmission_username }}
           password: {{ transmission_password }}
 {% endif %}
+{% if motioneye_installation_enabled == true %}
+    - MotionEye:
+        icon: motioneye.png
+        href: http://{{ motioneye_service_hostname }}
+        description: NVR monitoring
+        server: homeserver
+        container: motioneye
+{% endif %}
 {% if filebrowser_installation_enabled == true %}
     - FileBrowser:
         icon: filebrowser.png
@@ -80,7 +88,7 @@
 {% endif %}
 {% if pihole_installation_enabled == true %}
     - PiHole:
-        icon: pihole.png
+        icon: pi-hole.png
         href: http://{{ pihole_service_hostname }}
         description: Network-wide protection
         server: homeserver

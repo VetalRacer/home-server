@@ -1,0 +1,29 @@
+---
+
+- name: Ensure MotionEye image is pulled
+  docker_image:
+    name: "{{ motioneye_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure MotionEye paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ motioneye_config_path }}"
+    - "{{ motioneye_media_path }}"
+
+- name: Ensure MotionEye.service installed
+  template:
+    src: "{{ role_path }}/templates/motioneye/motioneye.service.j2"
+    dest: "/etc/systemd/system/motioneye.service"
+    mode: 0644
+  register: motioneye_systemd_service_result
+
+- name: Ensure systemd reloaded after motioneye.service installation
+  service:
+    daemon_reload: yes
+  when: motioneye_systemd_service_result.changed

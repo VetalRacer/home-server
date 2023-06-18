@@ -23,3 +23,4 @@
     - { role: grafana }
     - { role: postgres }
     - { role: pgadmin }
+    - { role: motioneye }

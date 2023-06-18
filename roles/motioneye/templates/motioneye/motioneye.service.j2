@@ -1,0 +1,32 @@
+[Unit]
+Description=MotionEye service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=noMotionEye
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill motioneye 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm motioneye 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name motioneye \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+            -p 8081:8081 \
+			--env TZ={{ timezone }} \
+            --env VIRTUAL_HOST={{ motioneye_service_hostname }} \
+            --env VIRTUAL_PORT={{ motioneye_service_port }} \
+            --hostname={{ motioneye_service_hostname }} \
+            -v {{ motioneye_config_path }}:/etc/motioneye \
+            -v {{ motioneye_media_path }}:/var/lib/motioneye \
+			{{ motioneye_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill motioneye 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm motioneye 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=motioneye
+
+[Install]
+WantedBy=multi-user.target

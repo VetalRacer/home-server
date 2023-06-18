@@ -30,6 +30,7 @@ grafana_installation_enabled: true
 prometheus_installation_enabled: true
 postgres_installation_enabled: true
 pgadmin_installation_enabled: true
+motioneye_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -51,6 +52,7 @@ grafana_service_hostname: "grafana.YOUR_DOMAIN_NAME_HERE"
 prometheus_service_hostname: "prometheus.YOUR_DOMAIN_NAME_HERE"
 postgres_service_hostname: "postgres.YOUR_DOMAIN_NAME_HERE"
 pgadmin_service_hostname: "pgadmin.YOUR_DOMAIN_NAME_HERE"
+motioneye_service_hostname: "motioneye.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -138,6 +140,9 @@ postgres_docker_image_tag: 15.2
 
 # pgAdmin service tag
 pgadmin_docker_image_tag: 6.21
+
+# MotionEye service tag
+motioneye_docker_image_tag: master-amd64
 
 # Transmission creds
 transmission_username: admin

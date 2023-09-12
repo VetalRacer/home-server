@@ -115,3 +115,8 @@ You can read more about configured [here](https://www.pgadmin.org/support/list/)
 MotionEye is an online interface for the software motion, a video surveillance program with motion detection.
 
 You can read more about configured [here](https://github.com/motioneye-project/motioneye/tree/dev)
+
+# Torrserver
+TorrServer, stream torrent to http.
+
+You can read more about configured [here](https://github.com/YouROK/TorrServer)

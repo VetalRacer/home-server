@@ -1,0 +1,18 @@
+# Base directory that contains everything
+torrserver_base_data_path: "{{ services_base_data_path }}/torrserver"
+
+# Torrserver edition
+torrserver_docker_image_template: "ghcr.io/yourok/torrserver:__VERSION__"
+torrserver_docker_image: "{{ torrserver_docker_image_template|replace('__VERSION__', torrserver_docker_image_tag) }}"
+
+# Torrserver-related data
+torrserver_data_path: "{{ torrserver_base_data_path }}/data"
+
+# Torrserver config data
+torrserver_config_path: "{{ torrserver_data_path }}/config"
+
+# Torrserver services
+torrserver_services_list: |
+  {{
+    (['torrserver.service'])
+  }}

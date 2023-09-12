@@ -63,18 +63,55 @@ scrape_configs:
       - target_label: __address__
         replacement: prometheus-blackbox:9115  # This is your blackbox exporter.
 
-  # Grafana/Runner_server      
-  - job_name: "prometheus-node-grafana"
+  # Grafana/Runner_server
+  - job_name: "prometheus-smartctl-grafana&runner-server"
+    static_configs:
+      - targets: ["grafana-thinkpad.loc:9902"]
+        labels:
+          instance: 'grafana&runner-server'
+
+  - job_name: "prometheus-node-grafana&runner"
     static_configs:
       - targets: ["grafana-thinkpad.loc:9100"]
         labels:
           instance: 'grafana&runner-server'
 
-  - job_name: "prometheus-runner-grafana"
+  - job_name: "prometheus-runner-grafana&runner"
     static_configs:
       - targets: ["grafana-thinkpad.loc:9252"]
         labels:
           instance: 'grafana&runner-server'
+
+  - job_name: "prometheus-cadvisor-grafana&runner-server"
+    static_configs:
+      - targets: ["grafana-thinkpad.loc:8080"]
+        labels:
+          instance: 'grafana&runner-server'
+
+  # MSI
+  - job_name: "prometheus-smartctl-msi-server"
+    static_configs:
+      - targets: ["msi.loc:9902"]
+        labels:
+          instance: 'msi-server'
+
+  - job_name: "prometheus-node-msi"
+    static_configs:
+      - targets: ["msi.loc:9100"]
+        labels:
+          instance: 'msi-server'
+
+  - job_name: "prometheus-runner-msi"
+    static_configs:
+      - targets: ["msi.loc:9252"]
+        labels:
+          instance: 'msi-server'
+
+  - job_name: "prometheus-cadvisor-msi-server"
+    static_configs:
+      - targets: ["msi.loc:8080"]
+        labels:
+          instance: 'msi-server'
 
   # App_server
   - job_name: "prometheus-smartctl-app-server"

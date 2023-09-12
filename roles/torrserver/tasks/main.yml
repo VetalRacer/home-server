@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: torrserver_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_torrserver.yml"
+  when: torrserver_installation_enabled|bool == true
+  tags:
+    - setup-torrserver
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: torrserver_installation_enabled|bool == true
+  tags:
+    - start

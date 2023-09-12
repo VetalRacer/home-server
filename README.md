@@ -38,6 +38,7 @@ This playbook sets up your server using the following Docker images:
 - [postgres](https://hub.docker.com/_/postgres) - the [postgres](https://hub.docker.com/_/postgres) Postgres image.
 - [dpage/pgadmin4](https://hub.docker.com/r/dpage/pgadmin4) - the [dpage/pgadmin4](https://hub.docker.com/r/dpage/pgadmin4) pgAdmin image.
 - [ccrisan/motioneye](https://hub.docker.com/r/ccrisan/motioneye) - the [ccrisan/motioneye](https://hub.docker.com/r/ccrisan/motioneye) MotionEye image.
+- [ghcr.io/yourok/torrserver](https://ghcr.io/yourok/torrserver) - the [yourok/torrserver](https://ghcr.io/yourok/torrserver) Torrserver image.
 
 ## Support
 

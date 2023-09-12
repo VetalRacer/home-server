@@ -1,0 +1,30 @@
+[Unit]
+Description=Torrserver service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill torrserver 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm torrserver 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name torrserver \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TS_HTTPAUTH=1 \
+			--env TS_DONTKILL=1 \
+			--env TZ={{ timezone }} \
+      		--env VIRTUAL_HOST={{ torrserver_service_hostname }} \
+			-v {{ torrserver_config_path }}:/opt/ts/config \
+			{{ torrserver_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill torrserver 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm torrserver 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=torrserver
+
+[Install]
+WantedBy=multi-user.target

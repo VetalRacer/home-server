@@ -1,0 +1,35 @@
+---
+
+- name: Ensure Torrserver image is pulled
+  docker_image:
+    name: "{{ torrserver_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure Torrserver paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ torrserver_data_path }}"
+    - "{{ torrserver_config_path }}"
+
+- name: Ensure accs.db config installed
+  template:
+    src: "{{ role_path }}/templates/torrserver/accs.db.j2"
+    dest: "{{ torrserver_config_path }}/accs.db"
+    mode: 0644
+
+- name: Ensure torrserver.service installed
+  template:
+    src: "{{ role_path }}/templates/torrserver/torrserver.service.j2"
+    dest: "/etc/systemd/system/torrserver.service"
+    mode: 0644
+  register: torrserver_systemd_service_result
+
+- name: Ensure systemd reloaded after torrserver.service installation
+  service:
+    daemon_reload: yes
+  when: torrserver_systemd_service_result.changed

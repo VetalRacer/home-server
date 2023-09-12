@@ -17,7 +17,6 @@ ExecStart=/usr/bin/docker run --rm --name pgadmin \
             -e VIRTUAL_HOST={{ pgadmin_service_hostname }} \
             -e PGADMIN_DEFAULT_EMAIL={{ pgadmin_user }} \
             -e PGADMIN_DEFAULT_PASSWORD={{ pgadmin_password }} \
-#            -p 80:80 \
             -v {{ pgadmin_data_path }}:/var/lib/pgadmin \
 			      {{ pgadmin_docker_image }}
 

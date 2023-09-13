@@ -11,6 +11,9 @@ torrserver_data_path: "{{ torrserver_base_data_path }}/data"
 # Torrserver config data
 torrserver_config_path: "{{ torrserver_data_path }}/config"
 
+# Torrserver envs
+torrserver_service_port: 8090
+
 # Torrserver services
 torrserver_services_list: |
   {{

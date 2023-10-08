@@ -120,3 +120,8 @@ You can read more about configured [here](https://github.com/motioneye-project/m
 TorrServer, stream torrent to http.
 
 You can read more about configured [here](https://github.com/YouROK/TorrServer)
+
+# TubeArchivist
+Your self hosted YouTube media server
+
+You can read more about configured [here](https://github.com/tubearchivist/tubearchivist) or [here](https://www.tubearchivist.com/)

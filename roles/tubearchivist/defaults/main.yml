@@ -1,0 +1,46 @@
+# Base directory that contains everything
+tubearchivist_base_data_path: "{{ services_base_data_path }}/tubearchivist"
+
+# TubeArchivist edition
+tubearchivist_docker_image_template: "bbilly1/tubearchivist:__VERSION__"
+tubearchivist_docker_image: "{{ tubearchivist_docker_image_template|replace('__VERSION__', tubearchivist_docker_image_tag) }}"
+
+# TubeArchivist-Redis edition
+tubearchivist_redis_docker_image_template: "redis/redis-stack-server:__VERSION__"
+tubearchivist_redis_docker_image: "{{ tubearchivist_redis_docker_image_template|replace('__VERSION__', tubearchivist_redis_docker_image_tag) }}"
+
+# TubeArchivist-ES edition
+tubearchivist_es_docker_image_template: "bbilly1/tubearchivist-es:__VERSION__"
+tubearchivist_es_docker_image: "{{ tubearchivist_es_docker_image_template|replace('__VERSION__', tubearchivist_es_docker_image_tag) }}"
+
+# TubeArchivist data
+tubearchivist_media: "{{ tubearchivist_base_data_path }}/media"
+tubearchivist_cache: "{{ tubearchivist_base_data_path }}/cache"
+
+# TubeArchivist-Redis data
+tubearchivist_redis_data: "{{ tubearchivist_base_data_path }}/redis"
+
+# TubeArchivist-ES data
+tubearchivist_es_data: "{{ tubearchivist_base_data_path }}/es"
+
+# TubeArchivist envs
+tubearchivist_uid: "1000"
+tubearchivist_gid: "1000"
+tubearchivist_es_host: "http://tubearchivist_es:9200"
+tubearchivist_redis_host: "tubearchivist_redis"
+
+# TubeArchivistRedis envs
+tubearchivist_redis_service_port: 6379
+
+# TubeArchivistES envs
+tubearchivist_es_service_port: 9200
+
+# TubeArchivist services
+tubearchivist_services_list: |
+  {{
+    (['tubearchivist.service'])
+    +
+    (['tubearchivist_redis.service'])
+    +
+    (['tubearchivist_es.service'])
+  }}

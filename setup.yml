@@ -24,4 +24,5 @@
     - { role: postgres }
     - { role: pgadmin }
     - { role: motioneye }
-    - { role: torrserver }    
+    - { role: torrserver }
+    - { role: tubearchivist }    

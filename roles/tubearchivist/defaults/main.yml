@@ -2,7 +2,7 @@
 tubearchivist_base_data_path: "{{ services_base_data_path }}/tubearchivist"
 
 # TubeArchivist edition
-tubearchivist_docker_image_template: "bbilly1/tubearchivist:__VERSION__"
+tubearchivist_docker_image_template: "vetalracer/tubearchivist:__VERSION__"
 tubearchivist_docker_image: "{{ tubearchivist_docker_image_template|replace('__VERSION__', tubearchivist_docker_image_tag) }}"
 
 # TubeArchivist-Redis edition

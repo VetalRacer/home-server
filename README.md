@@ -39,7 +39,7 @@ This playbook sets up your server using the following Docker images:
 - [dpage/pgadmin4](https://hub.docker.com/r/dpage/pgadmin4) - the [dpage/pgadmin4](https://hub.docker.com/r/dpage/pgadmin4) pgAdmin image.
 - [ccrisan/motioneye](https://hub.docker.com/r/ccrisan/motioneye) - the [ccrisan/motioneye](https://hub.docker.com/r/ccrisan/motioneye) MotionEye image.
 - [ghcr.io/yourok/torrserver](https://ghcr.io/yourok/torrserver) - the [yourok/torrserver](https://ghcr.io/yourok/torrserver) Torrserver image.
-- [bbilly1/tubearchivist](https://hub.docker.com/r/bbilly1/tubearchivist) - the [bbilly1/tubearchivistr](https://hub.docker.com/r/bbilly1/tubearchivist) TubeArchivist image.
+- [vetalracer/tubearchivist](https://hub.docker.com/r/vetalracer/tubearchivist) - the fork [bbilly1/tubearchivistr](https://hub.docker.com/r/bbilly1/tubearchivist) TubeArchivist image.
 
 ## Support
 

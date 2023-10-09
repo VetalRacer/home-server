@@ -1,0 +1,34 @@
+[Unit]
+Description=TubeArchivist_ES service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchivist_es 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist_es 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name tubearchivist_es \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+      		--env ELASTIC_PASSWORD={{ tubearchivist_es_password }} \
+      		--env "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+      		--env "xpack.security.enabled=true" \
+      		--env "discovery.type=single-node" \
+      		--env "path.repo=/usr/share/elasticsearch/data/snapshot" \
+			--ulimit memlock=-1:-1 \
+			-p {{ tubearchivist_es_service_port }}:{{ tubearchivist_es_service_port }} \
+			-v {{ tubearchivist_es_data }}:/usr/share/elasticsearch/data \
+			{{ tubearchivist_es_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchivist_es 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist_es 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=tubearchivist_es
+
+[Install]
+WantedBy=multi-user.target

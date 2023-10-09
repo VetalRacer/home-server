@@ -1,0 +1,60 @@
+---
+
+- name: Ensure TubeArchivist image is pulled
+  docker_image:
+    name: "{{ tubearchivist_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure TubeArchivist-Redis image is pulled
+  docker_image:
+    name: "{{ tubearchivist_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure TubeArchivist_ES image is pulled
+  docker_image:
+    name: "{{ tubearchivist_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure TubeArchivist paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ tubearchivist_media }}"
+    - "{{ tubearchivist_cache }}"
+
+- name: Ensure TubeArchivist_Redis paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ tubearchivist_redis_data }}"
+
+- name: Ensure TubeArchivist_ES paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: 1000
+    group: "root"
+  with_items:
+    - "{{ tubearchivist_es_data }}"
+
+- name: Ensure tubearchivist.service installed
+  template:
+    src: "{{ role_path }}/templates/tubearchivist/{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: 0644
+  with_items: "{{ tubearchivist_services_list }}"
+  register: tubearchivist_systemd_service_result
+
+- name: Ensure systemd reloaded after tubearchivist.service installation
+  service:
+    daemon_reload: yes
+  when: tubearchivist_systemd_service_result.changed

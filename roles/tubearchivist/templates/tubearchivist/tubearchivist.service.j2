@@ -1,0 +1,37 @@
+[Unit]
+Description=TubeArchivist service
+Requires=docker.service
+After=docker.service tubearchivist_redis.service tubearchivist_es.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchivist 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name tubearchivist \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+      		--env VIRTUAL_HOST={{ tubearchivist_service_hostname }} \
+			--env ES_URL={{ tubearchivist_es_host }} \
+      		--env REDIS_HOST={{ tubearchivist_redis_host }} \
+      		--env HOST_UID={{ tubearchivist_uid}} \
+      		--env HOST_GID={{ tubearchivist_gid }} \
+      		--env TA_HOST={{ tubearchivist_service_hostname }} \
+      		--env TA_USERNAME={{ tubearchivist_username }} \
+      		--env TA_PASSWORD={{ tubearchivist_password }} \
+      		--env ELASTIC_PASSWORD={{ tubearchivist_es_password }} \
+			-v {{ tubearchivist_media }}:/youtube \
+			-v {{ tubearchivist_cache }}:/cache \
+			{{ tubearchivist_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchivist 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=tubearchivist
+
+[Install]
+WantedBy=multi-user.target

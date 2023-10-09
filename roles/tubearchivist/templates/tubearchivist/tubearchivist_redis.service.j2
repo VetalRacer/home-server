@@ -1,0 +1,29 @@
+[Unit]
+Description=TubeArchivist_Redis service
+Requires=docker.service tubearchivist_es.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchivist_redis 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist_redis 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name tubearchivist_redis \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+			--env VIRTUAL_PORT={{ tubearchivist_redis_service_port }} \
+			-p 6379:6379 \
+			-v {{ tubearchivist_redis_data }}:/data \
+			{{ tubearchivist_redis_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchivist_redis 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist_redis 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=tubearchivist_redis
+
+[Install]
+WantedBy=multi-user.target

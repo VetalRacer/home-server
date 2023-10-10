@@ -15,13 +15,17 @@
           url: http://plex:32400
           key: {{ plex_apikey }}
 {% endif %}
-{% if torrserver_installation_enabled == true %}
-    - Torrserver:
-        icon: https://developer.asustor.com/uploadIcons/0020_131612_1639825715_torrserver.PNG
-        href: http://{{ torrserver_service_hostname }}
+{% if tubearchivist_installation_enabled == true %}
+    - TubeArchivist:
+        icon: https://git.tubearchivist.com/assets/img/tube-archivist-logo-dark.png
+        href: http://{{ tubearchivist_service_hostname }}
         description: Torrent stream server
         server: homeserver
-        container: torrserver
+        container: tubearchivist
+        widget:
+          type: tubearchivist
+          url: http://tubearchivist:8000
+          key: {{ tubearchivist_apikey }}
 {% endif %}
 {% if overseerr_installation_enabled == true %}
     - Overseerr:
@@ -126,6 +130,14 @@
         description: Reverse proxy server
         server: homeserver
         container: nginx-proxy
+{% endif %}
+{% if torrserver_installation_enabled == true %}
+    - Torrserver:
+        icon: https://developer.asustor.com/uploadIcons/0020_131612_1639825715_torrserver.PNG
+        href: http://{{ torrserver_service_hostname }}
+        description: Torrent stream server
+        server: homeserver
+        container: torrserver
 {% endif %}
 {% if prometheus_installation_enabled == true %}
     - Prometheus:

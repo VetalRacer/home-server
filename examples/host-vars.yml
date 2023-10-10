@@ -190,6 +190,13 @@ tubearchivist_es_password: verysecret
 plex_claim: ''
 plex_apikey: '' # see https://www.plexopedia.com/plex-media-server/general/plex-token/
 
+# Prometheus settings
+prometheus_retantion_time_enabled: false
+prometheus_retantion_time: 180d
+
+# TubeArchivist settings
+tubearchivist_apikey: ''
+
 # Required secrets (can be generated with something like `pwgen -Bsv1 64`)
 # We recommend encrypting the values using `ansible-vault encrypt_string`.
 gitlab_secrets_otp_key_base: ''

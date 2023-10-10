@@ -19,6 +19,12 @@ ExecStart=/usr/bin/docker run --rm --name prometheus \
       		-v {{ prometheus_config_path }}:/etc/prometheus \
 			-v {{ prometheus_data_path }}:/prometheus \
 			{{ prometheus_docker_image }}
+{% if prometheus_retantion_time_enabled == true %}
+			--storage.tsdb.retention.time={{ prometheus_retantion_time }} \
+            --config.file=/etc/prometheus/prometheus.yml \
+            --storage.tsdb.path=/prometheus
+{% endif %}
+
 
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus 2>/dev/null'

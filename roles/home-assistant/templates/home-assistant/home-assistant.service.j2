@@ -13,9 +13,11 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm home-assist
 ExecStart=/usr/bin/docker run --rm --name home-assistant \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--env TZ=Europe/Samara \
+			--env TZ={{ timezone }} \
             --privileged \
-            -p 8123:8123 \
+            --env VIRTUAL_HOST={{ home_assistant_service_hostname }} \
+			--env VIRTUAL_PORT={{ home_assistant_service_port }} \
+			-p {{ home_assistant_service_port }}:{{ home_assistant_service_port }} \
             -v {{ home_assistant_data_path }}:/config \
 			{{ home_assistant_docker_image }}
 

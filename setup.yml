@@ -1,11 +1,11 @@
 - hosts: home_server
   roles:
-    - { role: server-base }
-    - { role: raid }
-    - { role: nginx-proxy }
-    - { role: gitlab }
-    - { role: samba }
-    - { role: transmission }
-    - { role: plex }
-    - { role: homepage }
+    # - { role: server-base }
+    # - { role: raid }
+    # - { role: nginx-proxy }
+    # - { role: gitlab }
+    # - { role: samba }
+    # - { role: transmission }
+    # - { role: plex }
+    # - { role: homepage }
     - { role: home-assistant }

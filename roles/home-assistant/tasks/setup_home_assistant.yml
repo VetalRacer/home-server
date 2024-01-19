@@ -17,19 +17,6 @@
     - "{{ home_assistant_custom_components_path }}"
     - "{{ home_assistant_dashboards_path }}"
 
-- name: Ensure Nginx-proxy configured (Home-Assistants)
-  template:
-    src: "{{ role_path }}/templates/conf.d/home-assistant.conf.j2"
-    dest: "{{ nginx_proxy_confd_path }}/home-assistant.conf"
-    mode: 0644
-  register: nginx_proxy_home_assistant_configured_result
-
-- name: Ensure systemd reloaded after home-assistant nginx-proxy configured
-  service:
-    name: nginx-proxy.service
-    state: restarted
-  when: nginx_proxy_home_assistant_configured_result.changed
-
 - name: Ensure Home-Assistant configuration.yaml config
   template:
     src: "{{ role_path }}/templates/configuration.yaml.j2"

@@ -2,7 +2,7 @@
 home_assistant_base_data_path: "{{ services_base_data_path }}/home_assistant"
 
 # Home-Assistant edition
-home_assistant_docker_image_template: "ghcr.io/home-assistant/home-assistant:__VERSION__"
+home_assistant_docker_image_template: "homeassistant/home-assistant:__VERSION__"
 home_assistant_docker_image: "{{ home_assistant_docker_image_template|replace('__VERSION__', home_assistant_docker_image_tag) }}"
 
 # Home-Assistant-related data
@@ -30,3 +30,7 @@ home_assistant_integrations_list:
      tag: v3.11.0
 #   - repo: https://github.com/hacs/integration.git
 #     tag: main
+
+
+home_assistant_service_hostname: home-assistant.loc
+home_assistant_service_port: 8123

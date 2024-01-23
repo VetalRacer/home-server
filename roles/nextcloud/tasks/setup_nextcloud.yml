@@ -1,0 +1,28 @@
+---
+
+- name: Ensure Nextcloud image is pulled
+  docker_image:
+    name: "{{ nextcloud_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure Nextcloud paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: 33
+    group: 33
+  with_items:
+    - "{{ nextcloud_data_path }}"
+
+- name: Ensure nextcloud.service installed
+  template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud.service.j2"
+    dest: "/etc/systemd/system/nextcloud.service"
+    mode: 0644
+  register: nextcloud_systemd_service_result
+
+- name: Ensure systemd reloaded after nextcloud.service installation
+  service:
+    daemon_reload: yes
+  when: nextcloud_systemd_service_result.changed

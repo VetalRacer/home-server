@@ -125,3 +125,8 @@ You can read more about configured [here](https://github.com/YouROK/TorrServer)
 Your self hosted YouTube media server
 
 You can read more about configured [here](https://github.com/tubearchivist/tubearchivist) or [here](https://www.tubearchivist.com/)
+
+# Nextcloud
+Your self hosted Nextcloud server. A safe home for all your data. Access & share your files, calendars, contacts, mail & more from any device, on your terms.
+
+You can read more about configured [here](https://hub.docker.com/_/nextcloud) or [here](https://github.com/nextcloud/docker)

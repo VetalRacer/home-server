@@ -21,6 +21,10 @@ ExecStart=/usr/bin/docker run --rm --name nextcloud \
 			--env POSTGRES_PASSWORD={{ nextcloud_postgres_password }} \
 			--env NEXTCLOUD_ADMIN_PASSWORD={{ nextcloud_admin_password }} \
 			--env NEXTCLOUD_ADMIN_USER={{ nextcloud_admin_user }} \
+			--env APACHE_DISABLE_REWRITE_IP=1 \
+			--env TRUSTED_PROXIES={{ nextcloud_service_hostname }} \
+			--env NEXTCLOUD_TRUSTED_DOMAINS={{ nextcloud_service_hostname }} \
+			--env OVERWRITEHOST={{ nextcloud_service_hostname }} \
 			-v {{ nextcloud_main_path }}:/var/www/html \
 			-v {{ nextcloud_apps_path }}:/var/www/html/custom_apps \
 			-v {{ nextcloud_config_path }}:/var/www/html/config \

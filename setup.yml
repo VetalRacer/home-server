@@ -25,4 +25,5 @@
     - { role: pgadmin }
     - { role: motioneye }
     - { role: torrserver }
-    - { role: tubearchivist }    
+    - { role: tubearchivist }
+    - { role: nextcloud }

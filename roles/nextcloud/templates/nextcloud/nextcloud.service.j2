@@ -1,0 +1,37 @@
+[Unit]
+Description=Nextcloud service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill nextcloud 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm nextcloud 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name nextcloud \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+      		--env VIRTUAL_HOST={{ nextcloud_service_hostname }} \
+			--env POSTGRES_HOST={{ nextcloud_postgres_host }} \
+			--env POSTGRES_DB={{ nextcloud_postgres_db }} \
+			--env POSTGRES_USER={{ nextcloud_postgres_user }} \
+			--env POSTGRES_PASSWORD={{ nextcloud_postgres_password }} \
+			--env NEXTCLOUD_ADMIN_PASSWORD={{ nextcloud_admin_password }} \
+			--env NEXTCLOUD_ADMIN_USER={{ nextcloud_admin_user }} \
+			-v {{ nextcloud_main_path }}:/var/www/html \
+			-v {{ nextcloud_apps_path }}:/var/www/html/custom_apps \
+			-v {{ nextcloud_config_path }}:/var/www/html/config \
+			-v {{ nextcloud_data_path }}:/var/www/html/data \
+			{{ nextcloud_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill nextcloud 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm nextcloud 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=nextcloud
+
+[Install]
+WantedBy=multi-user.target

@@ -40,6 +40,7 @@ This playbook sets up your server using the following Docker images:
 - [ccrisan/motioneye](https://hub.docker.com/r/ccrisan/motioneye) - the [ccrisan/motioneye](https://hub.docker.com/r/ccrisan/motioneye) MotionEye image.
 - [ghcr.io/yourok/torrserver](https://ghcr.io/yourok/torrserver) - the [yourok/torrserver](https://ghcr.io/yourok/torrserver) Torrserver image.
 - [vetalracer/tubearchivist](https://hub.docker.com/r/vetalracer/tubearchivist) - the fork [bbilly1/tubearchivistr](https://hub.docker.com/r/bbilly1/tubearchivist) TubeArchivist image.
+- [nextcloud](https://hub.docker.com/_/nextcloud) - the [nextcloud](https://hub.docker.com/_/nextcloud) Nextcloud image.
 
 ## Support
 

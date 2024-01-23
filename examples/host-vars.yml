@@ -33,6 +33,7 @@ pgadmin_installation_enabled: true
 motioneye_installation_enabled: true
 torrserver_installation_enabled: true
 tubearchivist_installation_enabled: true
+nextcloud_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -57,6 +58,7 @@ pgadmin_service_hostname: "pgadmin.YOUR_DOMAIN_NAME_HERE"
 motioneye_service_hostname: "motioneye.YOUR_DOMAIN_NAME_HERE"
 torrserver_service_hostname: "torrserver.YOUR_DOMAIN_NAME_HERE"
 tubearchivist_service_hostname: "tubearchivist.YOUR_DOMAIN_NAME_HERE"
+nextcloud_service_hostname: "nextcloud.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -156,6 +158,9 @@ tubearchivist_docker_image_tag: v0.4.1
 tubearchivist_redis_docker_image_tag: 7.2.0-v2
 tubearchivist_es_docker_image_tag: 8.9.0
 
+# Nextcloud service tag
+nextcloud_docker_image_tag: 28.0.1
+
 # Transmission creds
 transmission_username: admin
 transmission_password: admin
@@ -185,6 +190,11 @@ tubearchivist_username: tubearchivist
 tubearchivist_password: verysecret
 tubearchivist_es_password: verysecret
 
+# Nextcloud creds
+nextcloud_postgres_user: nextcloud
+nextcloud_postgres_password: password
+nextcloud_admin_user: admin
+nextcloud_admin_password: password
 
 # Plex settings
 plex_claim: ''

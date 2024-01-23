@@ -1,0 +1,22 @@
+# Base directory that contains everything
+nextcloud_base_data_path: "{{ services_base_data_path }}/nextcloud"
+
+# Nextcloud edition
+nextcloud_docker_image_template: "nextcloud:__VERSION__"
+nextcloud_docker_image: "{{ nextcloud_docker_image_template|replace('__VERSION__', nextcloud_docker_image_tag) }}"
+
+# Nextcloud-related data
+nextcloud_main_path: "{{ nextcloud_base_data_path }}/main"
+nextcloud_apps_path: "{{ nextcloud_base_data_path }}/apps"
+nextcloud_config_path: "{{ nextcloud_base_data_path }}/config"
+nextcloud_data_path: "{{ nextcloud_base_data_path }}/data"
+
+# Nextcloud envs
+nextcloud_postgres_host: "postgres"
+nextcloud_postgres_db: "nextcloud"
+
+# Nextcloud services
+nextcloud_services_list: |
+  {{
+    (['nextcloud.service'])
+  }}

@@ -17,7 +17,7 @@
 {% endif %}
 {% if tubearchivist_installation_enabled == true %}
     - TubeArchivist:
-        icon: https://git.tubearchivist.com/assets/img/tube-archivist-logo-dark.png
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/tube-archivist.png
         href: http://{{ tubearchivist_service_hostname }}
         description: Torrent stream server
         server: homeserver
@@ -26,6 +26,14 @@
           type: tubearchivist
           url: http://tubearchivist:8000
           key: {{ tubearchivist_apikey }}
+{% endif %}
+{% if nextcloud_installation_enabled == true %}
+    - NextCloud:
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png
+        href: http://{{ nextcloud_service_hostname }}
+        description: Local cloud service
+        server: homeserver
+        container: nextcloud
 {% endif %}
 {% if overseerr_installation_enabled == true %}
     - Overseerr:
@@ -120,6 +128,14 @@
         widget:
           type: speedtest
           url: http://speedtest:80
+{% endif %}
+{% if whoogle_installation_enabled == true %}
+    - Whoogle:
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/whoogle.png
+        href: http://{{ whoogle_service_hostname }}
+        description: Whoogle search engine
+        server: homeserver
+        container: whoogle
 {% endif %}
 
 

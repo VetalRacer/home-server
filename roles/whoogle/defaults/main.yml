@@ -1,0 +1,12 @@
+# Base directory that contains everything
+whoogle_base_data_path: "{{ services_base_data_path }}/whoogle"
+
+# Whoogle edition
+whoogle_docker_image_template: "benbusby/whoogle-search:__VERSION__"
+whoogle_docker_image: "{{ whoogle_docker_image_template|replace('__VERSION__', whoogle_docker_image_tag) }}"
+
+# Whoogle services
+whoogle_services_list: |
+  {{
+    (['whoogle.service'])
+  }}

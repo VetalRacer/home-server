@@ -1,0 +1,27 @@
+[Unit]
+Description=Whoogle service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill whoogle 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm whoogle 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name whoogle \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+      		--env VIRTUAL_HOST={{ whoogle_service_hostname }} \
+			{{ whoogle_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill whoogle 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm whoogle 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=whoogle
+
+[Install]
+WantedBy=multi-user.target

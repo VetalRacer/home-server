@@ -1,0 +1,18 @@
+---
+
+- name: Ensure Whoogle image is pulled
+  docker_image:
+    name: "{{ whoogle_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure whoogle.service installed
+  template:
+    src: "{{ role_path }}/templates/whoogle/whoogle.service.j2"
+    dest: "/etc/systemd/system/whoogle.service"
+    mode: 0644
+  register: whoogle_systemd_service_result
+
+- name: Ensure systemd reloaded after whoogle.service installation
+  service:
+    daemon_reload: yes
+  when: whoogle_systemd_service_result.changed

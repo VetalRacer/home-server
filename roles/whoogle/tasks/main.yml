@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: whoogle_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_whoogle.yml"
+  when: whoogle_installation_enabled|bool == true
+  tags:
+    - setup-whoogle
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: whoogle_installation_enabled|bool == true
+  tags:
+    - start

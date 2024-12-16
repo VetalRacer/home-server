@@ -34,6 +34,7 @@ motioneye_installation_enabled: true
 torrserver_installation_enabled: true
 tubearchivist_installation_enabled: true
 nextcloud_installation_enabled: true
+whoogle_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -59,6 +60,7 @@ motioneye_service_hostname: "motioneye.YOUR_DOMAIN_NAME_HERE"
 torrserver_service_hostname: "torrserver.YOUR_DOMAIN_NAME_HERE"
 tubearchivist_service_hostname: "tubearchivist.YOUR_DOMAIN_NAME_HERE"
 nextcloud_service_hostname: "nextcloud.YOUR_DOMAIN_NAME_HERE"
+whoogle_service_hostname: "whoogle.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -160,6 +162,9 @@ tubearchivist_es_docker_image_tag: 8.9.0
 
 # Nextcloud service tag
 nextcloud_docker_image_tag: 28.0.1
+
+# Whoogle service tag
+whoogle_docker_image_tag: 0.8.4
 
 # Transmission creds
 transmission_username: admin

@@ -1,0 +1,18 @@
+---
+
+- name: Ensure systemd reloaded
+  service:
+    daemon_reload: yes
+
+- name: Ensure Whoogle services stopped
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items: "{{ whoogle_services_list }}"
+
+- name: Ensure Whoogle services started
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items: "{{ whoogle_services_list }}"

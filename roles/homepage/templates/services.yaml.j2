@@ -90,13 +90,13 @@
           username: {{ transmission_username }}
           password: {{ transmission_password }}
 {% endif %}
-{% if motioneye_installation_enabled == true %}
-    - MotionEye:
-        icon: motioneye.png
-        href: http://{{ motioneye_service_hostname }}
-        description: NVR monitoring
+{% if planka_installation_enabled == true %}
+    - Planka:
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/planka.png
+        href: http://{{ planka_service_hostname }}
+        description: Elegant open source project tracking
         server: homeserver
-        container: motioneye
+        container: planka
 {% endif %}
 {% if filebrowser_installation_enabled == true %}
     - FileBrowser:
@@ -105,6 +105,14 @@
         description: Web filebrowser
         server: homeserver
         container: filebrowser
+{% endif %}
+{% if whoogle_installation_enabled == true %}
+    - Whoogle:
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/whoogle.png
+        href: http://{{ whoogle_service_hostname }}
+        description: Whoogle search engine
+        server: homeserver
+        container: whoogle
 {% endif %}
 {% if pihole_installation_enabled == true %}
     - PiHole:
@@ -129,13 +137,13 @@
           type: speedtest
           url: http://speedtest:80
 {% endif %}
-{% if whoogle_installation_enabled == true %}
-    - Whoogle:
-        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/whoogle.png
-        href: http://{{ whoogle_service_hostname }}
-        description: Whoogle search engine
+{% if motioneye_installation_enabled == true %}
+    - MotionEye:
+        icon: motioneye.png
+        href: http://{{ motioneye_service_hostname }}
+        description: NVR monitoring
         server: homeserver
-        container: whoogle
+        container: motioneye
 {% endif %}
 
 

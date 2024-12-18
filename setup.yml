@@ -27,4 +27,5 @@
     - { role: torrserver }
     - { role: tubearchivist }
     - { role: nextcloud }
-    - { role: whoogle }   
+    - { role: whoogle }
+    - { role: planka }

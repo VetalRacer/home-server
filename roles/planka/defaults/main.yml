@@ -1,0 +1,22 @@
+# Base directory that contains everything
+planka_base_data_path: "{{ services_base_data_path }}/planka"
+
+# Planka edition
+planka_docker_image_template: "lscr.io/linuxserver/planka:__VERSION__"
+planka_docker_image: "{{ planka_docker_image_template|replace('__VERSION__', planka_docker_image_tag) }}"
+
+# Planka content data
+planka_config_path: "{{ planka_base_data_path }}/config"
+
+# Planka envs
+planka_service_port: 1337
+planka_uid: "1000"
+planka_gid: "1000"
+planka_postgres_host: "postgres"
+planka_postgres_db: "planka"
+
+# Planka services
+planka_services_list: |
+  {{
+    (['planka.service'])
+  }}

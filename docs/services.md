@@ -135,3 +135,8 @@ You can read more about configured [here](https://hub.docker.com/_/nextcloud) or
 Get Google search results, but without any ads, JavaScript, AMP links, cookies, or IP address tracking. Easily deployable in one click as a Docker app, and customizable with a single config file. Quick and simple to implement as a primary search engine replacement on both desktop and mobile.
 
 You can read more about configured [here](https://hub.docker.com/r/benbusby/whoogle-search) or [here](https://github.com/benbusby/whoogle-search)
+
+# Planka
+Elegant open source project tracking.
+
+You can read more about configured [here](https://hub.docker.com/r/linuxserver/planka) or [here](https://github.com/plankanban/planka)

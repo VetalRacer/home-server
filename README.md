@@ -42,6 +42,7 @@ This playbook sets up your server using the following Docker images:
 - [vetalracer/tubearchivist](https://hub.docker.com/r/vetalracer/tubearchivist) - the fork [bbilly1/tubearchivistr](https://hub.docker.com/r/bbilly1/tubearchivist) TubeArchivist image.
 - [nextcloud](https://hub.docker.com/_/nextcloud) - the [nextcloud](https://hub.docker.com/_/nextcloud) Nextcloud image.
 - [whoogle](https://hub.docker.com/r/benbusby/whoogle-search) - the [nextcloud](https://hub.docker.com/r/benbusby/whoogle-search) Whoogle image.
+- [planka](https://hub.docker.com/r/linuxserver/planka) - the [planka](https://hub.docker.com/r/linuxserver/planka) Planka image.
 
 
 ## Support

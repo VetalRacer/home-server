@@ -7,6 +7,7 @@ DefaultDependencies=no
 [Service]
 Type=simple
 Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c 'until pg_isready -h localhost -p 5432; do sleep 10; done'
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill planka 2>/dev/null'
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm planka 2>/dev/null'
 

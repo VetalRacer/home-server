@@ -5,6 +5,8 @@
     name:
       - apt-transport-https
       - ca-certificates
+      - postgresql-client
+      - postgresql-client-common
     state: present
     update_cache: yes
 

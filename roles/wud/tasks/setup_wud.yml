@@ -1,0 +1,18 @@
+---
+
+- name: Ensure WUD image is pulled
+  docker_image:
+    name: "{{ wud_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure wud.service installed
+  template:
+    src: "{{ role_path }}/templates/wud/wud.service.j2"
+    dest: "/etc/systemd/system/wud.service"
+    mode: 0644
+  register: wud_systemd_service_result
+
+- name: Ensure systemd reloaded after wud.service installation
+  service:
+    daemon_reload: yes
+  when: wud_systemd_service_result.changed

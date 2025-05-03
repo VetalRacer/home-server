@@ -106,6 +106,14 @@
         server: homeserver
         container: filebrowser
 {% endif %}
+{% if wud_installation_enabled == true %}
+    - WUD:
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/wud.png
+        href: http://{{ wud_service_hostname }}
+        description: Keep your containers up-to-date!
+        server: homeserver
+        container: wud
+{% endif %}
 {% if whoogle_installation_enabled == true %}
     - Whoogle:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/whoogle.png

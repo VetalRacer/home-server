@@ -1,0 +1,18 @@
+---
+
+- name: Ensure systemd reloaded
+  service:
+    daemon_reload: yes
+
+- name: Ensure WUD services stopped
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items: "{{ wud_services_list }}"
+
+- name: Ensure WUD services started
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items: "{{ wud_services_list }}"

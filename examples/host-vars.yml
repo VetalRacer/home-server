@@ -36,6 +36,7 @@ tubearchivist_installation_enabled: true
 nextcloud_installation_enabled: true
 whoogle_installation_enabled: true
 planka_installation_enabled: true
+wud_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -63,6 +64,7 @@ tubearchivist_service_hostname: "tubearchivist.YOUR_DOMAIN_NAME_HERE"
 nextcloud_service_hostname: "nextcloud.YOUR_DOMAIN_NAME_HERE"
 whoogle_service_hostname: "whoogle.YOUR_DOMAIN_NAME_HERE"
 planka_service_hostname: "planka.YOUR_DOMAIN_NAME_HERE"
+wud_service_hostname: "wud.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -171,6 +173,9 @@ whoogle_docker_image_tag: 0.8.4
 # Planka service tag
 planka_docker_image_tag: 1.24.3
 
+# WUD service tag
+wud_docker_image_tag: 8.0.1
+
 # Transmission creds
 transmission_username: admin
 transmission_password: admin
@@ -212,6 +217,10 @@ planka_postgres_password: password
 planka_default_admin_username: admin
 planka_default_admin_password: password
 planka_default_admin_email: "admin@planka.YOUR_DOMAIN_NAME_HERE"
+
+# WUD creds
+wud_lscr_username: username
+wud_lscr_token: usertoken
 
 # Plex settings
 plex_claim: ''

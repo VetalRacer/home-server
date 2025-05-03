@@ -1,0 +1,15 @@
+# Base directory that contains everything
+wud_base_data_path: "{{ services_base_data_path }}/wud"
+
+# WUD edition
+wud_docker_image_template: "getwud/wud:__VERSION__"
+wud_docker_image: "{{ wud_docker_image_template|replace('__VERSION__', wud_docker_image_tag) }}"
+
+# WUD-related data
+wud_store_path: "{{ wud_base_data_path }}/store"
+
+# WUD services
+wud_services_list: |
+  {{
+    (['wud.service'])
+  }}

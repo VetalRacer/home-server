@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: wud_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_wud.yml"
+  when: wud_installation_enabled|bool == true
+  tags:
+    - setup-wud
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: wud_installation_enabled|bool == true
+  tags:
+    - start

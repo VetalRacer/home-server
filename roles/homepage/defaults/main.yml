@@ -2,7 +2,7 @@
 homepage_base_data_path: "{{ services_base_data_path }}/homepage"
 
 # Homepage edition
-homepage_docker_image_template: "ghcr.io/benphelps/homepage:__VERSION__"
+homepage_docker_image_template: "ghcr.io/gethomepage/homepage:__VERSION__"
 homepage_docker_image: "{{ homepage_docker_image_template|replace('__VERSION__', homepage_docker_image_tag) }}"
 
 # Homepage-related data

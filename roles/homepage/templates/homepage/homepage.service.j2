@@ -16,6 +16,7 @@ ExecStart=/usr/bin/docker run --rm --name homepage \
 			--env TZ={{ timezone }} \
             --env VIRTUAL_HOST={{ homepage_service_hostname }} \
             --env VIRTUAL_PORT={{ homepage_service_port }} \
+            --env HOMEPAGE_ALLOWED_HOSTS={{ homepage_service_hostname }} \
             -v {{ homepage_data_path }}:/app/config \
             -v /datafolder:/datafolder \
             -v /var/run/docker.sock:/var/run/docker.sock \

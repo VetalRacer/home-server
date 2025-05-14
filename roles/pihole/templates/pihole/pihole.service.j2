@@ -14,9 +14,9 @@ ExecStart=/usr/bin/docker run --rm --name pihole \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
 			--env TZ={{ timezone }} \
-            --env DNSMASQ_LISTENING=all \
-            --env WEBPASSWORD={{ pihole_service_webpassword }} \
-            --env WEB_PORT={{ pihole_service_port }} \
+            --env FTLCONF_dns_listeningMode=all \
+            --env FTLCONF_webserver_api_password={{ pihole_service_webpassword }} \
+            --env FTLCONF_webserver_port={{ pihole_service_port }} \
             -p 53:53/tcp \
             -p 53:53/udp \
             -p 67:67/udp \

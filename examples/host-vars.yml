@@ -89,33 +89,33 @@ sharefolder_base_data_path: "{{ base_data_path }}/sharefolder"
 # Gitlab root password
 gitlab_root_password: ''
 
-# Gitlab service tag
+# Gitlab services tag
 gitlab_docker_image_tag: "15.5.1-ee.0"
 gitlab_runner_image_tag: v15.1.1
 
-# Samba service tag
+# Samba services tag
 samba_docker_image_tag: 0.0.1
 
-# Nginx service tag
-nginx_proxy_docker_image_tag: 1.23.0-alpine
+# Nginx services tag
+nginx_proxy_docker_image_tag: 1.7
 
 # Transmission service tag
-transmission_docker_image_tag: version-3.00-r6
+transmission_docker_image_tag: 4.0.6
 
 # Plex service tag
-plex_docker_image_tag: 1.30.0
+plex_docker_image_tag: 1.41.6
 
 # Homepage service tag
-homepage_docker_image_tag: v0.6.9
+homepage_docker_image_tag: v1.2.0
 
 # FileBrowser service tag
-filebrowser_docker_image_tag: s6
+filebrowser_docker_image_tag: v2.32.0-s6
 
 # Pihole service tag
-pihole_docker_image_tag: 2023.01.5
+pihole_docker_image_tag: 2025.04.0
 
 # ps3netsrv service tag
-ps3netsrv_docker_image_tag: v1.6.0
+ps3netsrv_docker_image_tag: v1.10
 
 # Speedtest-Tracker service tag
 speedtest_docker_image_tag: latest
@@ -127,7 +127,7 @@ sonarr_docker_image_tag: latest
 radarr_docker_image_tag: latest
 
 # Jakett service tag
-jackett_docker_image_tag: 0.20.3105
+jackett_docker_image_tag: 0.22.1857
 
 # Overseerr service tag
 overseerr_docker_image_tag: latest
@@ -136,7 +136,7 @@ overseerr_docker_image_tag: latest
 tvheadend_docker_image_tag: latest
 
 # MeTube service tag
-metube_docker_image_tag: 2023-02-18
+metube_docker_image_tag: 2025-05-01
 
 # Nexus service tag
 nexus_docker_image_tag: 3.47.1
@@ -151,13 +151,13 @@ prometheus_docker_image_tag: latest
 postgres_docker_image_tag: 15.2
 
 # pgAdmin service tag
-pgadmin_docker_image_tag: 6.21
+pgadmin_docker_image_tag: 9.3.0
 
 # MotionEye service tag
 motioneye_docker_image_tag: master-amd64
 
 # Torrserver service tag
-torrserver_docker_image_tag: matrix.125
+torrserver_docker_image_tag: MatriX.135
 
 # TubeArchivist service tag
 tubearchivist_docker_image_tag: v0.4.1
@@ -168,10 +168,10 @@ tubearchivist_es_docker_image_tag: 8.9.0
 nextcloud_docker_image_tag: 28.0.1
 
 # Whoogle service tag
-whoogle_docker_image_tag: 0.8.4
+whoogle_docker_image_tag: 0.9.3
 
 # Planka service tag
-planka_docker_image_tag: 1.24.3
+planka_docker_image_tag: 1.26.1
 
 # WUD service tag
 wud_docker_image_tag: 8.0.1

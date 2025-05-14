@@ -125,7 +125,7 @@
 {% if pihole_installation_enabled == true %}
     - PiHole:
         icon: pi-hole.png
-        href: http://{{ pihole_service_hostname }}
+        href: http://{{ pihole_service_hostname }}/admin
         description: Network-wide protection
         server: homeserver
         container: pihole
@@ -136,7 +136,7 @@
 {% endif %}
 {% if speedtest_installation_enabled == true %}
     - Speedtest:
-        icon: speedtest-tracker.png
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/speedtest.png
         href: http://{{ speedtest_service_hostname }}
         description: Speedtest Tracking
         server: homeserver

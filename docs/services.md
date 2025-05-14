@@ -140,3 +140,8 @@ You can read more about configured [here](https://hub.docker.com/r/benbusby/whoo
 Elegant open source project tracking.
 
 You can read more about configured [here](https://hub.docker.com/r/linuxserver/planka) or [here](https://github.com/plankanban/planka)
+
+# WUD
+Keep your containers up-to-date!
+
+You can read more about configured [here](https://hub.docker.com/r/getwud/wud) or [here](https://github.com/getwud/wud)

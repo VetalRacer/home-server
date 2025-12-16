@@ -1,0 +1,28 @@
+[Unit]
+Description=Q3server service
+Requires=docker.service
+After=docker.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill q3server 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm q3server 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name q3server \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--env TZ={{ timezone }} \
+			-v {{ q3server_config_path }}/server.cfg:/root/.q3a/baseq3/server.cfg \
+            -p {{ q3server_service_port }}:{{ q3server_service_port }}/udp \
+			{{ q3server_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill q3server 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm q3server 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=q3server
+
+[Install]
+WantedBy=multi-user.target

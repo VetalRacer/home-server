@@ -22,10 +22,6 @@
         description: Torrent stream server
         server: homeserver
         container: tubearchivist
-        widget:
-          type: tubearchivist
-          url: http://tubearchivist:8000
-          key: {{ tubearchivist_apikey }}
 {% endif %}
 {% if nextcloud_installation_enabled == true %}
     - NextCloud:
@@ -132,7 +128,8 @@
         widget:
           type: pihole
           url: http://pihole:3080
-          key: {{ pihole_apikey }}
+          version: 6
+          key: {{ pihole_service_webpassword }}
 {% endif %}
 {% if speedtest_installation_enabled == true %}
     - Speedtest:

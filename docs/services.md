@@ -145,3 +145,8 @@ You can read more about configured [here](https://hub.docker.com/r/linuxserver/p
 Keep your containers up-to-date!
 
 You can read more about configured [here](https://hub.docker.com/r/getwud/wud) or [here](https://github.com/getwud/wud)
+
+# Quake3 Server
+Quake3 Arena Server
+
+You can read more about configured [here](https://hub.docker.com/r/vetalracer/q3server) or [here](https://hub.docker.com/r/vetalracer/q3server)

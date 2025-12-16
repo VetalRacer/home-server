@@ -1,0 +1,17 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: q3server_installation_enabled|bool == true
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_q3server.yml"
+  when: q3server_installation_enabled|bool == true
+  tags:
+    - setup-q3server
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: q3server_installation_enabled|bool == true
+  tags:
+    - start

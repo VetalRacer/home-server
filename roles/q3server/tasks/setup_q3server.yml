@@ -1,0 +1,24 @@
+---
+
+- name: Ensure Q3server image is pulled
+  docker_image:
+    name: "{{ q3server_docker_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure q3server.service installed
+  template:
+    src: "{{ role_path }}/templates/q3server/q3server.service.j2"
+    dest: "/etc/systemd/system/q3server.service"
+    mode: 0644
+  register: q3server_systemd_service_result
+
+- name: Ensure Samba configured (main config override)
+  template:
+    src: "{{ role_path }}/templates/q3server/server.cfg"
+    dest: "{{ q3server_config_path }}/server.cfg"
+    mode: 0644
+
+- name: Ensure systemd reloaded after q3server.service installation
+  service:
+    daemon_reload: yes
+  when: q3server_systemd_service_result.changed

@@ -1,0 +1,18 @@
+# Base directory that contains everything
+q3server_base_data_path: "{{ services_base_data_path }}/q3server"
+
+# Q3server edition
+q3server_docker_image_template: "vetalracer/q3server:__VERSION__"
+q3server_docker_image: "{{ q3server_docker_image_template|replace('__VERSION__', q3server_docker_image_tag) }}"
+
+# Q3server-related data
+q3server_config_path: "{{ q3server_base_data_path }}/config"
+
+# Q3server envs
+q3server_service_port: 27960
+
+# Q3server services
+q3server_services_list: |
+  {{
+    (['q3server.service'])
+  }}

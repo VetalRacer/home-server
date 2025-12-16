@@ -44,6 +44,7 @@ This playbook sets up your server using the following Docker images:
 - [whoogle](https://hub.docker.com/r/benbusby/whoogle-search) - the [nextcloud](https://hub.docker.com/r/benbusby/whoogle-search) Whoogle image.
 - [planka](https://hub.docker.com/r/linuxserver/planka) - the [planka](https://hub.docker.com/r/linuxserver/planka) Planka image.
 - [wud](https://hub.docker.com/r/getwud/wud) - the [wud](https://hub.docker.com/r/getwud/wud) Planka image.
+- [q3server](https://hub.docker.com/r/vetalracer/q3server) - the [wud](https://hub.docker.com/r/vetalracer/q3server) quake3 server image.
 
 
 ## Support

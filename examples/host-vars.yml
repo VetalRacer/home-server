@@ -37,6 +37,7 @@ nextcloud_installation_enabled: true
 whoogle_installation_enabled: true
 planka_installation_enabled: true
 wud_installation_enabled: true
+q3server_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -65,6 +66,7 @@ nextcloud_service_hostname: "nextcloud.YOUR_DOMAIN_NAME_HERE"
 whoogle_service_hostname: "whoogle.YOUR_DOMAIN_NAME_HERE"
 planka_service_hostname: "planka.YOUR_DOMAIN_NAME_HERE"
 wud_service_hostname: "wud.YOUR_DOMAIN_NAME_HERE"
+q3server_service_hostname: "q3server.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -176,6 +178,9 @@ planka_docker_image_tag: 1.26.1
 # WUD service tag
 wud_docker_image_tag: 8.0.1
 
+# Q3Server service tag
+q3server_docker_image_tag: v1.0.0
+
 # Transmission creds
 transmission_username: admin
 transmission_password: admin
@@ -186,7 +191,6 @@ grafana_password: admin
 
 # Pihole creds
 pihole_service_webpassword: admin
-pihole_apikey: ''
 
 # Postgres creds
 postgres_user: admin

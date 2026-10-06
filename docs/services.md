@@ -32,6 +32,14 @@ A modern (fully static, fast), secure (fully proxied), highly customizable appli
 
 You can read more about configured [here](https://gethomepage.dev/en/installation/)
 
+Homepage displays container status through a local, allowlisted Docker API proxy.
+The proxy has no host port and accepts only the Docker read endpoints needed for
+status discovery. Do not mount `/var/run/docker.sock` into Homepage or expose
+the proxy outside the Docker network. Set `homepage_docker_integration_enabled:
+false` to disable container status discovery.
+
+The Homepage image in the example configuration is `v2.4.0`.
+
 # FileBrowser
 
 File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview, rename and edit your files. It allows the creation of multiple users and each user can have its own directory.

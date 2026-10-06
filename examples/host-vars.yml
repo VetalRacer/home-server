@@ -108,7 +108,14 @@ transmission_docker_image_tag: 4.0.6
 plex_docker_image_tag: 1.41.6
 
 # Homepage service tag
-homepage_docker_image_tag: v1.2.0
+homepage_docker_image_tag: v2.4.0
+
+# Homepage receives container status through a local read-only API proxy.
+# Never expose the proxy port or mount the host Docker socket into Homepage.
+homepage_docker_integration_enabled: true
+homepage_docker_api_proxy_image: "nginx:1.30.5-alpine"
+homepage_docker_port: 2375
+homepage_docker_protocol: http
 
 # FileBrowser service tag
 filebrowser_docker_image_tag: v2.32.0-s6

@@ -8,8 +8,10 @@
         icon: plex.png
         href: http://{{ plex_service_hostname }}
         description: Media server
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: plex
+{% endif %}
         widget:
           type: plex
           url: http://plex:32400
@@ -20,56 +22,70 @@
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/tube-archivist.png
         href: http://{{ tubearchivist_service_hostname }}
         description: Torrent stream server
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: tubearchivist
+{% endif %}
 {% endif %}
 {% if nextcloud_installation_enabled == true %}
     - NextCloud:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png
         href: http://{{ nextcloud_service_hostname }}
         description: Local cloud service
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: nextcloud
+{% endif %}
 {% endif %}
 {% if overseerr_installation_enabled == true %}
     - Overseerr:
         icon: overseerr.png
         href: http://{{ overseerr_service_hostname }}
         description: Request TV Shows and Movies via WebUI
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: overseerr
+{% endif %}
 {% endif %}
 {% if sonarr_installation_enabled == true %}
     - Sonarr:
         icon: sonarr.png
         href: http://{{ sonarr_service_hostname }}
         description: TV Shows Management
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: sonarr
+{% endif %}
 {% endif %}
 {% if radarr_installation_enabled == true %}
     - Radarr:
         icon: radarr.png
         href: http://{{ radarr_service_hostname }}
         description: Movies Management
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: radarr
+{% endif %}
 {% endif %}
 {% if tvheadend_installation_enabled == true %}
     - TVHeadend:
         icon: tvheadend.png
         href: http://{{ tvheadend_service_hostname }}
         description: TV Channels over LAN
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: tvheadend
+{% endif %}
 {% endif %}
 {% if metube_installation_enabled == true %}
     - MeTube:
         icon: metube.png
         href: http://{{ metube_service_hostname }}
         description: Video Downloader WebUI
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: metube
+{% endif %}
 {% endif %}
 
 - Tools:
@@ -78,8 +94,10 @@
         icon: transmission.png
         href: http://{{ transmission_service_hostname }}
         description: Torrent downloader
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: transmission
+{% endif %}
         widget:
           type: transmission
           url: http://transmission:9091
@@ -91,40 +109,50 @@
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/planka.png
         href: http://{{ planka_service_hostname }}
         description: Elegant open source project tracking
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: planka
+{% endif %}
 {% endif %}
 {% if filebrowser_installation_enabled == true %}
     - FileBrowser:
         icon: filebrowser.png
         href: http://{{ filebrowser_service_hostname }}
         description: Web filebrowser
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: filebrowser
+{% endif %}
 {% endif %}
 {% if wud_installation_enabled == true %}
     - WUD:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/wud.png
         href: http://{{ wud_service_hostname }}
         description: Keep your containers up-to-date!
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: wud
+{% endif %}
 {% endif %}
 {% if whoogle_installation_enabled == true %}
     - Whoogle:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/whoogle.png
         href: http://{{ whoogle_service_hostname }}
         description: Whoogle search engine
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: whoogle
+{% endif %}
 {% endif %}
 {% if pihole_installation_enabled == true %}
     - PiHole:
         icon: pi-hole.png
         href: http://{{ pihole_service_hostname }}/admin
         description: Network-wide protection
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: pihole
+{% endif %}
         widget:
           type: pihole
           url: http://pihole:3080
@@ -136,8 +164,10 @@
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/speedtest.png
         href: http://{{ speedtest_service_hostname }}
         description: Speedtest Tracking
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: speedtest
+{% endif %}
         widget:
           type: speedtest
           url: http://speedtest:80
@@ -147,8 +177,10 @@
         icon: motioneye.png
         href: http://{{ motioneye_service_hostname }}
         description: NVR monitoring
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: motioneye
+{% endif %}
 {% endif %}
 
 
@@ -157,53 +189,67 @@
     - Nginx-proxy:
         icon: nginx.png
         description: Reverse proxy server
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: nginx-proxy
+{% endif %}
 {% endif %}
 {% if torrserver_installation_enabled == true %}
     - Torrserver:
         icon: https://developer.asustor.com/uploadIcons/0020_131612_1639825715_torrserver.PNG
         href: http://{{ torrserver_service_hostname }}
         description: Torrent stream server
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: torrserver
+{% endif %}
 {% endif %}
 {% if prometheus_installation_enabled == true %}
     - Prometheus:
         icon: prometheus.png
         href: http://{{ prometheus_service_hostname }}
         description: Metrics service
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: prometheus
+{% endif %}
 {% endif %}
 {% if samba_installation_enabled == true %}
     - Samba:
         icon: files.png
         description: Fileshare service
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: samba
+{% endif %}
 {% endif %}
 {% if postgres_installation_enabled == true %}
     - Postgres:
         icon: postgres.png
         description: SQL database
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: postgres
+{% endif %}
 {% endif %}
 {% if ps3netsrv_installation_enabled == true %}
     - ps3netsrv:
         icon: stash.png
         description: PS3 remote server
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: ps3netsrv
+{% endif %}
 {% endif %}
 {% if jackett_installation_enabled == true %}
     - Jackett:
         icon: jackett.png
         href: http://{{ jackett_service_hostname }}
         description: Movies and TV Shows indexer
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: jackett
+{% endif %}
 {% endif %}
 
 
@@ -213,16 +259,20 @@
         icon: gitlab.png
         href: http://{{ gitlab_service_hostname }}
         description: Development platform
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: gitlab
+{% endif %}
 {% endif %}
 {% if grafana_installation_enabled == true %}
     - Grafana:
         icon: grafana.png
         href: http://{{ grafana_service_hostname }}
         description: Monitoring Service
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: grafana
+{% endif %}
         widget:
           type: grafana
           url: http://grafana:3000
@@ -234,14 +284,18 @@
         icon: pgadmin.png
         href: http://{{ pgadmin_service_hostname }}
         description: GUI tool for Postgres
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: pgadmin
+{% endif %}
 {% endif %}
 {% if nexus_installation_enabled == true %}
     - Nexus:
         icon: emqx.png
         href: http://{{ nexus_service_hostname }}
         description: Repository Manager
+{% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: nexus
+{% endif %}
 {% endif %}

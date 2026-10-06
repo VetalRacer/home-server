@@ -1,0 +1,100 @@
+worker_processes 1;
+pid /tmp/nginx.pid;
+# Docker owns its Unix socket as root. Keep workers as root so they can open
+# that socket; the container is read-only, drops all capabilities, and proxies
+# only an explicit read-only Docker API allowlist below.
+user root;
+
+events {
+  worker_connections 128;
+}
+
+http {
+  access_log /dev/stdout combined;
+  error_log /dev/stderr warn;
+  client_body_temp_path /tmp/client_temp;
+  proxy_temp_path /tmp/proxy_temp;
+  fastcgi_temp_path /tmp/fastcgi_temp;
+  uwsgi_temp_path /tmp/uwsgi_temp;
+  scgi_temp_path /tmp/scgi_temp;
+
+  upstream docker_api {
+    server unix:/var/run/docker.sock;
+  }
+
+  server {
+    listen {{ homepage_docker_api_proxy_port }};
+    server_name _;
+
+    # Homepage needs this endpoint to associate service cards with the status
+    # of named containers. Do not add broad /containers or write endpoints:
+    # Docker inspect and archive endpoints disclose container secrets/data.
+    location ~ ^/(v[0-9.]+/)?containers/json$ {
+      limit_except GET HEAD {
+        deny all;
+      }
+      proxy_pass http://docker_api;
+      proxy_set_header Host $host;
+      proxy_http_version 1.1;
+      proxy_buffering off;
+    }
+
+    # Homepage 2.3+ requests runtime statistics for all containers in one
+    # read-only call. Keep this separate from the broader container routes.
+    location ~ ^/(v[0-9.]+/)?containers/stats$ {
+      limit_except GET HEAD {
+        deny all;
+      }
+      proxy_pass http://docker_api;
+      proxy_set_header Host $host;
+      proxy_http_version 1.1;
+      proxy_buffering off;
+    }
+
+    # Per-container runtime statistics back Homepage's status indicators.
+    # These endpoints expose metrics only; inspect, archive, logs, exec and
+    # all write operations remain blocked.
+    location ~ ^/(v[0-9.]+/)?containers/[a-zA-Z0-9_.-]+/stats$ {
+      limit_except GET HEAD {
+        deny all;
+      }
+      proxy_pass http://docker_api;
+      proxy_set_header Host $host;
+      proxy_http_version 1.1;
+      proxy_buffering off;
+    }
+
+    # Homepage resolves each configured container by name after listing all
+    # containers. This read-only inspect endpoint is required for its status
+    # cards; write, archive, logs and exec endpoints remain blocked.
+    location ~ ^/(v[0-9.]+/)?containers/[a-zA-Z0-9_.-]+/json$ {
+      limit_except GET HEAD {
+        deny all;
+      }
+      proxy_pass http://docker_api;
+      proxy_set_header Host $host;
+      proxy_http_version 1.1;
+      proxy_buffering off;
+    }
+
+    location = /_ping {
+      limit_except GET HEAD {
+        deny all;
+      }
+      proxy_pass http://docker_api;
+      proxy_buffering off;
+    }
+
+    location ~ ^/(v[0-9.]+/)?version$ {
+      limit_except GET HEAD {
+        deny all;
+      }
+      proxy_pass http://docker_api;
+      proxy_buffering off;
+    }
+
+    location / {
+      return 403;
+    }
+  }
+}

@@ -65,7 +65,6 @@ tubearchivist_service_hostname: "tubearchivist.YOUR_DOMAIN_NAME_HERE"
 nextcloud_service_hostname: "nextcloud.YOUR_DOMAIN_NAME_HERE"
 whoogle_service_hostname: "whoogle.YOUR_DOMAIN_NAME_HERE"
 planka_service_hostname: "planka.YOUR_DOMAIN_NAME_HERE"
-wud_service_hostname: "wud.YOUR_DOMAIN_NAME_HERE"
 q3server_service_hostname: "q3server.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
@@ -182,9 +181,6 @@ whoogle_docker_image_tag: 0.9.3
 # Planka service tag
 planka_docker_image_tag: 1.26.1
 
-# WUD service tag
-wud_docker_image_tag: 8.0.1
-
 # Q3Server service tag
 q3server_docker_image_tag: v1.0.0
 
@@ -228,10 +224,6 @@ planka_postgres_password: password
 planka_default_admin_username: admin
 planka_default_admin_password: password
 planka_default_admin_email: "admin@planka.YOUR_DOMAIN_NAME_HERE"
-
-# WUD creds
-wud_lscr_username: username
-wud_lscr_token: usertoken
 
 # Plex settings
 plex_claim: ''

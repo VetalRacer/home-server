@@ -109,8 +109,6 @@ safe inventory were actually available.
 
 ## Repository-specific notes
 
-- `roles/wud/` exists and has an example enable flag, but `wud` is currently
-  absent from `setup.yml`; it is not deployed unless re-added deliberately.
 - Preserve the role order in `setup.yml` unless a dependency analysis requires
   a change.  In particular, `server-base`, RAID, and `nginx-proxy` establish
   prerequisites for later roles.

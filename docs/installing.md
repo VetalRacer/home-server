@@ -2,7 +2,13 @@
 
 After [configuring the playbook](configuring-playbook.md), you're ready to install.
 
-Run the playbook: `make setup-all`.
+Run the playbook: `make setup-all`. Make asks for the Ansible Vault password
+before running Ansible. For unattended use with a protected vault-password
+file, override the default argument, for example:
+
+```bash
+make setup-all ANSIBLE_VAULT_ARGS="--vault-password-file /secure/path/vault-password"
+```
 
 After installing, you can start services: `make start`.
 Gitlab may take a minute or so to actually start.

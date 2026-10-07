@@ -36,12 +36,10 @@ tubearchivist_installation_enabled: true
 nextcloud_installation_enabled: true
 whoogle_installation_enabled: true
 planka_installation_enabled: true
-wud_installation_enabled: true
 q3server_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
-samba_service_hostname: "samba.YOUR_DOMAIN_NAME_HERE"
 transmission_service_hostname: "transmission.YOUR_DOMAIN_NAME_HERE"
 plex_service_hostname: "plex.YOUR_DOMAIN_NAME_HERE"
 homepage_service_hostname: "homepage.YOUR_DOMAIN_NAME_HERE"
@@ -94,8 +92,11 @@ gitlab_root_password: ''
 gitlab_docker_image_tag: "15.5.1-ee.0"
 gitlab_runner_image_tag: v15.1.1
 
-# Samba services tag
-samba_docker_image_tag: 0.0.1
+# Samba service image and non-empty passwords for every user defined in the role.
+samba_docker_image_tag: 4.23.8
+samba_user_passwords:
+  admin: ""
+  vitalii: ""
 
 # Nginx services tag
 nginx_proxy_docker_image_tag: 1.7

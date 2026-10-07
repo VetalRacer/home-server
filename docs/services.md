@@ -12,7 +12,15 @@ Gitlab service help planning to production, brings teams together to shorten cyc
 
 Samba service provides file and print services for various Microsoft Windows clients and can integrate with a Microsoft Windows Server domain, either as a Domain Controller (DC) or as a domain member. As of version 4, it supports Active Directory and Microsoft Windows NT domains.
 
-You can find all configs in `roles/samba/templates/samba/` folder
+Samba is exposed only on the primary LAN interface and accepts clients from its
+directly connected subnet by default. Override `samba_listen_address` and
+`samba_allowed_hosts` for a multi-homed host. Before enabling the role, set
+the `samba_user_passwords` YAML map with a non-empty password for every user
+declared in `samba_users`; real values should be stored with Ansible Vault.
+`samba_shares` defines the host path and `read_users` / `write_users` lists for
+each share. The role uses the pinned upstream `ghcr.io/crazy-max/samba` image,
+disables SMB1, disallows guest fallback, and keeps the rendered credentials
+file readable only by root.
 
 # Transmission
 

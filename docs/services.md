@@ -26,7 +26,18 @@ file readable only by root.
 
 Transmission is a light-weight and cross-platform BitTorrent client.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/transmission)
+The Web UI is reachable through the reverse proxy and is authenticated with
+`transmission_username` and `transmission_password`. Store both values in
+Ansible Vault; the role renders them only to a root-readable environment file
+at `transmission_base_data_path/transmission.env`.
+
+By default, Transmission uses UID `1000` and GID `100`, matching the default
+Samba `admin:users` identity. Override `transmission_uid` and
+`transmission_gid` together when your download storage is owned by another
+account.
+
+You can read more about configuration in the
+[LinuxServer.io documentation](https://docs.linuxserver.io/images/docker-transmission/).
 
 # Plex
 

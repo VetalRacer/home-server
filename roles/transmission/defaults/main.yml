@@ -2,18 +2,19 @@
 transmission_base_data_path: "{{ services_base_data_path }}/transmission"
 
 # Transmission edition
-transmission_docker_image_template: "linuxserver/transmission:__VERSION__"
+transmission_docker_image_template: "lscr.io/linuxserver/transmission:__VERSION__"
 transmission_docker_image: "{{ transmission_docker_image_template|replace('__VERSION__', transmission_docker_image_tag) }}"
 
 # Transmission-related data
 transmission_data_path: "{{ transmission_base_data_path }}/data"
+transmission_env_path: "{{ transmission_base_data_path }}/transmission.env"
 
 # Transmission download data
 transmission_file_path: "{{ sharefolder_base_data_path }}/torrent"
 
 # Transmission envs
-transmission_uid: "0"
-transmission_gid: "0"
+transmission_uid: "1000"
+transmission_gid: "100"
 transmission_service_port: 9091
 
 # Transmission services

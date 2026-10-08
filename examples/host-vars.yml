@@ -118,7 +118,7 @@ homepage_docker_port: 2375
 homepage_docker_protocol: http
 
 # FileBrowser service tag
-filebrowser_docker_image_tag: v2.32.0-s6
+filebrowser_docker_image_tag: v2.63.23-s6
 
 # Pihole service tag
 pihole_docker_image_tag: 2025.04.0

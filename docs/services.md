@@ -77,7 +77,19 @@ The Homepage image in the example configuration is `v2.4.0`.
 
 File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview, rename and edit your files. It allows the creation of multiple users and each user can have its own directory.
 
-You can read more about configured [here](https://filebrowser.org/)
+File Browser runs as UID `1000` and GID `100` by default, matching the Samba
+`admin:users` identity. Override `filebrowser_uid` and `filebrowser_gid`
+together when its configuration or root directory uses another account.
+`filebrowser_root_path` defaults to the whole sharefolder tree; set it to a
+subdirectory when the Web UI does not need access to every share.
+
+The initial File Browser administrator account must have a unique, strong
+password. Its built-in authentication has no brute-force protection, so expose
+the service only through a trusted LAN, VPN, or additional reverse-proxy access
+control.
+
+You can read more about configuration in the
+[File Browser documentation](https://filebrowser.org/).
 
 # Pi-hole
 

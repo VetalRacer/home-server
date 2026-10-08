@@ -43,7 +43,21 @@ You can read more about configuration in the
 
 Plex is an American streaming media service and a client–server media player platform, made by Plex, Inc. The Plex Media Server organizes video, audio, and photos from a user's collections and from online services, and streams it to the players. The official clients and unofficial third-party clients run on mobile devices, smart TVs, streaming boxes, and in web apps.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/plex)
+Plex runs as UID `1000` and GID `100` by default, matching the Samba
+`admin:users` identity. Override `plex_uid` and `plex_gid` together when media
+or configuration storage belongs to another account. Media and download mounts
+are read-only; Plex can write only to its configuration directory.
+
+Use a short-lived `plex_claim` only for the initial server claim and store it in
+Ansible Vault. The role renders it to a root-readable environment file instead
+of the systemd unit. The `plex_apikey` used by Homepage should also be stored in
+Ansible Vault.
+
+Plex Remote Access requires the published TCP port `32400`; the role keeps it
+available on all host interfaces.
+
+You can read more about configuration in the
+[LinuxServer.io documentation](https://docs.linuxserver.io/images/docker-plex/).
 
 # Homepage
 

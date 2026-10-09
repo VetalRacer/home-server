@@ -119,9 +119,22 @@ You can read more about configuration in the [official Pi-hole Docker documentat
 
 # ps3netsrv
 
-Is a server application used to stream content from a remote server to the PS3.
+ps3netsrv serves PS3 games to webMAN-MOD or multiMAN over TCP port 38008.
+The role binds that port only to the primary LAN address by default; override
+ps3netsrv_listen_address on multi-homed hosts.
 
-You can read more about configured [here](https://github.com/shawly/docker-ps3netsrv) or [here](https://github.com/aldostools/webMAN-MOD/wiki/~-PS3-NET-Server)
+It runs as UID 1000 and GID 100, matching the default Samba admin:users
+identity. Set ps3netsrv_uid and ps3netsrv_gid together when the games directory
+belongs to another account. Games are mounted read-only by default; set
+ps3netsrv_games_read_only: false only if writing to the library is required.
+
+The role creates GAMES, PKG, PS2ISO, PS3ISO, PSPISO, and PSXISO below
+ps3netsrv_game_path. Existing files are never moved or renamed.
+
+The image is pinned to v2.0.1. Configure the same host address and port in the
+PS3 client.
+
+You can read more in the [image documentation](https://github.com/shawly/docker-ps3netsrv) and the [webMAN-MOD guide](https://github.com/aldostools/webMAN-MOD/wiki/~-PS3-NET-Server).
 
 # Speedtest-Tracker
 

@@ -1,6 +1,3 @@
-# Base directory that contains everything
-ps3netsrv_base_data_path: "{{ services_base_data_path }}/ps3netsrv"
-
 # ps3netsrv edition
 ps3netsrv_docker_image_template: "shawly/ps3netsrv:__VERSION__"
 ps3netsrv_docker_image: "{{ ps3netsrv_docker_image_template|replace('__VERSION__', ps3netsrv_docker_image_tag) }}"
@@ -8,12 +5,15 @@ ps3netsrv_docker_image: "{{ ps3netsrv_docker_image_template|replace('__VERSION__
 # ps3netsrv-related data
 ps3netsrv_game_path: "{{ sharefolder_base_data_path }}/game/ps3"
 
-# ps3netsrv envs
+# ps3netsrv network and filesystem configuration
 ps3netsrv_service_port: 38008
+ps3netsrv_listen_address: "{{ ansible_default_ipv4.address | default('') }}"
+ps3netsrv_games_read_only: true
 
-# ps3netsrv global envs
-ps3netsrv_uid: "0"
-ps3netsrv_gid: "0"
+# ps3netsrv runs as this non-root host identity. It matches the default
+# Samba admin:users account and must be able to read ps3netsrv_game_path.
+ps3netsrv_uid: "1000"
+ps3netsrv_gid: "100"
 
 # ps3netsrv services
 ps3netsrv_services_list: |

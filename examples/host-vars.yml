@@ -124,7 +124,7 @@ filebrowser_docker_image_tag: v2.63.23-s6
 pihole_docker_image_tag: 2026.04.1
 
 # ps3netsrv service tag
-ps3netsrv_docker_image_tag: v1.10
+ps3netsrv_docker_image_tag: v2.0.1
 
 # Speedtest-Tracker service tag
 speedtest_docker_image_tag: latest

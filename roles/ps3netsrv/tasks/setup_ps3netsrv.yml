@@ -1,19 +1,38 @@
 ---
 
+- name: Validate ps3netsrv configuration
+  assert:
+    that:
+      - ps3netsrv_uid | int > 0
+      - ps3netsrv_gid | int > 0
+      - ps3netsrv_service_port | int > 0
+      - ps3netsrv_service_port | int < 65536
+      - ps3netsrv_listen_address | length > 0
+      - ps3netsrv_game_path is match('^/datafolder/sharefolder(?:/.*)?$')
+    fail_msg: >-
+      Define non-root ps3netsrv UID/GID values, a valid port and LAN address,
+      and a game path inside /datafolder/sharefolder.
+
 - name: Ensure ps3netsrv image is pulled
   docker_image:
     name: "{{ ps3netsrv_docker_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
-- name: Ensure ps3netsrv paths exist
+- name: Ensure ps3netsrv game library paths exist
   file:
     path: "{{ item }}"
     state: directory
-    mode: 0755
-    owner: "root"
-    group: "root"
+    mode: '0750'
+    owner: "{{ ps3netsrv_uid }}"
+    group: "{{ ps3netsrv_gid }}"
   with_items:
     - "{{ ps3netsrv_game_path }}"
+    - "{{ ps3netsrv_game_path }}/GAMES"
+    - "{{ ps3netsrv_game_path }}/PKG"
+    - "{{ ps3netsrv_game_path }}/PS2ISO"
+    - "{{ ps3netsrv_game_path }}/PS3ISO"
+    - "{{ ps3netsrv_game_path }}/PSPISO"
+    - "{{ ps3netsrv_game_path }}/PSXISO"
 
 - name: Ensure ps3netsrv.service installed
   template:

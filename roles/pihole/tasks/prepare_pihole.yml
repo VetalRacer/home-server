@@ -5,9 +5,13 @@
     name: systemd-resolved
     enabled: no
     state: stopped
+  when: pihole_manage_host_resolver | bool
 
 - name: Ensure resolv.conf installed
   template:
     src: "{{ role_path }}/templates/resolv.conf.j2"
     dest: "/etc/resolv.conf"
-    mode: 0777
+    owner: root
+    group: root
+    mode: '0644'
+  when: pihole_manage_host_resolver | bool

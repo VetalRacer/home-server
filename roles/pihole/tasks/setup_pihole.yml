@@ -1,5 +1,18 @@
 ---
 
+- name: Validate Pi-hole configuration
+  assert:
+    that:
+      - pihole_service_webpassword | string | length > 0
+      - pihole_service_webpassword is not search('[\r\n]')
+      - pihole_service_port | int > 0
+      - pihole_service_port | int < 65536
+      - pihole_dns_listen_address | length > 0
+      - not (pihole_manage_host_resolver | bool) or pihole_host_resolvers | length > 0
+    fail_msg: >-
+      Define a non-empty Pi-hole password without line breaks, a valid web port,
+      a DNS listen address, and host resolvers when host resolver management is enabled.
+
 - name: Ensure Pihole image is pulled
   docker_image:
     name: "{{ pihole_docker_image }}"
@@ -14,6 +27,24 @@
     group: "root"
   with_items:
     - "{{ pihole_data_path }}"
+
+- name: Ensure Pi-hole dnsmasq path exists when enabled
+  file:
+    path: "{{ pihole_dnsmasq_path }}"
+    state: directory
+    mode: '0750'
+    owner: root
+    group: root
+  when: pihole_dnsmasq_enabled | bool
+
+- name: Ensure Pi-hole environment file installed
+  template:
+    src: "{{ role_path }}/templates/pihole/pihole.env.j2"
+    dest: "{{ pihole_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
 
 - name: Ensure Pihole.service installed
   template:

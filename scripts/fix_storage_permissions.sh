@@ -71,3 +71,10 @@ chown -R --no-dereference "${filebrowser_owner}" \
   "${filebrowser_data_root}/database"
 
 echo "Done. FileBrowser state is writable by ${filebrowser_owner}."
+
+if [[ -e /etc/resolv.conf ]]; then
+  echo "Restricting host resolver configuration permissions..."
+  chown root:root /etc/resolv.conf
+  chmod 0644 /etc/resolv.conf
+  echo "Done. /etc/resolv.conf is owned by root and is not writable by other users."
+fi

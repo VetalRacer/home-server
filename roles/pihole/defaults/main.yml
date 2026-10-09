@@ -8,9 +8,22 @@ pihole_docker_image: "{{ pihole_docker_image_template|replace('__VERSION__', pih
 # Pihole-related data
 pihole_data_path: "{{ pihole_base_data_path }}/data"
 pihole_dnsmasq_path: "{{ pihole_base_data_path }}/dnsmasq"
+pihole_env_path: "{{ pihole_base_data_path }}/pihole.env"
 
-# Pihole envs
+# Pi-hole network configuration. Bind DNS only to the primary LAN address so
+# systemd-resolved may continue to use its loopback stub on 127.0.0.53.
 pihole_service_port: 3080
+pihole_dns_listen_address: "{{ ansible_default_ipv4.address | default('') }}"
+pihole_dhcp_enabled: false
+# Keep this enabled for compatibility with existing custom dnsmasq snippets.
+pihole_dnsmasq_enabled: true
+
+# Set to true only for legacy deployments that deliberately replace the host
+# resolver. Override the fallback resolvers in host vars when needed.
+pihole_manage_host_resolver: false
+pihole_host_resolvers:
+  - "8.8.8.8"
+  - "1.1.1.1"
 
 # Pihole services
 pihole_services_list: |

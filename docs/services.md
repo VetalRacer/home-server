@@ -95,7 +95,27 @@ You can read more about configuration in the
 
 Pi-hole is a Linux network-level advertisement and Internet tracker blocking application which acts as a DNS sinkhole and optionally a DHCP server, intended for use on a private network.
 
-You can read more about configured [here](https://github.com/pi-hole/docker-pi-hole) or [here](https://docs.pi-hole.net/)
+Pi-hole publishes DNS only on the server's primary LAN address by default. Set
+`pihole_dns_listen_address` when the server has multiple network interfaces.
+The admin password must be non-empty and should be encrypted with Ansible Vault;
+the role writes it only to `pihole.env`, readable by root.
+
+`pihole_dhcp_enabled` defaults to `false`. Enable it only when Pi-hole is your
+LAN DHCP server; this publishes UDP port 67 and grants the container
+`NET_ADMIN`. Do not enable it alongside DHCP on the router.
+
+`pihole_dnsmasq_enabled` keeps `/etc/dnsmasq.d` mounted for existing custom
+snippets and v5 migrations. Disable it for a new v6 installation that does not
+use custom dnsmasq configuration.
+
+The role no longer changes the host DNS resolver by default. The legacy
+`pihole_manage_host_resolver: true` option stops `systemd-resolved` and renders
+a static `/etc/resolv.conf`. Its fallback resolvers are `8.8.8.8` and
+`1.1.1.1`; override `pihole_host_resolvers` when using different upstream DNS
+servers. Existing hosts previously configured this way keep their current
+resolver state until it is changed manually.
+
+You can read more about configuration in the [official Pi-hole Docker documentation](https://docs.pi-hole.net/docker/).
 
 # ps3netsrv
 

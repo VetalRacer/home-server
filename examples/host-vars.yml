@@ -121,7 +121,7 @@ homepage_docker_protocol: http
 filebrowser_docker_image_tag: v2.63.23-s6
 
 # Pihole service tag
-pihole_docker_image_tag: 2025.04.0
+pihole_docker_image_tag: 2026.04.1
 
 # ps3netsrv service tag
 ps3netsrv_docker_image_tag: v1.10
@@ -193,8 +193,8 @@ transmission_password: ""
 grafana_username: admin
 grafana_password: admin
 
-# Pihole creds
-pihole_service_webpassword: admin
+# Pi-hole administrator password. Store the real value with Ansible Vault.
+pihole_service_webpassword: ""
 
 # Postgres creds
 postgres_user: admin

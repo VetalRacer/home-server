@@ -1,5 +1,25 @@
 ---
 
+- name: Validate Speedtest-Tracker configuration
+  assert:
+    that:
+      - speedtest_uid | int > 0
+      - speedtest_gid | int > 0
+      - speedtest_service_port | int > 0
+      - speedtest_service_port | int < 65536
+      - speedtest_app_key is match('^base64:[A-Za-z0-9+/]+={0,2}$')
+      - speedtest_app_key is not search('[\r\n]')
+      - speedtest_app_url is match('^https?://\\S+$')
+      - speedtest_admin_email is match('^[^\\s@]+@[^\\s@]+$')
+      - speedtest_admin_password | string | length > 0
+      - speedtest_admin_password is not search('[\r\n]')
+      - speedtest_schedule | length > 0
+      - speedtest_prune_results_older_than | int > 0
+    fail_msg: >-
+      Define non-root UID/GID values, a valid base64 APP_KEY and APP_URL,
+      non-empty admin credentials without line breaks, a schedule, and a
+      positive result retention period.
+
 - name: Ensure Speedtest-Tracker image is pulled
   docker_image:
     name: "{{ speedtest_docker_image }}"
@@ -10,10 +30,20 @@
     path: "{{ item }}"
     state: directory
     mode: 0750
-    owner: "root"
-    group: "root"
+    owner: "{{ speedtest_uid }}"
+    group: "{{ speedtest_gid }}"
   with_items:
     - "{{ speedtest_data_path }}"
+    - "{{ speedtest_config_path }}"
+
+- name: Ensure Speedtest-Tracker environment file installed
+  template:
+    src: "{{ role_path }}/templates/speedtest-tracker/speedtest.env.j2"
+    dest: "{{ speedtest_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
 
 - name: Ensure speedtest.service installed
   template:

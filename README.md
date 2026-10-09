@@ -25,7 +25,7 @@ This playbook sets up your server using the following Docker images:
 - [filebrowser/filebrowser](https://hub.docker.com/r/filebrowser/filebrowser) - the [filebrowser/filebrowser](https://hub.docker.com/r/filebrowser/filebrowser) FileBrowser image.
 - [pihole/pihole](https://hub.docker.com/r/pihole/pihole) - the [pihole/pihole](https://hub.docker.com/r/pihole/pihole) Pi-hole image.
 - [shawly/ps3netsrv](https://hub.docker.com/r/shawly/ps3netsrv) - the [shawly/ps3netsrv](https://hub.docker.com/r/shawly/ps3netsrv) ps3netsrv image.
-- [henrywhitaker3/speedtest-tracker](https://hub.docker.com/r/henrywhitaker3/speedtest-tracker) - the [henrywhitaker3/speedtest-tracker](https://hub.docker.com/r/henrywhitaker3/speedtest-tracker) Speedtest-Tracker image.
+- [linuxserver/speedtest-tracker](https://hub.docker.com/r/linuxserver/speedtest-tracker) - the [linuxserver/speedtest-tracker](https://hub.docker.com/r/linuxserver/speedtest-tracker) Speedtest Tracker image.
 - [linuxserver/overseerr](https://hub.docker.com/r/linuxserver/overseerr) - the [linuxserver/overseerr](https://hub.docker.com/r/linuxserver/overseerr) Overseerr image.
 - [linuxserver/sonarr](https://hub.docker.com/r/linuxserver/sonarr) - the [linuxserver/sonarr](https://hub.docker.com/r/linuxserver/sonarr) Sonarr image.
 - [linuxserver/radarr](https://hub.docker.com/r/linuxserver/radarr) - the [linuxserver/radarr](https://hub.docker.com/r/linuxserver/radarr) Radarr image.

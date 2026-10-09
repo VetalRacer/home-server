@@ -158,9 +158,13 @@
         server: homeserver
         container: speedtest
 {% endif %}
+{% if speedtest_homepage_api_key | default('') | length > 0 %}
         widget:
           type: speedtest
           url: http://speedtest:80
+          version: 2
+          key: {{ speedtest_homepage_api_key }}
+{% endif %}
 {% endif %}
 {% if motioneye_installation_enabled == true %}
     - MotionEye:

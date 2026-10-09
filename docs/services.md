@@ -138,9 +138,27 @@ You can read more in the [image documentation](https://github.com/shawly/docker-
 
 # Speedtest-Tracker
 
-This service runs a speedtest check every hour and graphs the results. The back-end is written in Laravel and the front-end uses React. It uses Ookla's Speedtest cli to get the data and uses Chart.js to plot the results.
+Speedtest Tracker periodically runs an Ookla speed test and stores the results in
+its SQLite database. The role uses the maintained
+[LinuxServer image](https://docs.linuxserver.io/images/docker-speedtest-tracker/)
+and runs it as `speedtest_uid:speedtest_gid` (by default `1000:100`).
 
-You can read more about configured [here](https://github.com/henrywhitaker3/Speedtest-Tracker) or [here](https://hub.docker.com/r/henrywhitaker3/speedtest-tracker)
+Before its first start, set `speedtest_app_key` and
+`speedtest_admin_password` in host variables with Ansible Vault. Generate the
+application key with `echo "base64:$(openssl rand -base64 32)"`; the default
+administrator email is `admin@example.com`. The default schedule is hourly and
+results are retained for 365 days; override `speedtest_schedule` and
+`speedtest_prune_results_older_than` when needed.
+
+The Homepage widget uses the version 2 Speedtest Tracker API. After the first
+start, sign in as the administrator, open `/admin/api-tokens`, and create a
+token with only the `Read Results` ability. Store it as
+`speedtest_homepage_api_key` with Ansible Vault, then redeploy Homepage. Until
+the token is configured, Homepage displays the Speedtest Tracker card without
+the widget rather than making unauthenticated API requests.
+
+See the [upstream documentation](https://docs.speedtest-tracker.dev/) for
+application settings and usage.
 
 # Overseerr
 This is a request management and media discovery tool built to work with your existing Plex ecosystem.

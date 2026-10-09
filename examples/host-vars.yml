@@ -127,7 +127,7 @@ pihole_docker_image_tag: 2026.04.1
 ps3netsrv_docker_image_tag: v2.0.1
 
 # Speedtest-Tracker service tag
-speedtest_docker_image_tag: latest
+speedtest_docker_image_tag: 1.15.0
 
 # Sonarr service tag
 sonarr_docker_image_tag: latest
@@ -195,6 +195,15 @@ grafana_password: admin
 
 # Pi-hole administrator password. Store the real value with Ansible Vault.
 pihole_service_webpassword: ""
+
+# Speedtest Tracker application key and initial administrator password. Generate
+# an APP_KEY with openssl rand -base64 32 and store both secret values with
+# Ansible Vault before the first start.
+speedtest_app_key: ""
+speedtest_admin_password: ""
+# Homepage requires a Speedtest Tracker API token with only the Read Results
+# ability. Store the real token with Ansible Vault.
+speedtest_homepage_api_key: ""
 
 # Postgres creds
 postgres_user: admin

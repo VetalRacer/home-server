@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# One-time migration of permissions after changing the Samba group and the
-# FileBrowser runtime identity.
+# One-time migration of permissions after changing shared-service identities.
 # Usage: sudo ./fix_storage_permissions.sh [share_root] [group] [filebrowser_data_root] [uid:gid]
 
 set -euo pipefail
@@ -8,7 +7,7 @@ set -euo pipefail
 share_root="${1:-/datafolder/sharefolder}"
 share_group="${2:-users}"
 filebrowser_data_root="${3:-/datafolder/homeserver/services/filebrowser/data}"
-filebrowser_owner="${4:-1000:100}"
+service_owner="${4:-1000:100}"
 
 if [[ "${EUID}" -ne 0 ]]; then
   echo "Run this script as root, for example: sudo $0" >&2
@@ -32,8 +31,8 @@ if ! getent group "${share_group}" >/dev/null; then
   exit 1
 fi
 
-if [[ ! "${filebrowser_owner}" =~ ^[1-9][0-9]*:[1-9][0-9]*$ ]]; then
-  echo "FileBrowser owner must have the form UID:GID: ${filebrowser_owner}" >&2
+if [[ ! "${service_owner}" =~ ^[1-9][0-9]*:[1-9][0-9]*$ ]]; then
+  echo "Service owner must have the form UID:GID: ${service_owner}" >&2
   exit 1
 fi
 
@@ -65,12 +64,33 @@ find -P "${share_root}" -type f -exec chmod g+rw {} +
 
 echo "Done. Directories inherit group ${share_group}; existing owners were preserved."
 
-echo "Updating FileBrowser configuration and database ownership to ${filebrowser_owner}..."
-chown -R --no-dereference "${filebrowser_owner}" \
+echo "Updating FileBrowser configuration and database ownership to ${service_owner}..."
+chown -R --no-dereference "${service_owner}" \
   "${filebrowser_data_root}/config" \
   "${filebrowser_data_root}/database"
 
-echo "Done. FileBrowser state is writable by ${filebrowser_owner}."
+echo "Done. FileBrowser state is writable by ${service_owner}."
+
+for arr_service in sonarr radarr jackett; do
+  arr_config_path="/datafolder/homeserver/services/${arr_service}/data/config"
+
+  if [[ ! -d "${arr_config_path}" ]]; then
+    echo "Skipping ${arr_service}: configuration directory does not exist."
+    continue
+  fi
+
+  arr_config_path="$(realpath -e -- "${arr_config_path}")"
+
+  if [[ ! "${arr_config_path}" =~ ^/datafolder/[^/]+/services/(sonarr|radarr|jackett)/data/config$ ]]; then
+    echo "Refusing to modify an unexpected ${arr_service} config path: ${arr_config_path}" >&2
+    exit 1
+  fi
+
+  echo "Updating ${arr_service} configuration ownership to ${service_owner}..."
+  chown -R --no-dereference "${service_owner}" "${arr_config_path}"
+done
+
+echo "Done. Existing Sonarr, Radarr, and Jackett state is writable by ${service_owner}."
 
 if [[ -e /etc/resolv.conf ]]; then
   echo "Restricting host resolver configuration permissions..."

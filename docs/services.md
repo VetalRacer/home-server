@@ -204,9 +204,21 @@ and the [Radarr Docker guide](https://wiki.servarr.com/en/radarr/installation/do
 for application configuration.
 
 # Jackett
-Jackett works as a proxy server: it translates queries from apps (Sonarr, SickRage, CouchPotato, Mylar, etc) into tracker-site-specific http queries, parses the html response, then sends results back to the requesting software. This allows for getting recent uploads (like RSS) and performing searches. Jackett is a single repository of maintained indexer scraping & translation logic - removing the burden from other apps.
+Jackett translates Sonarr and Radarr indexer requests into tracker-specific
+queries. Its web interface is available only through the reverse proxy at
+`http://jackett.loc` (or the configured hostname); port 9117 is not published
+directly on the host. Configure Sonarr and Radarr to use
+`http://jackett:9117` on the shared Docker network.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/jackett)
+Jackett runs as the shared non-root `1000:100` identity with `UMASK=002`. Its
+indexer credentials, cookies, API key, and settings are stored in `/config`.
+Set an Admin Password in the Jackett UI before enabling External Access. The
+application self-update feature is disabled; update the pinned image tag
+deliberately instead.
+
+See the [LinuxServer image documentation](https://docs.linuxserver.io/images/docker-jackett/)
+and the [Jackett troubleshooting guide](https://github.com/Jackett/Jackett/wiki/Troubleshooting)
+for tracker and security configuration.
 
 # TVHeadend
 Tvheadend works as a proxy server: is a TV streaming server and recorder for Linux, FreeBSD and Android supporting DVB-S, DVB-S2, DVB-C, DVB-T, ATSC, ISDB-T, IPTV, SAT>IP and HDHomeRun as input sources. Tvheadend offers the HTTP (VLC, MPlayer), HTSP (Kodi, Movian) and SAT>IP streaming. Multiple EPG sources are supported (over-the-air DVB and ATSC including OpenTV DVB extensions, XMLTV, PyXML).

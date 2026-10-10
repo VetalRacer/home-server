@@ -46,15 +46,6 @@
     - "{{ sonarr_data_path }}"
     - "{{ sonarr_config_path }}"
 
-- name: Ensure Sonarr configuration is writable
-  file:
-    path: "{{ sonarr_config_path }}"
-    state: directory
-    owner: "{{ sonarr_uid }}"
-    group: "{{ sonarr_gid }}"
-    mode: '0750'
-    recurse: true
-
 - name: Ensure Sonarr TV library path exists
   file:
     path: "{{ sonarr_tv_path }}"

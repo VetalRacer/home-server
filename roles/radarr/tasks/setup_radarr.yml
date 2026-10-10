@@ -46,15 +46,6 @@
     - "{{ radarr_data_path }}"
     - "{{ radarr_config_path }}"
 
-- name: Ensure Radarr configuration is writable
-  file:
-    path: "{{ radarr_config_path }}"
-    state: directory
-    owner: "{{ radarr_uid }}"
-    group: "{{ radarr_gid }}"
-    mode: '0750'
-    recurse: true
-
 - name: Ensure Radarr movie library path exists
   file:
     path: "{{ radarr_movies_path }}"

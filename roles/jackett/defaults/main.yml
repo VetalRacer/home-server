@@ -10,14 +10,14 @@ jackett_data_path: "{{ jackett_base_data_path }}/data"
 
 # Jackett config data
 jackett_config_path: "{{ jackett_data_path }}/config"
-jackett_blackhole: "{{ sharefolder_base_data_path }}/torrent"
 
-# Jackett options
-jackett_auto_update: true
-
-# Jackett global envs
+# Jackett runtime configuration. Keep updates reproducible by updating the
+# Docker image tag, rather than the application inside a running container.
+jackett_auto_update: false
 jackett_uid: "1000"
-jackett_gid: "1000"
+jackett_gid: "100"
+jackett_service_port: 9117
+jackett_umask: "002"
 
 # Jackett services
 jackett_services_list: |

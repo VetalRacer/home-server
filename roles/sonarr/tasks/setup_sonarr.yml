@@ -9,27 +9,26 @@
       - sonarr_service_port | int < 65536
       - sonarr_umask is match('^[0-7]{3,4}$')
       - sonarr_service_hostname is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
-      - sonarr_tv_path is match('^' ~ (sharefolder_base_data_path | regex_escape) ~ '/.+')
-      - sonarr_downloads_path is match('^' ~ (sharefolder_base_data_path | regex_escape) ~ '/.+')
+      - sonarr_storage_path == sharefolder_base_data_path
+      - sonarr_tv_path is match('^' ~ (sonarr_storage_path | regex_escape) ~ '/.+')
+      - sonarr_downloads_path is match('^' ~ (sonarr_storage_path | regex_escape) ~ '/.+')
     fail_msg: >-
       Define non-root Sonarr UID/GID values, a valid hostname, port and umask,
-      and keep the existing TV and downloads paths beneath the share root.
+      and keep the Sonarr storage paths beneath the share root.
 
-- name: Check Sonarr media paths exist
+- name: Check Sonarr downloads path exists
   stat:
-    path: "{{ item }}"
-  loop:
-    - "{{ sonarr_tv_path }}"
-    - "{{ sonarr_downloads_path }}"
-  register: sonarr_media_paths
+    path: "{{ sonarr_downloads_path }}"
+  register: sonarr_downloads_path_result
   changed_when: false
 
-- name: Validate Sonarr media paths
+- name: Validate Sonarr downloads path
   assert:
     that:
-      - item.stat.isdir | default(false)
-    fail_msg: "Sonarr media path must already exist and be a directory: {{ item.item }}"
-  loop: "{{ sonarr_media_paths.results }}"
+      - sonarr_downloads_path_result.stat.isdir | default(false)
+    fail_msg: >-
+      Sonarr downloads path must exist and be a directory:
+      {{ sonarr_downloads_path }}. Run the Transmission setup first.
 
 - name: Ensure Sonarr image is pulled
   docker_image:
@@ -55,6 +54,14 @@
     group: "{{ sonarr_gid }}"
     mode: '0750'
     recurse: true
+
+- name: Ensure Sonarr TV library path exists
+  file:
+    path: "{{ sonarr_tv_path }}"
+    state: directory
+    owner: "{{ sonarr_uid }}"
+    group: "{{ sonarr_gid }}"
+    mode: '2770'
 
 - name: Ensure sonarr.service installed
   template:

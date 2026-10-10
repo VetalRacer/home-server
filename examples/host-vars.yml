@@ -133,7 +133,7 @@ speedtest_docker_image_tag: 1.15.0
 sonarr_docker_image_tag: 4.0.20.3014-ls326
 
 # Radarr service tag
-radarr_docker_image_tag: latest
+radarr_docker_image_tag: 6.4.4.10685-ls319
 
 # Jakett service tag
 jackett_docker_image_tag: 0.22.1857

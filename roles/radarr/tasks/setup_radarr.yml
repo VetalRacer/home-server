@@ -1,5 +1,35 @@
 ---
 
+- name: Validate Radarr configuration
+  assert:
+    that:
+      - radarr_uid | int > 0
+      - radarr_gid | int > 0
+      - radarr_service_port | int > 0
+      - radarr_service_port | int < 65536
+      - radarr_umask is match('^[0-7]{3,4}$')
+      - radarr_service_hostname is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+      - radarr_storage_path == sharefolder_base_data_path
+      - radarr_movies_path is match('^' ~ (radarr_storage_path | regex_escape) ~ '/.+')
+      - radarr_downloads_path is match('^' ~ (radarr_storage_path | regex_escape) ~ '/.+')
+    fail_msg: >-
+      Define non-root Radarr UID/GID values, a valid hostname, port and umask,
+      and keep the Radarr storage paths beneath the share root.
+
+- name: Check Radarr downloads path exists
+  stat:
+    path: "{{ radarr_downloads_path }}"
+  register: radarr_downloads_path_result
+  changed_when: false
+
+- name: Validate Radarr downloads path
+  assert:
+    that:
+      - radarr_downloads_path_result.stat.isdir | default(false)
+    fail_msg: >-
+      Radarr downloads path must exist and be a directory:
+      {{ radarr_downloads_path }}. Run the Transmission setup first.
+
 - name: Ensure Radarr image is pulled
   docker_image:
     name: "{{ radarr_docker_image }}"
@@ -10,10 +40,28 @@
     path: "{{ item }}"
     state: directory
     mode: 0750
-    owner: "root"
-    group: "root"
+    owner: "{{ radarr_uid }}"
+    group: "{{ radarr_gid }}"
   with_items:
     - "{{ radarr_data_path }}"
+    - "{{ radarr_config_path }}"
+
+- name: Ensure Radarr configuration is writable
+  file:
+    path: "{{ radarr_config_path }}"
+    state: directory
+    owner: "{{ radarr_uid }}"
+    group: "{{ radarr_gid }}"
+    mode: '0750'
+    recurse: true
+
+- name: Ensure Radarr movie library path exists
+  file:
+    path: "{{ radarr_movies_path }}"
+    state: directory
+    owner: "{{ radarr_uid }}"
+    group: "{{ radarr_gid }}"
+    mode: '2770'
 
 - name: Ensure radarr.service installed
   template:

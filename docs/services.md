@@ -170,9 +170,14 @@ This is a PVR for usenet and bittorrent users. It can monitor multiple RSS feeds
 
 Sonarr is available through the reverse proxy on port 8989 inside the Docker
 network. It runs as the shared non-root `1000:100` identity with `UMASK=002`,
-so newly created media files remain writable by the common group. The existing
-`/tv` and `/downloads` mappings are retained; changing their layout or enabling
-hardlinks requires a coordinated migration with the download client.
+so newly created media files remain writable by the common group. Its library
+is `/data/media/tv`; it also sees Transmission downloads at
+`/data/torrent/downloads` through the common `/data` mount.
+
+When adding Transmission as a download client, configure a Remote Path Mapping
+with host `transmission`, remote path `/downloads`, and local path
+`/data/torrent/downloads`. This preserves Transmission's existing path while
+allowing Sonarr to hardlink completed downloads instead of copying them.
 
 The image is pinned in host variables for predictable deployments. Review and
 update its tag deliberately after checking the Sonarr release notes.
@@ -182,9 +187,21 @@ and the [Sonarr Docker guide](https://wiki.servarr.com/en/sonarr/installation/do
 for application configuration and storage-layout guidance.
 
 # Radarr
-A fork of Sonarr to work with movies à la Couchpotato.
+Radarr manages movie downloads and imports. It is exposed through the reverse
+proxy on port 7878 and runs as the shared non-root `1000:100` identity with
+`UMASK=002`. Its movie library is `/data/media/movies`; completed Transmission
+downloads are available at `/data/torrent/downloads` through the same mount.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/radarr)
+When adding Transmission as a download client, configure a Remote Path Mapping
+with host `transmission`, remote path `/downloads`, and local path
+`/data/torrent/downloads`. This keeps completed torrents seedable while Radarr
+imports the movie via a hardlink.
+
+The image tag is pinned in host variables. Update it deliberately after
+reviewing the release notes. See the
+[LinuxServer image documentation](https://docs.linuxserver.io/images/docker-radarr/)
+and the [Radarr Docker guide](https://wiki.servarr.com/en/radarr/installation/docker)
+for application configuration.
 
 # Jackett
 Jackett works as a proxy server: it translates queries from apps (Sonarr, SickRage, CouchPotato, Mylar, etc) into tracker-site-specific http queries, parses the html response, then sends results back to the requesting software. This allows for getting recent uploads (like RSS) and performing searches. Jackett is a single repository of maintained indexer scraping & translation logic - removing the burden from other apps.

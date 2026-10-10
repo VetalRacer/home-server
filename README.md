@@ -26,7 +26,7 @@ This playbook sets up your server using the following Docker images:
 - [pihole/pihole](https://hub.docker.com/r/pihole/pihole) - the [pihole/pihole](https://hub.docker.com/r/pihole/pihole) Pi-hole image.
 - [shawly/ps3netsrv](https://hub.docker.com/r/shawly/ps3netsrv) - the [shawly/ps3netsrv](https://hub.docker.com/r/shawly/ps3netsrv) ps3netsrv image.
 - [linuxserver/speedtest-tracker](https://hub.docker.com/r/linuxserver/speedtest-tracker) - the [linuxserver/speedtest-tracker](https://hub.docker.com/r/linuxserver/speedtest-tracker) Speedtest Tracker image.
-- [linuxserver/overseerr](https://hub.docker.com/r/linuxserver/overseerr) - the [linuxserver/overseerr](https://hub.docker.com/r/linuxserver/overseerr) Overseerr image.
+- [seerr/seerr](https://github.com/seerr-team/seerr) - Seerr, a media-request and discovery service for Plex, Sonarr, and Radarr.
 - [linuxserver/sonarr](https://hub.docker.com/r/linuxserver/sonarr) - the [linuxserver/sonarr](https://hub.docker.com/r/linuxserver/sonarr) Sonarr image.
 - [linuxserver/radarr](https://hub.docker.com/r/linuxserver/radarr) - the [linuxserver/radarr](https://hub.docker.com/r/linuxserver/radarr) Radarr image.
 - [linuxserver/jackett](https://hub.docker.com/r/linuxserver/jackett) - the [linuxserver/jackett](https://hub.docker.com/r/linuxserver/jackett) Jackett image.

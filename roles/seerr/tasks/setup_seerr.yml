@@ -1,0 +1,49 @@
+---
+- name: Validate Seerr configuration
+  ansible.builtin.assert:
+    that:
+      - seerr_uid | int == 1000
+      - seerr_gid | int == 1000
+      - seerr_service_port | int >= 1
+      - seerr_service_port | int <= 65535
+      - seerr_service_hostname is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+      - seerr_log_level in ['debug', 'info', 'warn', 'error']
+    fail_msg: >-
+      Seerr requires UID/GID 1000, a valid service port and hostname, and a
+      supported log level.
+
+- name: Ensure Seerr configuration path exists
+  ansible.builtin.file:
+    path: "{{ seerr_config_path }}"
+    state: directory
+    owner: "{{ seerr_uid }}"
+    group: "{{ seerr_gid }}"
+    mode: '0750'
+
+- name: Ensure Seerr image is pulled
+  docker_image:
+    name: "{{ seerr_docker_image }}"
+    source: pull
+
+- name: Check whether the legacy Overseerr unit exists
+  ansible.builtin.stat:
+    path: /etc/systemd/system/overseerr.service
+  register: seerr_legacy_unit
+
+- name: Disable legacy Overseerr service
+  ansible.builtin.systemd:
+    name: overseerr.service
+    enabled: false
+  when: seerr_legacy_unit.stat.exists
+
+- name: Ensure seerr.service is installed
+  ansible.builtin.template:
+    src: seerr/seerr.service.j2
+    dest: /etc/systemd/system/seerr.service
+    mode: '0644'
+  register: seerr_systemd_service
+
+- name: Reload systemd after Seerr service installation
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: seerr_systemd_service.changed

@@ -1,0 +1,16 @@
+---
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: seerr_installation_enabled | bool
+  tags:
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/setup_seerr.yml"
+  when: seerr_installation_enabled | bool
+  tags:
+    - setup-seerr
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: seerr_installation_enabled | bool
+  tags:
+    - start

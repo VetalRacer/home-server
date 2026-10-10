@@ -15,7 +15,7 @@
     - { role: sonarr }
     - { role: radarr }
     - { role: jackett }
-    - { role: overseerr }
+    - { role: seerr }
     - { role: tvheadend }
     - { role: metube }
     - { role: nexus }

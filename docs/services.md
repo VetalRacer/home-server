@@ -160,10 +160,28 @@ the widget rather than making unauthenticated API requests.
 See the [upstream documentation](https://docs.speedtest-tracker.dev/) for
 application settings and usage.
 
-# Overseerr
-This is a request management and media discovery tool built to work with your existing Plex ecosystem.
+# Seerr
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/overseerr)
+Seerr is the supported successor to Overseerr. It manages media requests and
+discovery for Plex, then sends approved movie and TV requests to Radarr and
+Sonarr. It is available only through the reverse proxy at the configured
+`seerr_service_hostname`; port 5055 is not published on the host.
+
+For an Overseerr migration, Seerr deliberately reuses the existing host
+configuration directory, but mounts it at `/app/config`, as required by the
+official image. Before the first Seerr deployment, back up that directory and
+run `scripts/fix_storage_permissions.sh` on the host so Seerr's `1000:1000`
+runtime user can write it. The initial launch migrates the stored application
+data; do not run the old Overseerr service afterwards.
+
+During the setup wizard, connect Plex and use the Docker-network addresses
+`http://sonarr:8989` and `http://radarr:7878` for the respective integrations.
+Restrict request approval and administration permissions to trusted Plex users.
+Update the pinned `seerr_docker_image_tag` only after reviewing Seerr's release
+notes and migration guidance.
+
+See the [official Seerr documentation](https://docs.seerr.dev/getting-started/)
+and its [Overseerr migration guide](https://github.com/seerr-team/seerr/blob/develop/docs/migration-guide.mdx).
 
 # Sonarr
 This is a PVR for usenet and bittorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them. It can also be configured to automatically upgrade the quality of files already downloaded when a better quality format becomes available.

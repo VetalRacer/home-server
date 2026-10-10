@@ -1,0 +1,31 @@
+[Unit]
+Description=Seerr service
+Requires=docker.service
+After=docker.service
+Conflicts=overseerr.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill seerr 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm seerr 2>/dev/null'
+ExecStart=/usr/bin/docker run --rm --name seerr \
+  --init \
+  --log-driver=none \
+  --network={{ nginx_docker_network }} \
+  --env TZ={{ timezone }} \
+  --env PORT={{ seerr_service_port }} \
+  --env LOG_LEVEL={{ seerr_log_level }} \
+  --env VIRTUAL_HOST={{ seerr_service_hostname }} \
+  --env VIRTUAL_PORT={{ seerr_service_port }} \
+  --security-opt=no-new-privileges:true \
+  -v {{ seerr_config_path }}:/app/config \
+  {{ seerr_docker_image }}
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill seerr 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm seerr 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=seerr
+
+[Install]
+WantedBy=multi-user.target

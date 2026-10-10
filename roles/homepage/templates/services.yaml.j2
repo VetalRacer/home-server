@@ -37,14 +37,14 @@
         container: nextcloud
 {% endif %}
 {% endif %}
-{% if overseerr_installation_enabled == true %}
-    - Overseerr:
-        icon: overseerr.png
-        href: http://{{ overseerr_service_hostname }}
+{% if seerr_installation_enabled == true %}
+    - Seerr:
+        icon: seerr.png
+        href: http://{{ seerr_service_hostname }}
         description: Request TV Shows and Movies via WebUI
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
-        container: overseerr
+        container: seerr
 {% endif %}
 {% endif %}
 {% if sonarr_installation_enabled == true %}

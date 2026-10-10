@@ -22,7 +22,7 @@ speedtest_installation_enabled: true
 sonarr_installation_enabled: true
 radarr_installation_enabled: true
 jackett_installation_enabled: true
-overseerr_installation_enabled: true
+seerr_installation_enabled: true
 tvheadend_installation_enabled: true
 metube_installation_enabled: true
 nexus_installation_enabled: true
@@ -49,7 +49,7 @@ speedtest_service_hostname: "speedtest.YOUR_DOMAIN_NAME_HERE"
 sonarr_service_hostname: "sonarr.YOUR_DOMAIN_NAME_HERE"
 radarr_service_hostname: "radarr.YOUR_DOMAIN_NAME_HERE"
 jackett_service_hostname: "jackett.YOUR_DOMAIN_NAME_HERE"
-overseerr_service_hostname: "overseerr.YOUR_DOMAIN_NAME_HERE"
+seerr_service_hostname: "seerr.YOUR_DOMAIN_NAME_HERE"
 tvheadend_service_hostname: "tvheadend.YOUR_DOMAIN_NAME_HERE"
 metube_service_hostname: "metube.YOUR_DOMAIN_NAME_HERE"
 nexus_service_hostname: "nexus.YOUR_DOMAIN_NAME_HERE"
@@ -138,8 +138,8 @@ radarr_docker_image_tag: 6.4.4.10685-ls319
 # Jackett service tag
 jackett_docker_image_tag: v0.24.2800-ls51
 
-# Overseerr service tag
-overseerr_docker_image_tag: latest
+# Seerr service tag.
+seerr_docker_image_tag: v3.4.1
 
 # TVheadend service tag
 tvheadend_docker_image_tag: latest

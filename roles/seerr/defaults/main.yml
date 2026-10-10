@@ -1,0 +1,19 @@
+---
+# Reuse the legacy Overseerr appdata directory. Seerr migrates its contents on
+# first start, while retaining the established host backup location.
+seerr_base_data_path: "{{ services_base_data_path }}/overseerr"
+seerr_data_path: "{{ seerr_base_data_path }}/data"
+seerr_config_path: "{{ seerr_data_path }}/config"
+
+seerr_docker_image_template: "ghcr.io/seerr-team/seerr:__VERSION__"
+seerr_docker_image: "{{ seerr_docker_image_template | replace('__VERSION__', seerr_docker_image_tag) }}"
+
+# The official image runs as its built-in `node` user (UID/GID 1000). These
+# values are intentionally fixed to keep host ownership aligned with it.
+seerr_uid: "1000"
+seerr_gid: "1000"
+seerr_service_port: 5055
+seerr_log_level: info
+
+seerr_services_list:
+  - seerr.service

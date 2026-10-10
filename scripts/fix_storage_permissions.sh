@@ -92,6 +92,23 @@ done
 
 echo "Done. Existing Sonarr, Radarr, and Jackett state is writable by ${service_owner}."
 
+seerr_config_path="/datafolder/homeserver/services/overseerr/data/config"
+
+if [[ -d "${seerr_config_path}" ]]; then
+  seerr_config_path="$(realpath -e -- "${seerr_config_path}")"
+
+  if [[ ! "${seerr_config_path}" =~ ^/datafolder/[^/]+/services/overseerr/data/config$ ]]; then
+    echo "Refusing to modify an unexpected Seerr migration path: ${seerr_config_path}" >&2
+    exit 1
+  fi
+
+  echo "Updating Seerr migration configuration ownership to 1000:1000..."
+  chown -R --no-dereference 1000:1000 "${seerr_config_path}"
+  echo "Done. The migrated Seerr state is writable by 1000:1000."
+else
+  echo "Skipping Seerr: legacy Overseerr configuration directory does not exist."
+fi
+
 if [[ -e /etc/resolv.conf ]]; then
   echo "Restricting host resolver configuration permissions..."
   chown root:root /etc/resolv.conf

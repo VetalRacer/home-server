@@ -238,11 +238,6 @@ See the [LinuxServer image documentation](https://docs.linuxserver.io/images/doc
 and the [Jackett troubleshooting guide](https://github.com/Jackett/Jackett/wiki/Troubleshooting)
 for tracker and security configuration.
 
-# TVHeadend
-Tvheadend works as a proxy server: is a TV streaming server and recorder for Linux, FreeBSD and Android supporting DVB-S, DVB-S2, DVB-C, DVB-T, ATSC, ISDB-T, IPTV, SAT>IP and HDHomeRun as input sources. Tvheadend offers the HTTP (VLC, MPlayer), HTSP (Kodi, Movian) and SAT>IP streaming. Multiple EPG sources are supported (over-the-air DVB and ATSC including OpenTV DVB extensions, XMLTV, PyXML).
-
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/tvheadend)
-
 # MeTube
 Web GUI for youtube-dl (using the yt-dlp fork) with playlist support. Allows you to download videos from YouTube and dozens of other sites (https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 

@@ -16,7 +16,6 @@
     - { role: radarr }
     - { role: jackett }
     - { role: seerr }
-    - { role: tvheadend }
     - { role: metube }
     - { role: nexus }
     - { role: prometheus }

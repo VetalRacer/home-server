@@ -67,16 +67,6 @@
         container: radarr
 {% endif %}
 {% endif %}
-{% if tvheadend_installation_enabled == true %}
-    - TVHeadend:
-        icon: tvheadend.png
-        href: http://{{ tvheadend_service_hostname }}
-        description: TV Channels over LAN
-{% if homepage_docker_integration_enabled | bool %}
-        server: homeserver
-        container: tvheadend
-{% endif %}
-{% endif %}
 {% if metube_installation_enabled == true %}
     - MeTube:
         icon: metube.png

@@ -30,7 +30,6 @@ This playbook sets up your server using the following Docker images:
 - [linuxserver/sonarr](https://hub.docker.com/r/linuxserver/sonarr) - the [linuxserver/sonarr](https://hub.docker.com/r/linuxserver/sonarr) Sonarr image.
 - [linuxserver/radarr](https://hub.docker.com/r/linuxserver/radarr) - the [linuxserver/radarr](https://hub.docker.com/r/linuxserver/radarr) Radarr image.
 - [linuxserver/jackett](https://hub.docker.com/r/linuxserver/jackett) - the [linuxserver/jackett](https://hub.docker.com/r/linuxserver/jackett) Jackett image.
-- [linuxserver/tvheadend](https://hub.docker.com/r/linuxserver/tvheadend) - the [linuxserver/tvheadend](https://hub.docker.com/r/linuxserver/tvheadend) TVHeadend image.
 - [alexta69/metube](https://hub.docker.com/r/alexta69/metube) - the [alexta69/metube](https://hub.docker.com/r/alexta69/metube) MeTube image.
 - [sonatype/nexus3](https://hub.docker.com/r/sonatype/nexus3) - the [sonatype/nexus3](https://hub.docker.com/r/sonatype/nexus3) Nexus image.
 - [prom/prometheus](https://hub.docker.com/r/prom/prometheus) - the [prom/prometheus](https://hub.docker.com/r/prom/prometheus) Prometheus image.

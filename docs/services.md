@@ -261,9 +261,34 @@ See the [official MeTube documentation](https://github.com/alexta69/metube)
 for supported sites and cookies for restricted content.
 
 # Nexus
-Nexus3 Disaster Recovery (N3DR) is a tool that is capable of downloading all artifacts from a Nexus3 server and to migrate them to another one.
+Nexus Repository stores internal and proxied packages, container images, and
+their metadata. Its persistent state is
+`/datafolder/homeserver/services/nexus/data`, mounted as `/nexus-data` and
+owned by the Nexus runtime user `200:200`.
 
-You can read more about configured [here](https://hub.docker.com/r/sonatype/nexus3)
+The main administration UI is available at `nexus_service_hostname`. Additional
+hosts in `nexus_repository` proxy HTTP connector ports configured in Nexus,
+for example Docker registry connectors. The reverse proxy disables request and
+response buffering and removes the upload-size limit for these hosts, allowing
+large image layers to be pushed reliably. Keep repository authentication and
+anonymous-access policy configured within Nexus itself.
+
+The first administrator password is generated in `admin.password` under the
+Nexus data directory. Use it only for the first sign-in, then change it; do
+not place it in host vars or Ansible output.
+
+The service is stopped gracefully for up to 120 seconds to protect its
+database and blob stores. Back up `/nexus-data` using a Nexus-consistent backup
+procedure before any version or database migration, and test restoration
+separately.
+
+This deployment intentionally remains on its configured Nexus image tag.
+Older Nexus versions may require a staged database migration rather than a
+direct image upgrade; follow Sonatype's upgrade documentation before changing
+`nexus_docker_image_tag`.
+
+See the [official Nexus container documentation](https://hub.docker.com/r/sonatype/nexus3)
+and [upgrade guidance](https://help.sonatype.com/en/upgrade-nexus-repository.html).
 
 # Prometheus
 Prometheus is a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts if some condition is observed to be true.

@@ -92,6 +92,23 @@ done
 
 echo "Done. Existing Sonarr, Radarr, and Jackett state is writable by ${service_owner}."
 
+nexus_data_path="/datafolder/homeserver/services/nexus/data"
+
+if [[ -d "${nexus_data_path}" ]]; then
+  nexus_data_path="$(realpath -e -- "${nexus_data_path}")"
+
+  if [[ ! "${nexus_data_path}" =~ ^/datafolder/[^/]+/services/nexus/data$ ]]; then
+    echo "Refusing to modify an unexpected Nexus data path: ${nexus_data_path}" >&2
+    exit 1
+  fi
+
+  echo "Updating Nexus data ownership to 200:200..."
+  chown -R --no-dereference 200:200 "${nexus_data_path}"
+  echo "Done. Nexus data is writable by its runtime user."
+else
+  echo "Skipping Nexus: data directory does not exist."
+fi
+
 metube_downloads_path="/datafolder/sharefolder/media/youtube/downloads"
 
 if [[ -d "${metube_downloads_path}" ]]; then

@@ -10,16 +10,15 @@ nexus_data_path: "{{ nexus_base_data_path }}/data"
 
 # Nexus envs
 nexus_service_port: 8081
+nexus_shutdown_timeout: 120
+# Leave empty to retain the image defaults. Set only after sizing the JVM for
+# the host, for example: "-Xms2g -Xmx2g -XX:MaxDirectMemorySize=2g".
+nexus_jvm_options: ""
 
-# Nexus repository
-nexus_repository:
-  - url: proxy.nexus.loc
-    port: 49001
-  - url: registry.nexus.loc
-    port: 49002
+# Additional Nexus HTTP connector hosts. Define site-specific hostnames and
+# connector ports in host vars; an empty list is valid when only the UI is used.
+nexus_repository: []
 
 # Nexus services
-nexus_services_list: |
-  {{
-    (['nexus.service'])
-  }}
+nexus_services_list:
+  - nexus.service

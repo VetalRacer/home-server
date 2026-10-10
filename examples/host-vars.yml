@@ -145,6 +145,13 @@ metube_docker_image_tag: 2026.10.09
 
 # Nexus service tag
 nexus_docker_image_tag: 3.47.1
+# Optional connector hosts, for example Docker registries, must match HTTP
+# connector ports configured in Nexus itself.
+nexus_repository:
+  - hostname: "proxy.nexus.YOUR_DOMAIN_NAME_HERE"
+    port: 49001
+  - hostname: "registry.nexus.YOUR_DOMAIN_NAME_HERE"
+    port: 49002
 
 # Grafana service tag
 grafana_docker_image_tag: 9.2.8

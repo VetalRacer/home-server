@@ -11,16 +11,21 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill nexus 2>/
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm nexus 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name nexus \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ nexus_service_hostname }} \
-			--env VIRTUAL_PORT={{ nexus_service_port }} \
-      		-v {{ nexus_data_path }}:/nexus-data \
-			{{ nexus_docker_image }}
+  --log-driver=none \
+  --network={{ nginx_docker_network }} \
+  --env TZ={{ timezone }} \
+  --env VIRTUAL_HOST={{ nexus_service_hostname }} \
+  --env VIRTUAL_PORT={{ nexus_service_port }} \
+{% if nexus_jvm_options | length > 0 %}
+  --env INSTALL4J_ADD_VM_PARAMS={{ nexus_jvm_options | quote }} \
+{% endif %}
+  --security-opt=no-new-privileges:true \
+  -v {{ nexus_data_path }}:/nexus-data \
+  {{ nexus_docker_image }}
 
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill nexus 2>/dev/null'
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm nexus 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --time={{ nexus_shutdown_timeout }} nexus 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm nexus 2>/dev/null'
+TimeoutStopSec={{ nexus_shutdown_timeout | int + 30 }}
 Restart=always
 RestartSec=30
 SyslogIdentifier=nexus

@@ -1,15 +1,29 @@
 # Base directory that contains everything
 metube_base_data_path: "{{ services_base_data_path }}/metube"
 
-# MeTube edition
-metube_docker_image_template: "alexta69/metube:__VERSION__"
+# MeTube image. Tags follow the upstream release date and are deliberately
+# pinned for reproducible deployments.
+metube_docker_image_template: "ghcr.io/alexta69/metube:__VERSION__"
 metube_docker_image: "{{ metube_docker_image_template|replace('__VERSION__', metube_docker_image_tag) }}"
 
 # MeTube media data
 metube_downloads_path: "{{ sharefolder_base_data_path }}/media/youtube/downloads"
 
+metube_uid: "1000"
+metube_gid: "100"
+metube_umask: "002"
+metube_service_port: 8081
+
+# MeTube is intentionally available only from RFC1918 private networks through
+# nginx-proxy. It is not an authenticated multi-user service.
+metube_network_access: internal
+
+# Bound resource use and keep the download tree under operator control.
+metube_max_concurrent_downloads: 5
+metube_playlist_item_limit: 200
+metube_custom_dirs: false
+metube_allow_ytdl_options_overrides: false
+
 # MeTube services
-metube_services_list: |
-  {{
-    (['metube.service'])
-  }}
+metube_services_list:
+  - metube.service

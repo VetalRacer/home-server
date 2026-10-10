@@ -239,9 +239,26 @@ and the [Jackett troubleshooting guide](https://github.com/Jackett/Jackett/wiki/
 for tracker and security configuration.
 
 # MeTube
-Web GUI for youtube-dl (using the yt-dlp fork) with playlist support. Allows you to download videos from YouTube and dozens of other sites (https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
+MeTube is a web interface for yt-dlp that downloads videos, audio, playlists,
+and subscriptions to `/datafolder/sharefolder/media/youtube/downloads`. It runs
+as the shared `1000:100` identity with `UMASK=002`, so downloads remain
+writable by the `users` group.
 
-You can read more about configured [here](https://hub.docker.com/r/alexta69/metube)
+The Web UI is available only from private networks through the reverse proxy;
+it has no built-in multi-user authentication. Do not expose it to the public
+Internet, and do not enable per-download yt-dlp option overrides: upstream
+notes that this may allow commands to run in the container. Downloads are
+limited to one concurrent job and 200 items per playlist by default. Custom
+download directories are disabled, keeping all writes below the managed
+download directory.
+
+Before applying the permissions change to an existing installation, run
+`scripts/fix_storage_permissions.sh` on the server. The role pins a MeTube
+image tag; update it deliberately because yt-dlp requires frequent updates to
+remain compatible with video sites.
+
+See the [official MeTube documentation](https://github.com/alexta69/metube)
+for supported sites and cookies for restricted content.
 
 # Nexus
 Nexus3 Disaster Recovery (N3DR) is a tool that is capable of downloading all artifacts from a Nexus3 server and to migrate them to another one.

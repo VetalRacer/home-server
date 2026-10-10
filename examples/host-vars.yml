@@ -141,7 +141,7 @@ seerr_docker_image_tag: v3.4.1
 
 
 # MeTube service tag
-metube_docker_image_tag: 2025-05-01
+metube_docker_image_tag: 2026.10.09
 
 # Nexus service tag
 nexus_docker_image_tag: 3.47.1

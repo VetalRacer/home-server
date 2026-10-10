@@ -92,6 +92,25 @@ done
 
 echo "Done. Existing Sonarr, Radarr, and Jackett state is writable by ${service_owner}."
 
+metube_downloads_path="/datafolder/sharefolder/media/youtube/downloads"
+
+if [[ -d "${metube_downloads_path}" ]]; then
+  metube_downloads_path="$(realpath -e -- "${metube_downloads_path}")"
+
+  if [[ ! "${metube_downloads_path}" =~ ^/datafolder/sharefolder/media/youtube/downloads$ ]]; then
+    echo "Refusing to modify an unexpected MeTube download path: ${metube_downloads_path}" >&2
+    exit 1
+  fi
+
+  echo "Updating MeTube download ownership to ${service_owner}..."
+  chown -R --no-dereference "${service_owner}" "${metube_downloads_path}"
+  find -P "${metube_downloads_path}" -type d -exec chmod g+rwx,g+s {} +
+  find -P "${metube_downloads_path}" -type f -exec chmod g+rw {} +
+  echo "Done. MeTube downloads are writable by ${service_owner} and their group."
+else
+  echo "Skipping MeTube: download directory does not exist."
+fi
+
 seerr_config_path="/datafolder/homeserver/services/overseerr/data/config"
 
 if [[ -d "${seerr_config_path}" ]]; then

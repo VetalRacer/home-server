@@ -1,19 +1,35 @@
 ---
+- name: Validate MeTube configuration
+  ansible.builtin.assert:
+    that:
+      - metube_uid | int > 0
+      - metube_gid | int > 0
+      - metube_service_port | int >= 1
+      - metube_service_port | int <= 65535
+      - metube_service_hostname is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+      - metube_umask is match('^[0-7]{3,4}$')
+      - metube_network_access == 'internal'
+      - metube_max_concurrent_downloads | int > 0
+      - metube_playlist_item_limit | int > 0
+      - metube_custom_dirs | bool == false
+      - metube_allow_ytdl_options_overrides | bool == false
+    fail_msg: >-
+      Define non-root UID/GID values, a valid hostname, port and UMASK, and
+      keep MeTube restricted to the internal network with bounded downloads.
+
 
 - name: Ensure MeTube image is pulled
   docker_image:
     name: "{{ metube_docker_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
-- name: Ensure MeTube paths exist
-  file:
-    path: "{{ item }}"
+- name: Ensure MeTube download path exists
+  ansible.builtin.file:
+    path: "{{ metube_downloads_path }}"
     state: directory
-    mode: 0750
-    owner: "root"
-    group: "root"
-  with_items:
-    - "{{ metube_downloads_path }}"
+    mode: '2770'
+    owner: "{{ metube_uid }}"
+    group: "{{ metube_gid }}"
 
 - name: Ensure metube.service installed
   template:

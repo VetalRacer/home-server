@@ -168,7 +168,18 @@ You can read more about configured [here](https://hub.docker.com/r/linuxserver/o
 # Sonarr
 This is a PVR for usenet and bittorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them. It can also be configured to automatically upgrade the quality of files already downloaded when a better quality format becomes available.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/overseerr)
+Sonarr is available through the reverse proxy on port 8989 inside the Docker
+network. It runs as the shared non-root `1000:100` identity with `UMASK=002`,
+so newly created media files remain writable by the common group. The existing
+`/tv` and `/downloads` mappings are retained; changing their layout or enabling
+hardlinks requires a coordinated migration with the download client.
+
+The image is pinned in host variables for predictable deployments. Review and
+update its tag deliberately after checking the Sonarr release notes.
+
+See the [LinuxServer image documentation](https://docs.linuxserver.io/images/docker-sonarr/)
+and the [Sonarr Docker guide](https://wiki.servarr.com/en/sonarr/installation/docker)
+for application configuration and storage-layout guidance.
 
 # Radarr
 A fork of Sonarr to work with movies à la Couchpotato.

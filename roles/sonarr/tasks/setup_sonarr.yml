@@ -1,5 +1,36 @@
 ---
 
+- name: Validate Sonarr configuration
+  assert:
+    that:
+      - sonarr_uid | int > 0
+      - sonarr_gid | int > 0
+      - sonarr_service_port | int > 0
+      - sonarr_service_port | int < 65536
+      - sonarr_umask is match('^[0-7]{3,4}$')
+      - sonarr_service_hostname is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+      - sonarr_tv_path is match('^' ~ (sharefolder_base_data_path | regex_escape) ~ '/.+')
+      - sonarr_downloads_path is match('^' ~ (sharefolder_base_data_path | regex_escape) ~ '/.+')
+    fail_msg: >-
+      Define non-root Sonarr UID/GID values, a valid hostname, port and umask,
+      and keep the existing TV and downloads paths beneath the share root.
+
+- name: Check Sonarr media paths exist
+  stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ sonarr_tv_path }}"
+    - "{{ sonarr_downloads_path }}"
+  register: sonarr_media_paths
+  changed_when: false
+
+- name: Validate Sonarr media paths
+  assert:
+    that:
+      - item.stat.isdir | default(false)
+    fail_msg: "Sonarr media path must already exist and be a directory: {{ item.item }}"
+  loop: "{{ sonarr_media_paths.results }}"
+
 - name: Ensure Sonarr image is pulled
   docker_image:
     name: "{{ sonarr_docker_image }}"
@@ -10,10 +41,20 @@
     path: "{{ item }}"
     state: directory
     mode: 0750
-    owner: "root"
-    group: "root"
+    owner: "{{ sonarr_uid }}"
+    group: "{{ sonarr_gid }}"
   with_items:
     - "{{ sonarr_data_path }}"
+    - "{{ sonarr_config_path }}"
+
+- name: Ensure Sonarr configuration is writable
+  file:
+    path: "{{ sonarr_config_path }}"
+    state: directory
+    owner: "{{ sonarr_uid }}"
+    group: "{{ sonarr_gid }}"
+    mode: '0750'
+    recurse: true
 
 - name: Ensure sonarr.service installed
   template:

@@ -15,9 +15,12 @@ sonarr_config_path: "{{ sonarr_data_path }}/config"
 sonarr_tv_path: "{{ sharefolder_base_data_path }}/media/movies"
 sonarr_downloads_path: "{{ sharefolder_base_data_path }}/torrent"
 
-# Sonarr global envs
-sonarr_uid: "0"
-sonarr_gid: "0"
+# Sonarr runtime configuration. Use the shared non-root identity so Sonarr,
+# Transmission, and Samba can access the same media tree.
+sonarr_uid: "1000"
+sonarr_gid: "100"
+sonarr_service_port: 8989
+sonarr_umask: "002"
 
 # Sonarr services
 sonarr_services_list: |

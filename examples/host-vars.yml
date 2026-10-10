@@ -130,7 +130,7 @@ ps3netsrv_docker_image_tag: v2.0.1
 speedtest_docker_image_tag: 1.15.0
 
 # Sonarr service tag
-sonarr_docker_image_tag: latest
+sonarr_docker_image_tag: 4.0.20.3014-ls326
 
 # Radarr service tag
 radarr_docker_image_tag: latest

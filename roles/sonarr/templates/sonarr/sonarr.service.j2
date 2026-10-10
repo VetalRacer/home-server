@@ -11,17 +11,19 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill sonarr 2>
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm sonarr 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name sonarr \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ sonarr_service_hostname }} \
-			--env PUID={{ sonarr_uid }} \
-  			--env PGID={{ sonarr_gid }} \
-#			-p 8989:8989 \
-      		-v {{ sonarr_config_path }}:/config \
-			-v {{ sonarr_tv_path }}:/tv \
-			-v {{ sonarr_downloads_path }}:/downloads \
-			{{ sonarr_docker_image }}
+            --log-driver=none \
+            --network={{ nginx_docker_network }} \
+            --env TZ={{ timezone }} \
+            --env VIRTUAL_HOST={{ sonarr_service_hostname }} \
+            --env VIRTUAL_PORT={{ sonarr_service_port }} \
+            --env PUID={{ sonarr_uid }} \
+            --env PGID={{ sonarr_gid }} \
+            --env UMASK={{ sonarr_umask }} \
+            --security-opt=no-new-privileges:true \
+            -v {{ sonarr_config_path }}:/config \
+            -v {{ sonarr_tv_path }}:/tv \
+            -v {{ sonarr_downloads_path }}:/downloads \
+            {{ sonarr_docker_image }}
 
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill sonarr 2>/dev/null'

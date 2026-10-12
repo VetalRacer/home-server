@@ -2,7 +2,6 @@
 Description=Prometheus-smartctl service
 Requires=docker.service
 After=docker.service
-DefaultDependencies=no
 
 [Service]
 Type=simple
@@ -10,17 +9,19 @@ Environment="HOME={{ systemd_unit_home_path }}"
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus-smartctl 2>/dev/null'
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-smartctl 2>/dev/null'
 
+## The upstream exporter requires privileged access for smartctl to query disks.
+## Its metrics endpoint remains available only on the Docker network.
 ExecStart=/usr/bin/docker run --rm --name prometheus-smartctl \
-			--log-driver=none \
-			--privileged \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-			-p 9902:9902 \
-			{{ prometheus_smartctl_exporter_docker_image }}
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--env TZ={{ timezone }} \
+	--privileged \
+	{{ prometheus_smartctl_exporter_docker_image }}
 
 
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus-smartctl 2>/dev/null'
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-smartctl 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout={{ prometheus_shutdown_timeout }} prometheus-smartctl 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-smartctl 2>/dev/null'
+TimeoutStopSec={{ prometheus_shutdown_timeout | int + 30 }}
 Restart=always
 RestartSec=30
 SyslogIdentifier=prometheus-smartctl

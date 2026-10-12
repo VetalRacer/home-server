@@ -157,7 +157,11 @@ nexus_repository:
 grafana_docker_image_tag: 9.2.8
 
 # Prometheus service tag
-prometheus_docker_image_tag: latest
+prometheus_docker_image_tag: v3.14.0
+prometheus_node_exporter_docker_image_tag: v1.10.2
+prometheus_smartctl_exporter_docker_image_tag: v2.5.0
+prometheus_cadvisor_exporter_docker_image_tag: 0.55.1
+prometheus_blackbox_exporter_docker_image_tag: v0.28.0
 
 # Postgres service tag
 postgres_docker_image_tag: 15.2
@@ -243,8 +247,14 @@ plex_claim: ''
 plex_apikey: '' # see https://www.plexopedia.com/plex-media-server/general/plex-token/
 
 # Prometheus settings
-prometheus_retantion_time_enabled: false
-prometheus_retantion_time: 180d
+# Both limits apply: the oldest metrics are removed when either is reached.
+prometheus_retention_time: 180d
+prometheus_retention_size: 100GB
+# Keep false unless Prometheus UI/API access through nginx-proxy is intentional.
+# prometheus_expose_via_proxy: true
+# Site-specific remote monitoring targets. Local Prometheus and exporters are
+# configured by the role and do not need to be repeated here.
+prometheus_additional_scrape_jobs: []
 
 # TubeArchivist settings
 tubearchivist_apikey: ''

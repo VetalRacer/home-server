@@ -291,9 +291,42 @@ See the [official Nexus container documentation](https://hub.docker.com/r/sonaty
 and [upgrade guidance](https://help.sonatype.com/en/upgrade-nexus-repository.html).
 
 # Prometheus
-Prometheus is a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts if some condition is observed to be true.
+Prometheus collects metrics from this host and the targets listed in
+`prometheus_additional_scrape_jobs`. Grafana reaches it internally at
+`http://prometheus:9090`; the Prometheus UI/API is deliberately not published
+to the host network by default. Set `prometheus_expose_via_proxy: true` only
+when direct access through `prometheus_service_hostname` is required and the
+network is trusted. A Grafana instance on another host can then use
+`http://<prometheus_service_hostname>` as its Prometheus datasource. Prometheus
+does not provide user authentication by default, so do not expose this hostname
+to an untrusted network or the Internet without adding authentication and TLS
+at the reverse proxy.
 
-You can read more about configured [here](https://hub.docker.com/r/prom/prometheus)
+The node, Blackbox, SMART and cAdvisor exporters are likewise accessible only
+on the shared Docker network. cAdvisor and the SMART exporter retain
+`--privileged`: their upstream images need host access to collect complete
+container and disk metrics. Treat these containers as trusted infrastructure.
+
+Pin all five image tags in host vars and upgrade them deliberately. Metrics are
+stored locally beneath the configured Prometheus service data path; both
+`prometheus_retention_time` and `prometheus_retention_size` apply, so the first
+reached limit removes the oldest data. Leave sufficient free disk space for
+TSDB compaction; Prometheus recommends reserving 15–20% beyond the size limit.
+
+`prometheus_additional_scrape_jobs` is a list of jobs with `job_name`,
+`targets`, and optional `labels`, for example:
+
+```yaml
+prometheus_additional_scrape_jobs:
+  - job_name: node-office-pc
+    targets: ["office-pc.example:9100"]
+    labels:
+      instance: office-pc
+```
+
+Run `ansible-playbook -i inventory/hosts setup.yml --tags=setup-prometheus,setup-exporter,start --check --diff`
+before applying an image upgrade. See the [Prometheus storage documentation](https://prometheus.io/docs/prometheus/latest/storage/)
+and [cAdvisor documentation](https://github.com/google/cadvisor).
 
 # Grafana
 Grafana allows you to query, visualize, alert on and understand your metrics no matter where they are stored. Create, explore, and share dashboards with your team and foster a data-driven culture.

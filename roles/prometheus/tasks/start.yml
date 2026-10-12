@@ -1,31 +1,19 @@
 ---
 
 - name: Ensure systemd reloaded
-  service:
-    daemon_reload: yes
-
-- name: Ensure Exporter services stopped
-  service:
-    name: "{{ item }}"
-    state: stopped
-  with_items: "{{ exporter_services_list }}"
+  ansible.builtin.systemd:
+    daemon_reload: true
 
 - name: Ensure Exporter services started
-  service:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: yes
     state: started
-  with_items: "{{ exporter_services_list }}"
-
-- name: Ensure Prometheus services stopped
-  service:
-    name: "{{ item }}"
-    state: stopped
-  with_items: "{{ prometheus_services_list }}"
+  loop: "{{ exporter_services_list }}"
 
 - name: Ensure Prometheus services started
-  service:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: yes
     state: started
-  with_items: "{{ prometheus_services_list }}"
+  loop: "{{ prometheus_services_list }}"

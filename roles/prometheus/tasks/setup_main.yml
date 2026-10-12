@@ -1,21 +1,40 @@
 ---
 
 - name: Ensure Prometheus base path exists
-  file:
+  ansible.builtin.file:
     path: "{{ prometheus_base_data_path }}"
     state: directory
     mode: 0750
     owner: root
     group: root
 
+- name: Validate Prometheus configuration
+  ansible.builtin.assert:
+    that:
+      - prometheus_service_port | int >= 1
+      - prometheus_service_port | int <= 65535
+      - prometheus_shutdown_timeout | int >= 10
+      - prometheus_retention_time is match('^[1-9][0-9]*(y|w|d|h|m|s|ms)$')
+      - prometheus_retention_size is match('^[1-9][0-9]*(B|KB|MB|GB|TB|PB)$')
+      - prometheus_scrape_interval is match('^[1-9][0-9]*(h|m|s|ms)$')
+      - prometheus_evaluation_interval is match('^[1-9][0-9]*(h|m|s|ms)$')
+      - prometheus_blackbox_targets is iterable
+      - prometheus_additional_scrape_jobs is iterable
+      - prometheus_docker_image is match('^.+:.+$')
+      - prometheus_exporter_docker_images | select('match', '^.+:.+$') | list | length == prometheus_exporter_docker_images | length
+      - not (prometheus_expose_via_proxy | bool) or ((prometheus_service_hostname | default('') | trim | length > 0) and (prometheus_service_hostname is not search('\\s')))
+    fail_msg: >-
+      Define valid image tags, retention limits, scrape intervals and target lists.
+      A hostname is required when Prometheus proxy exposure is enabled.
+
 - name: Check existence of Nginx-proxy network in Docker
-  shell:
-    cmd: "docker network ls -q --filter='name=^{{ nginx_docker_network }}$'"
+  ansible.builtin.command:
+    cmd: "docker network ls -q --filter=name=^{{ nginx_docker_network }}$"
   register: nginx_result_docker_network
   changed_when: false
 
 - name: Fail if docker network not defined
-  fail:
+  ansible.builtin.fail:
     msg: >-
       You need to define a docker network (`{{ nginx_docker_network }}`) for using this service.
   when: nginx_result_docker_network.stdout == ''

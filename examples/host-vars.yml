@@ -154,7 +154,7 @@ nexus_repository:
     port: 49002
 
 # Grafana service tag
-grafana_docker_image_tag: 9.2.8
+grafana_docker_image_tag: 13.2.2
 
 # Prometheus service tag
 prometheus_docker_image_tag: v3.14.0
@@ -196,9 +196,12 @@ q3server_docker_image_tag: v1.0.0
 transmission_username: ""
 transmission_password: ""
 
-# Grafana creds
+# Grafana credentials and the persistent encryption key. Encrypt real values
+# with Ansible Vault. Changing the secret key makes previously encrypted
+# Grafana data (for example datasource credentials) unreadable.
 grafana_username: admin
-grafana_password: admin
+grafana_password: ""
+grafana_secret_key: ""
 
 # Pi-hole administrator password. Store the real value with Ansible Vault.
 pihole_service_webpassword: ""

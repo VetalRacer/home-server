@@ -8,29 +8,30 @@ grafana_docker_image: "{{ grafana_docker_image_template|replace('__VERSION__', g
 # Grafana-related data
 grafana_data_path: "{{ grafana_base_data_path }}/data"
 grafana_config_path: "{{ grafana_base_data_path }}/config"
+grafana_env_path: "{{ grafana_base_data_path }}/grafana.env"
 grafana_config_dashboards_path: "{{ grafana_config_path }}/provisioning/dashboards"
 grafana_config_datasources_path: "{{ grafana_config_path }}/provisioning/datasources"
+grafana_config_alerting_path: "{{ grafana_config_path }}/provisioning/alerting"
+grafana_config_notifiers_path: "{{ grafana_config_path }}/provisioning/notifiers"
+grafana_config_plugins_path: "{{ grafana_config_path }}/provisioning/plugins"
+
+# The official image runs as UID/GID 472. Existing installations need their
+# state ownership migrated once with scripts/fix_storage_permissions.sh.
+grafana_uid: "472"
+grafana_gid: "472"
+grafana_service_port: 3000
+grafana_secret_key: ""
 
 # Grafana dashboards
-grafana_dashboards_list: |
-  {{
-    (['smart'])
-    +
-    (['node'])
-    +
-    (['docker-containers'])
-    +
-    (['docker-host'])
-    +
-    (['monitor-services'])
-    +
-    (['mdadm'])
-    +
-    (['general'])
-  }}
+grafana_dashboards_list:
+  - smart
+  - node
+  - docker-containers
+  - docker-host
+  - monitor-services
+  - mdadm
+  - general
 
 # Grafana services
-grafana_services_list: |
-  {{
-    (['grafana.service'])
-  }}
+grafana_services_list:
+  - grafana.service

@@ -329,9 +329,37 @@ before applying an image upgrade. See the [Prometheus storage documentation](htt
 and [cAdvisor documentation](https://github.com/google/cadvisor).
 
 # Grafana
-Grafana allows you to query, visualize, alert on and understand your metrics no matter where they are stored. Create, explore, and share dashboards with your team and foster a data-driven culture.
+Grafana is available through `grafana_service_hostname` and uses the internal
+Prometheus URL `http://prometheus:9090`. Its port is not published directly on
+the host; nginx-proxy is the only public entry point.
 
-You can read more about configured [here](https://hub.docker.com/r/grafana/grafana) or [here](https://github.com/grafana/grafana)
+Set `grafana_username`, `grafana_password`, and a persistent
+`grafana_secret_key` in host variables. Store the password and secret key with
+Ansible Vault. The secret key must be at least 32 characters and must remain
+unchanged: Grafana uses it to encrypt stored secrets. For example:
+
+```bash
+openssl rand -base64 48 | tr -d '\n' | ansible-vault encrypt_string --stdin-name grafana_secret_key
+```
+
+The administrator username and password environment variables initialize a new
+database only; change an existing administrator password in the Grafana UI.
+Managed dashboards and the Prometheus datasource are provisioned read-only
+from this repository. To customize one, first make a copy in the UI rather
+than editing the provisioned dashboard.
+
+Grafana 13 is a major update from the previous 9.x image. Before applying this
+role for the first time, stop Grafana and copy
+`/datafolder/homeserver/services/grafana/data/grafana.db` to a safe location.
+Then run `scripts/fix_storage_permissions.sh` once so the database belongs to
+the container user (`472:472`), and apply with:
+
+```bash
+ansible-playbook -i inventory/hosts setup.yml --tags=setup-grafana,start
+```
+
+See the [Grafana Docker documentation](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/)
+and [provisioning documentation](https://grafana.com/docs/grafana/latest/administration/provisioning/).
 
 # Postgres
 Postgres is a free and open-source relational database management system (RDBMS) emphasizing extensibility and SQL compliance.

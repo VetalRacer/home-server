@@ -4,6 +4,7 @@
   when: grafana_installation_enabled|bool == true
   tags:
     - setup-all
+    - setup-grafana
 
 - import_tasks: "{{ role_path }}/tasks/setup_grafana.yml"
   when: grafana_installation_enabled|bool == true

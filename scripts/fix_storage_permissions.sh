@@ -145,6 +145,23 @@ else
   echo "Skipping Seerr: legacy Overseerr configuration directory does not exist."
 fi
 
+grafana_data_path="/datafolder/homeserver/services/grafana/data"
+
+if [[ -d "${grafana_data_path}" ]]; then
+  grafana_data_path="$(realpath -e -- "${grafana_data_path}")"
+
+  if [[ ! "${grafana_data_path}" =~ ^/datafolder/[^/]+/services/grafana/data$ ]]; then
+    echo "Refusing to modify an unexpected Grafana data path: ${grafana_data_path}" >&2
+    exit 1
+  fi
+
+  echo "Updating Grafana data ownership to 472:472..."
+  chown -R --no-dereference 472:472 "${grafana_data_path}"
+  echo "Done. Grafana state is writable by its container user."
+else
+  echo "Skipping Grafana: data directory does not exist."
+fi
+
 if [[ -e /etc/resolv.conf ]]; then
   echo "Restricting host resolver configuration permissions..."
   chown root:root /etc/resolv.conf

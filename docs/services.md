@@ -388,6 +388,20 @@ See the [official PostgreSQL Docker image documentation](https://hub.docker.com/
 # pgAdmin
 pgAdmin 4 is a web based administration tool for the PostgreSQL database. 
 
+The service is available through `pgadmin_service_hostname` and reaches the
+PostgreSQL container through the internal Docker network; it does not publish
+an additional host port. The initial administrator is configured with
+`pgadmin_user` and `pgadmin_password`. These values only create the account
+when the pgAdmin data directory is empty, so changing them does not reset an
+existing pgAdmin password. Store `pgadmin_password` in Ansible Vault.
+
+The role stores credentials in a root-only environment file and disables the
+unused local Postfix service by default. Its persistent state is in
+`{{ services_base_data_path }}/pgadmin/data`; copy that directory before a
+major pgAdmin upgrade. pgAdmin listens on internal port `8080` because the
+container has no Linux capabilities; nginx-proxy forwards public requests to
+that port automatically.
+
 You can read more about configured [here](https://www.pgadmin.org/support/list/)
 
 # MotionEye

@@ -166,7 +166,7 @@ prometheus_blackbox_exporter_docker_image_tag: v0.28.0
 postgres_docker_image_tag: 15.2
 
 # pgAdmin service tag
-pgadmin_docker_image_tag: 9.3.0
+pgadmin_docker_image_tag: 9.18.0
 
 # MotionEye service tag
 motioneye_docker_image_tag: master-amd64
@@ -229,7 +229,9 @@ postgres_password: ""
 
 # pgAdmin creds
 pgadmin_user: admin@localhost
-pgadmin_password: admin
+# Use Ansible Vault for this value. The initial pgAdmin account variables are
+# used only when its data directory is first initialized.
+pgadmin_password: ""
 
 # Torrserver creds
 torrserver_admin_password: admin

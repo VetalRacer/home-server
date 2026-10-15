@@ -1,5 +1,22 @@
 ---
 
+- name: Validate pgAdmin configuration
+  ansible.builtin.assert:
+    that:
+      - pgadmin_docker_image_tag | default('') | trim | length > 0
+      - pgadmin_service_hostname | default('') is match('^\\S+$')
+      - pgadmin_user | default('') is match('^[^\\s@]+@[^\\s@]+$')
+      - pgadmin_password | default('') | length > 0
+      - pgadmin_password is not search('[\\r\\n]')
+      - pgadmin_uid | string is match('^[0-9]+$')
+      - pgadmin_gid | string is match('^[0-9]+$')
+      - pgadmin_service_port | int > 0
+      - pgadmin_service_port | int <= 65535
+    fail_msg: >-
+      Define a pgAdmin image tag, hostname, administrator email, password
+      without line breaks, numeric container UID/GID values, and a valid
+      internal service port.
+
 - name: Ensure pgAdmin image is pulled
   docker_image:
     name: "{{ pgadmin_docker_image }}"
@@ -7,13 +24,20 @@
 
 - name: Ensure pgAdmin paths exist
   file:
-    path: "{{ item }}"
+    path: "{{ pgadmin_data_path }}"
     state: directory
-    mode: 0775
-    owner: "root"
-    group: "root"
-  with_items:
-    - "{{ pgadmin_data_path }}"
+    mode: '0750'
+    owner: "{{ pgadmin_uid }}"
+    group: "{{ pgadmin_gid }}"
+
+- name: Ensure pgAdmin environment file installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/pgadmin/pgadmin.env.j2"
+    dest: "{{ pgadmin_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
 
 - name: Ensure pgAdmin.service installed
   template:

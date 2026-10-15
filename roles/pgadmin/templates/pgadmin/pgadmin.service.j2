@@ -1,8 +1,7 @@
 [Unit]
 Description=pgAdmin service
 Requires=docker.service
-After=docker.service
-DefaultDependencies=no
+After=docker.service nginx-proxy.service
 
 [Service]
 Type=simple
@@ -11,16 +10,19 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill pgadmin 2
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm pgadmin 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name pgadmin \
-			      --log-driver=none \
-			      --network={{ nginx_docker_network }} \
-			      -e TZ={{ timezone }} \
-            -e VIRTUAL_HOST={{ pgadmin_service_hostname }} \
-            -e PGADMIN_DEFAULT_EMAIL={{ pgadmin_user }} \
-            -e PGADMIN_DEFAULT_PASSWORD={{ pgadmin_password }} \
-            -v {{ pgadmin_data_path }}:/var/lib/pgadmin \
-			      {{ pgadmin_docker_image }}
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--user {{ pgadmin_uid }}:{{ pgadmin_gid }} \
+	--cap-drop=ALL \
+	--security-opt=no-new-privileges:true \
+	--env TZ={{ timezone }} \
+	--env-file {{ pgadmin_env_path }} \
+	--env VIRTUAL_HOST={{ pgadmin_service_hostname }} \
+	--env VIRTUAL_PORT={{ pgadmin_service_port }} \
+	-v {{ pgadmin_data_path }}:/var/lib/pgadmin \
+	{{ pgadmin_docker_image }}
 
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill pgadmin 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 pgadmin 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm pgadmin 2>/dev/null'
 Restart=always
 RestartSec=30

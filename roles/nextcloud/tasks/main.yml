@@ -4,6 +4,7 @@
   when: nextcloud_installation_enabled|bool == true
   tags:
     - setup-all
+    - setup-nextcloud
 
 - import_tasks: "{{ role_path }}/tasks/setup_nextcloud.yml"
   when: nextcloud_installation_enabled|bool == true

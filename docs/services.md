@@ -362,9 +362,28 @@ See the [Grafana Docker documentation](https://grafana.com/docs/grafana/latest/s
 and [provisioning documentation](https://grafana.com/docs/grafana/latest/administration/provisioning/).
 
 # Postgres
-Postgres is a free and open-source relational database management system (RDBMS) emphasizing extensibility and SQL compliance.
+PostgreSQL is available to other containers on the shared Docker network as
+`postgres`. For LAN clients, its TCP port is published only on
+`postgres_listen_address`, which defaults to the host's primary LAN address;
+it is not an HTTP service and is not routed through nginx-proxy.
 
-You can read more about configured [here](https://hub.docker.com/_/postgres)
+Set `postgres_user`, `postgres_password`, and optionally `postgres_database`
+before the first initialization. Store the password with Ansible Vault. The
+official image only uses those initialization variables for an empty data
+directory: changing them later does not change the existing role, password or
+database.
+
+The role does not encrypt backups itself. The dump files contain all database
+data and roles, so protect them with host-storage encryption when required.
+They are root-readable only at
+`postgres_backup_path`, are made daily by `postgres-backup.timer`, and
+are retained for `postgres_backup_retention_days` days. Run a backup manually
+with `make backup`, and verify restoration periodically on a separate host.
+
+Use `systemctl list-timers postgres-backup.timer` to inspect the next run and
+`journalctl -u postgres-backup.service` to inspect its result.
+
+See the [official PostgreSQL Docker image documentation](https://hub.docker.com/_/postgres).
 
 # pgAdmin
 pgAdmin 4 is a web based administration tool for the PostgreSQL database. 
@@ -389,6 +408,11 @@ You can read more about configured [here](https://github.com/tubearchivist/tubea
 # Nextcloud
 Your self hosted Nextcloud server. A safe home for all your data. Access & share your files, calendars, contacts, mail & more from any device, on your terms.
 
+When PostgreSQL is managed by this repository, the Nextcloud role safely
+creates its `nextcloud_postgres_user` and `nextcloud_postgres_db` only when
+they do not already exist. Existing roles, passwords, database owners, and
+data are never changed. Store `nextcloud_postgres_password` in Ansible Vault.
+
 You can read more about configured [here](https://hub.docker.com/_/nextcloud) or [here](https://github.com/nextcloud/docker)
 
 # Whoogle
@@ -398,6 +422,11 @@ You can read more about configured [here](https://hub.docker.com/r/benbusby/whoo
 
 # Planka
 Elegant open source project tracking.
+
+When PostgreSQL is managed by this repository, the Planka role safely creates
+its `planka_postgres_user` and `planka_postgres_db` only when they do not
+already exist. Existing roles, passwords, database owners, and data are never
+changed. Store `planka_postgres_password` in Ansible Vault.
 
 You can read more about configured [here](https://hub.docker.com/r/linuxserver/planka) or [here](https://github.com/plankanban/planka)
 

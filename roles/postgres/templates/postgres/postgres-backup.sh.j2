@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "{{ postgres_env_path }}"
+umask 077
+
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+backup_file="{{ postgres_backup_path }}/postgres-${timestamp}.sql.gz"
+temporary_file="${backup_file}.tmp"
+
+trap 'rm -f -- "${temporary_file}"' EXIT
+
+{{ host_command_docker }} exec \
+  --env "PGPASSWORD=${POSTGRES_PASSWORD}" \
+  postgres pg_dumpall --username "${POSTGRES_USER}" | gzip -c > "${temporary_file}"
+
+mv -- "${temporary_file}" "${backup_file}"
+trap - EXIT
+
+find "{{ postgres_backup_path }}" -maxdepth 1 -type f -name 'postgres-*.sql.gz' \
+  -mtime +{{ postgres_backup_retention_days | int }} -delete

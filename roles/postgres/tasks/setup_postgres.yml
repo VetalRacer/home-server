@@ -1,28 +1,60 @@
 ---
 
+- name: Validate PostgreSQL configuration
+  ansible.builtin.assert:
+    that:
+      - postgres_docker_image_tag | default('') | trim | length > 0
+      - postgres_user | default('') | trim | length > 0
+      - postgres_user is not search('[\\r\\n]')
+      - postgres_password | default('') | length > 0
+      - postgres_password is not search('[\\r\\n]')
+      - postgres_database | default('') | trim | length > 0
+      - postgres_database is not search('[\\r\\n]')
+      - postgres_listen_address | default('') | trim | length > 0
+      - postgres_listen_address is not search('\\s')
+      - postgres_host_port | int > 0
+      - postgres_host_port | int < 65536
+      - postgres_uid is match('^[1-9][0-9]*$')
+      - postgres_gid is match('^[1-9][0-9]*$')
+      - postgres_backup_retention_days | int > 0
+    fail_msg: >-
+      Define a non-empty PostgreSQL user, password, database, image tag and
+      LAN listen address; use valid non-root UID/GID, host port and backup
+      retention values.
+  no_log: true
+
 - name: Ensure Postgres image is pulled
   docker_image:
     name: "{{ postgres_docker_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
-- name: Ensure Postgres paths exist
-  file:
+- name: Ensure Postgres data path exists
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0700
-    owner: "999"
-    group: "root"
-  with_items:
+    mode: '0700'
+    owner: "{{ postgres_uid }}"
+    group: "{{ postgres_gid }}"
+  loop:
     - "{{ postgres_data_path }}"
 
+- name: Ensure PostgreSQL environment file installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/postgres/postgres.env.j2"
+    dest: "{{ postgres_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+  notify: Restart PostgreSQL
+
 - name: Ensure Postgres.service installed
-  template:
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/postgres/postgres.service.j2"
     dest: "/etc/systemd/system/postgres.service"
-    mode: 0644
-  register: postgres_systemd_service_result
-
-- name: Ensure systemd reloaded after postgres.service installation
-  service:
-    daemon_reload: yes
-  when: postgres_systemd_service_result.changed
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart PostgreSQL

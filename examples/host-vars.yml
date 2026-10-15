@@ -53,7 +53,6 @@ metube_service_hostname: "metube.YOUR_DOMAIN_NAME_HERE"
 nexus_service_hostname: "nexus.YOUR_DOMAIN_NAME_HERE"
 grafana_service_hostname: "grafana.YOUR_DOMAIN_NAME_HERE"
 prometheus_service_hostname: "prometheus.YOUR_DOMAIN_NAME_HERE"
-postgres_service_hostname: "postgres.YOUR_DOMAIN_NAME_HERE"
 pgadmin_service_hostname: "pgadmin.YOUR_DOMAIN_NAME_HERE"
 motioneye_service_hostname: "motioneye.YOUR_DOMAIN_NAME_HERE"
 torrserver_service_hostname: "torrserver.YOUR_DOMAIN_NAME_HERE"
@@ -215,9 +214,18 @@ speedtest_admin_password: ""
 # ability. Store the real token with Ansible Vault.
 speedtest_homepage_api_key: ""
 
-# Postgres creds
+# PostgreSQL credentials. Store the real password with Ansible Vault. These
+# variables initialize a new cluster only; changing them does not modify an
+# existing PostgreSQL role or database.
 postgres_user: admin
-postgres_password: admin
+postgres_password: ""
+# PostgreSQL listens only on the host's primary LAN IP by default. Override
+# this for multi-homed hosts that must accept LAN clients on another address.
+# postgres_listen_address: "192.168.1.10"
+# postgres_host_port: 5432
+# A root-only pg_dumpall archive is created daily by default.
+# postgres_backup_schedule: "*-*-* 03:15:00"
+# postgres_backup_retention_days: 14
 
 # pgAdmin creds
 pgadmin_user: admin@localhost
@@ -234,13 +242,17 @@ tubearchivist_es_password: verysecret
 
 # Nextcloud creds
 nextcloud_postgres_user: nextcloud
-nextcloud_postgres_password: password
+# Use Ansible Vault for this value. During setup, only a missing PostgreSQL
+# role/database is created; existing PostgreSQL objects are never modified.
+nextcloud_postgres_password: ""
 nextcloud_admin_user: admin
 nextcloud_admin_password: password
 
 # Planka creds
 planka_postgres_user: planka
-planka_postgres_password: password
+# Use Ansible Vault for this value. During setup, only a missing PostgreSQL
+# role/database is created; existing PostgreSQL objects are never modified.
+planka_postgres_password: ""
 planka_default_admin_username: admin
 planka_default_admin_password: password
 planka_default_admin_email: "admin@planka.YOUR_DOMAIN_NAME_HERE"

@@ -1,5 +1,40 @@
 ---
 
+- name: Validate Nextcloud PostgreSQL configuration
+  ansible.builtin.assert:
+    that:
+      - postgres_installation_enabled | bool
+      - nextcloud_postgres_host == 'postgres'
+      - nextcloud_postgres_db | default('') | trim | length > 0
+      - nextcloud_postgres_user | default('') | trim | length > 0
+      - nextcloud_postgres_password | default('') | length > 0
+      - nextcloud_postgres_user is not search('[\\r\\n]')
+      - nextcloud_postgres_password is not search('[\\r\\n]')
+    fail_msg: >-
+      Enable PostgreSQL and define Nextcloud-specific database, user and
+      password values without line breaks.
+  no_log: true
+
+- name: Ensure PostgreSQL service is available for Nextcloud bootstrap
+  ansible.builtin.systemd_service:
+    name: postgres.service
+    state: started
+    daemon_reload: true
+
+- name: Ensure Nextcloud PostgreSQL bootstrap script installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud-postgres-bootstrap.sh.j2"
+    dest: "{{ nextcloud_postgres_bootstrap_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+  no_log: true
+
+- name: Ensure Nextcloud PostgreSQL role and database exist
+  ansible.builtin.command: "{{ nextcloud_postgres_bootstrap_script_path }}"
+  changed_when: false
+  no_log: true
+
 - name: Ensure Nextcloud image is pulled
   docker_image:
     name: "{{ nextcloud_docker_image }}"

@@ -1,0 +1,9 @@
+[Unit]
+Description=PostgreSQL logical backup
+Requires=postgres.service
+After=postgres.service
+
+[Service]
+Type=oneshot
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStart={{ postgres_backup_script_path }}

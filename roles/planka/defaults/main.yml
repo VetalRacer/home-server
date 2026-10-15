@@ -14,6 +14,7 @@ planka_uid: "1000"
 planka_gid: "1000"
 planka_postgres_host: "postgres"
 planka_postgres_db: "planka"
+planka_postgres_bootstrap_script_path: "{{ planka_base_data_path }}/postgres-bootstrap.sh"
 
 # Planka services
 planka_services_list: |

@@ -169,7 +169,7 @@ postgres_docker_image_tag: 15.2
 pgadmin_docker_image_tag: 9.18.0
 
 # MotionEye service tag
-motioneye_docker_image_tag: master-amd64
+motioneye_docker_image_tag: 0.43.1
 
 # Torrserver service tag
 torrserver_docker_image_tag: MatriX.135

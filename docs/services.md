@@ -407,6 +407,24 @@ You can read more about configured [here](https://www.pgadmin.org/support/list/)
 # MotionEye
 MotionEye is an online interface for the software motion, a video surveillance program with motion detection.
 
+The web interface is served through `motioneye_service_hostname`. Its separate
+stream endpoint is published only on the primary LAN address at port `8081`;
+set `motioneye_stream_listen_address` in host vars when the server has more
+than one LAN interface. Keep that port reachable only from trusted clients.
+
+The role uses the maintained `motioneyeproject/motioneye` image and creates a
+one-time, root-only archive of the existing configuration at
+`{{ services_base_data_path }}/motioneye/backups/config-before-image-migration.tar.gz`
+before the first managed image migration. It does not copy the recordings in
+`media`, which can be large; back up `config` and the recordings to separate
+storage before a major upgrade. If the new image cannot use the configuration,
+restore the archived `config` directory and return to the prior image tag.
+
+The image switches to its service user during startup, so it retains Docker's
+default Linux capabilities but uses `no-new-privileges`. If using a local USB
+camera, explicitly review any required device mapping and permissions before
+enabling it.
+
 You can read more about configured [here](https://github.com/motioneye-project/motioneye/tree/dev)
 
 # Torrserver

@@ -16,6 +16,7 @@ tubearchivist_es_docker_image: "{{ tubearchivist_es_docker_image_template|replac
 # TubeArchivist data
 tubearchivist_media: "{{ tubearchivist_base_data_path }}/media"
 tubearchivist_cache: "{{ tubearchivist_base_data_path }}/cache"
+tubearchivist_env_path: "{{ tubearchivist_base_data_path }}/tubearchivist.env"
 
 # TubeArchivist-Redis data
 tubearchivist_redis_data: "{{ tubearchivist_base_data_path }}/redis"
@@ -26,21 +27,17 @@ tubearchivist_es_data: "{{ tubearchivist_base_data_path }}/es"
 # TubeArchivist envs
 tubearchivist_uid: "1000"
 tubearchivist_gid: "1000"
+tubearchivist_service_port: 8000
 tubearchivist_es_host: "http://tubearchivist_es:9200"
 tubearchivist_redis_host: "tubearchivist_redis"
-
-# TubeArchivistRedis envs
-tubearchivist_redis_service_port: 6379
-
-# TubeArchivistES envs
-tubearchivist_es_service_port: 9200
+tubearchivist_es_java_heap: "512m"
 
 # TubeArchivist services
 tubearchivist_services_list: |
   {{
-    (['tubearchivist.service'])
+    (['tubearchivist_es.service'])
     +
     (['tubearchivist_redis.service'])
     +
-    (['tubearchivist_es.service'])
+    (['tubearchivist.service'])
   }}

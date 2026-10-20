@@ -1,33 +1,37 @@
 [Unit]
 Description=TubeArchivist service
-Requires=docker.service
-After=docker.service tubearchivist_redis.service tubearchivist_es.service
-DefaultDependencies=no
+Requires=docker.service tubearchivist_redis.service tubearchivist_es.service
+After=docker.service nginx-proxy.service tubearchivist_redis.service tubearchivist_es.service
 
 [Service]
 Type=simple
 Environment="HOME={{ systemd_unit_home_path }}"
+EnvironmentFile={{ tubearchivist_env_path }}
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchivist 2>/dev/null'
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name tubearchivist \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ tubearchivist_service_hostname }} \
-			--env ES_URL={{ tubearchivist_es_host }} \
-      		--env REDIS_HOST={{ tubearchivist_redis_host }} \
-      		--env HOST_UID={{ tubearchivist_uid}} \
-      		--env HOST_GID={{ tubearchivist_gid }} \
-      		--env TA_HOST={{ tubearchivist_service_hostname }} \
-      		--env TA_USERNAME={{ tubearchivist_username }} \
-      		--env TA_PASSWORD={{ tubearchivist_password }} \
-      		--env ELASTIC_PASSWORD={{ tubearchivist_es_password }} \
-			-v {{ tubearchivist_media }}:/youtube \
-			-v {{ tubearchivist_cache }}:/cache \
-			{{ tubearchivist_docker_image }}
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--cap-drop=ALL \
+	--cap-add=DAC_OVERRIDE \
+	--security-opt=no-new-privileges:true \
+	--env TZ={{ timezone }} \
+	--env VIRTUAL_HOST={{ tubearchivist_service_hostname }} \
+	--env VIRTUAL_PORT={{ tubearchivist_service_port }} \
+	--env ES_URL={{ tubearchivist_es_host }} \
+	--env REDIS_HOST={{ tubearchivist_redis_host }} \
+	--env HOST_UID={{ tubearchivist_uid }} \
+	--env HOST_GID={{ tubearchivist_gid }} \
+	--env TA_HOST={{ tubearchivist_service_hostname }} \
+	--env TA_USERNAME \
+	--env TA_PASSWORD \
+	--env ELASTIC_PASSWORD \
+	-v {{ tubearchivist_media }}:/youtube \
+	-v {{ tubearchivist_cache }}:/cache \
+	{{ tubearchivist_docker_image }}
 
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchivist 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 tubearchivist 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist 2>/dev/null'
 Restart=always
 RestartSec=30

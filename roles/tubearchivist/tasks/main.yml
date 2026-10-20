@@ -4,6 +4,7 @@
   when: tubearchivist_installation_enabled|bool == true
   tags:
     - setup-all
+    - setup-tubearchivist
 
 - import_tasks: "{{ role_path }}/tasks/setup_tubearchivist.yml"
   when: tubearchivist_installation_enabled|bool == true
@@ -15,3 +16,4 @@
   when: tubearchivist_installation_enabled|bool == true
   tags:
     - start
+    - start-tubearchivist

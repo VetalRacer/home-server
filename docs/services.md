@@ -449,6 +449,20 @@ You can read more about configured [here](https://github.com/YouROK/TorrServer)
 # TubeArchivist
 Your self hosted YouTube media server
 
+TubeArchivist, Redis and Elasticsearch communicate only over the Docker
+network. Their ports are intentionally not published on the server. The web
+interface is available through `tubearchivist_service_hostname`.
+
+Store `tubearchivist_password` and `tubearchivist_es_password` in Ansible
+Vault. The role renders them into a root-only environment file instead of a
+world-readable systemd unit. The credentials initialise a new archive; changing
+the variables does not reset passwords already stored by TubeArchivist or
+Elasticsearch.
+
+Elasticsearch requires `vm.max_map_count=262144`; the role persists and applies
+that host setting. Its heap size is configurable with
+`tubearchivist_es_java_heap` and defaults to `512m`.
+
 You can read more about configured [here](https://github.com/tubearchivist/tubearchivist) or [here](https://www.tubearchivist.com/)
 
 # Nextcloud

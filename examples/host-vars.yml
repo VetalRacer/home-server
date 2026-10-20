@@ -240,9 +240,11 @@ torrserver_admin_password: ""
 torrserver_guest_password: ""
 
 # TubeArchivist creds
+# Store passwords in Ansible Vault. These values initialise accounts only on a
+# new archive; changing them does not reset existing credentials.
 tubearchivist_username: tubearchivist
-tubearchivist_password: verysecret
-tubearchivist_es_password: verysecret
+tubearchivist_password: ""
+tubearchivist_es_password: ""
 
 # Nextcloud creds
 nextcloud_postgres_user: nextcloud

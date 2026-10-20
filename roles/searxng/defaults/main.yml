@@ -1,0 +1,17 @@
+# Base directory that contains SearXNG configuration.
+searxng_base_data_path: "{{ services_base_data_path }}/searxng"
+searxng_config_path: "{{ searxng_base_data_path }}/config"
+searxng_env_path: "{{ searxng_base_data_path }}/searxng.env"
+
+# Pin both images for reproducible deployments.
+searxng_docker_image_template: "ghcr.io/searxng/searxng:__VERSION__"
+searxng_docker_image: "{{ searxng_docker_image_template | replace('__VERSION__', searxng_docker_image_tag) }}"
+searxng_valkey_docker_image_template: "valkey/valkey:__VERSION__"
+searxng_valkey_docker_image: "{{ searxng_valkey_docker_image_template | replace('__VERSION__', searxng_valkey_docker_image_tag) }}"
+
+searxng_service_port: 8080
+searxng_valkey_host: searxng_valkey
+searxng_valkey_port: 6379
+searxng_services_list:
+  - searxng-valkey.service
+  - searxng.service

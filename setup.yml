@@ -26,6 +26,6 @@
     - { role: torrserver }
     - { role: tubearchivist }
     - { role: nextcloud }
-    - { role: whoogle }
+    - { role: searxng }
     - { role: planka }
     - { role: q3server }

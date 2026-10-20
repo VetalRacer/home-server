@@ -114,14 +114,14 @@
         container: filebrowser
 {% endif %}
 {% endif %}
-{% if whoogle_installation_enabled == true %}
-    - Whoogle:
-        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/whoogle.png
-        href: http://{{ whoogle_service_hostname }}
-        description: Whoogle search engine
+{% if searxng_installation_enabled == true %}
+    - SearXNG:
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/searxng.png
+        href: http://{{ searxng_service_hostname }}
+        description: Private metasearch engine
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
-        container: whoogle
+        container: searxng
 {% endif %}
 {% endif %}
 {% if pihole_installation_enabled == true %}

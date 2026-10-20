@@ -475,10 +475,18 @@ data are never changed. Store `nextcloud_postgres_password` in Ansible Vault.
 
 You can read more about configured [here](https://hub.docker.com/_/nextcloud) or [here](https://github.com/nextcloud/docker)
 
-# Whoogle
-Get Google search results, but without any ads, JavaScript, AMP links, cookies, or IP address tracking. Easily deployable in one click as a Docker app, and customizable with a single config file. Quick and simple to implement as a primary search engine replacement on both desktop and mobile.
+# SearXNG
 
-You can read more about configured [here](https://hub.docker.com/r/benbusby/whoogle-search) or [here](https://github.com/benbusby/whoogle-search)
+SearXNG is a privacy-respecting metasearch engine. Its web interface is
+available through `searxng_service_hostname`; Valkey is internal-only and
+provides rate limiting.
+
+Set `searxng_secret_key` to a unique value stored in Ansible Vault. Generate it
+with `openssl rand -hex 32`. SearXNG configuration is kept under
+`{{ services_base_data_path }}/searxng/config`; do not edit it on the host,
+because Ansible manages `settings.yml` and `limiter.toml`.
+
+You can read more in the [SearXNG documentation](https://docs.searxng.org/).
 
 # Planka
 Elegant open source project tracking.

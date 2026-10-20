@@ -430,6 +430,20 @@ You can read more about configured [here](https://github.com/motioneye-project/m
 # Torrserver
 TorrServer, stream torrent to http.
 
+TorrServer is available only through `torrserver_service_hostname`; its web
+port is not published directly on the host. HTTP authentication is enabled by
+default. Store `torrserver_admin_password` and `torrserver_guest_password` in
+Ansible Vault; they must be different and are written to a root-only
+authentication file.
+
+The role persists configuration, logs, and the TorrServer torrents directory
+under `{{ services_base_data_path }}/torrserver/data`. Copy configuration and
+any data you need to independent storage before a major upgrade.
+
+The service runs without Linux capabilities and accepts no new privileges. It
+does not expose a peer/DHT port on the host: outbound peer connections continue
+to work, but incoming peers are unavailable unless this is deliberately added.
+
 You can read more about configured [here](https://github.com/YouROK/TorrServer)
 
 # TubeArchivist

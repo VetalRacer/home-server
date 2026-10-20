@@ -172,7 +172,7 @@ pgadmin_docker_image_tag: 9.18.0
 motioneye_docker_image_tag: 0.43.1
 
 # Torrserver service tag
-torrserver_docker_image_tag: MatriX.135
+torrserver_docker_image_tag: MatriX.146.2
 
 # TubeArchivist service tag
 tubearchivist_docker_image_tag: v0.4.1
@@ -234,8 +234,10 @@ pgadmin_user: admin@localhost
 pgadmin_password: ""
 
 # Torrserver creds
-torrserver_admin_password: admin
-torrserver_guest_password: guest
+# Store both passwords in Ansible Vault. They are written to a root-only
+# TorrServer authentication file during setup.
+torrserver_admin_password: ""
+torrserver_guest_password: ""
 
 # TubeArchivist creds
 tubearchivist_username: tubearchivist

@@ -4,6 +4,7 @@
   when: torrserver_installation_enabled|bool == true
   tags:
     - setup-all
+    - setup-torrserver
 
 - import_tasks: "{{ role_path }}/tasks/setup_torrserver.yml"
   when: torrserver_installation_enabled|bool == true
@@ -15,3 +16,4 @@
   when: torrserver_installation_enabled|bool == true
   tags:
     - start
+    - start-torrserver

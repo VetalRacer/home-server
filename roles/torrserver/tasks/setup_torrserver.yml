@@ -1,5 +1,21 @@
 ---
 
+- name: Validate TorrServer configuration
+  ansible.builtin.assert:
+    that:
+      - torrserver_docker_image_tag | default('') | trim | length > 0
+      - torrserver_service_hostname | default('') is match('^\\S+$')
+      - torrserver_service_port | int > 0
+      - torrserver_service_port | int <= 65535
+      - torrserver_admin_password | default('') | length > 0
+      - torrserver_guest_password | default('') | length > 0
+      - torrserver_admin_password is not search('[\\r\\n]')
+      - torrserver_guest_password is not search('[\\r\\n]')
+      - torrserver_admin_password != torrserver_guest_password
+    fail_msg: >-
+      Define an image tag, hostname, valid service port, and distinct non-empty
+      TorrServer passwords without line breaks.
+
 - name: Ensure Torrserver image is pulled
   docker_image:
     name: "{{ torrserver_docker_image }}"
@@ -15,12 +31,17 @@
   with_items:
     - "{{ torrserver_data_path }}"
     - "{{ torrserver_config_path }}"
+    - "{{ torrserver_log_path }}"
+    - "{{ torrserver_torrents_path }}"
 
 - name: Ensure accs.db config installed
-  template:
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/torrserver/accs.db.j2"
     dest: "{{ torrserver_config_path }}/accs.db"
-    mode: 0644
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
 
 - name: Ensure torrserver.service installed
   template:

@@ -471,7 +471,32 @@ Your self hosted Nextcloud server. A safe home for all your data. Access & share
 When PostgreSQL is managed by this repository, the Nextcloud role safely
 creates its `nextcloud_postgres_user` and `nextcloud_postgres_db` only when
 they do not already exist. Existing roles, passwords, database owners, and
-data are never changed. Store `nextcloud_postgres_password` in Ansible Vault.
+data are never changed. Store `nextcloud_postgres_password` and
+`nextcloud_admin_password` in Ansible Vault. They are written to a root-only
+environment file rather than the systemd unit command line.
+
+The role runs `cron.php` every five minutes through a systemd timer. It also
+creates a consistent daily archive under `nextcloud_backup_path`: the archive
+contains a PostgreSQL custom-format dump and `main`, `apps`, `config`, and
+`data`. The application is put into maintenance mode only for the duration of
+the backup. Set `nextcloud_backup_path` to separately mounted storage; a backup
+kept on the same disk does not protect against loss of the server or disk.
+
+To run a backup immediately:
+
+```bash
+ansible-playbook -i inventory/hosts setup.yml --tags=backup-nextcloud --ask-vault-pass
+```
+
+To restore, stop Nextcloud, extract `files.tar.gz` into its service base path,
+then restore `database.dump.gz` into the `nextcloud` database with `pg_restore`.
+After starting the service, run `maintenance:data-fingerprint` as `www-data`.
+
+`nextcloud_trusted_proxies` accepts only IP addresses or CIDRs for trusted
+reverse proxies. Leave it empty for the image default, or set it only after
+identifying a stable nginx-proxy address. For HTTPS reverse proxy access, set
+both `nextcloud_overwrite_protocol: "https"` and
+`nextcloud_overwrite_cli_url` to the public URL.
 
 You can read more about configured [here](https://hub.docker.com/_/nextcloud) or [here](https://github.com/nextcloud/docker)
 

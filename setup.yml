@@ -25,7 +25,7 @@
     # - { role: motioneye }
     # - { role: torrserver }
     # - { role: tubearchivist }
-    # - { role: nextcloud }
+    - { role: nextcloud }
     # - { role: searxng }
-    - { role: planka }
+    # - { role: planka }
     # - { role: q3server }

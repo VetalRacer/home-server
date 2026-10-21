@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+backup_path="{{ nextcloud_backup_path }}"
+temporary_path="${backup_path}/.nextcloud-${timestamp}.tmp"
+final_path="${backup_path}/nextcloud-${timestamp}"
+maintenance_enabled=false
+
+cleanup() {
+  local exit_code=$?
+
+  if [[ "$maintenance_enabled" == true ]]; then
+    {{ host_command_docker }} exec -u www-data nextcloud \
+      php /var/www/html/occ maintenance:mode --off >/dev/null 2>&1 || true
+  fi
+
+  rm -rf -- "$temporary_path"
+  exit "$exit_code"
+}
+trap cleanup EXIT
+
+mkdir -p -- "$temporary_path"
+
+{{ host_command_docker }} exec -u www-data nextcloud \
+  php /var/www/html/occ maintenance:mode --on
+maintenance_enabled=true
+
+postgres_user="$(printf %s '{{ nextcloud_postgres_user | b64encode }}' | base64 --decode)"
+postgres_database="$(printf %s '{{ nextcloud_postgres_db | b64encode }}' | base64 --decode)"
+export PGPASSWORD="$(printf %s '{{ nextcloud_postgres_password | b64encode }}' | base64 --decode)"
+
+{{ host_command_docker }} exec \
+  --env PGPASSWORD \
+  postgres pg_dump --host 127.0.0.1 --username "$postgres_user" \
+  --dbname "$postgres_database" \
+  --format=custom | gzip -c > "${temporary_path}/database.dump.gz"
+unset PGPASSWORD
+
+tar --acls --xattrs --numeric-owner -C "{{ nextcloud_base_data_path }}" \
+  -czf "${temporary_path}/files.tar.gz" main apps config data
+
+cat > "${temporary_path}/README" <<'EOF'
+Restore the PostgreSQL archive with:
+  gzip -dc database.dump.gz | docker exec -i postgres sh -c 'PGPASSWORD="$POSTGRES_PASSWORD" exec pg_restore -U "$POSTGRES_USER" -d {{ nextcloud_postgres_db }} --clean --if-exists --exit-on-error'
+
+Restore the filesystem archive from the Nextcloud service base directory:
+  tar --acls --xattrs --numeric-owner -xzf files.tar.gz
+EOF
+
+mv -- "$temporary_path" "$final_path"
+{{ host_command_docker }} exec -u www-data nextcloud \
+  php /var/www/html/occ maintenance:mode --off
+maintenance_enabled=false
+
+find "$backup_path" -mindepth 1 -maxdepth 1 -type d -name 'nextcloud-*' \
+  -mtime +{{ nextcloud_backup_retention_days | int }} -exec rm -rf -- {} +
+
+trap - EXIT

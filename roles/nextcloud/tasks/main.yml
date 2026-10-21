@@ -16,3 +16,10 @@
   when: nextcloud_installation_enabled|bool == true
   tags:
     - start
+    - start-nextcloud
+
+- import_tasks: "{{ role_path }}/tasks/backup.yml"
+  when: nextcloud_installation_enabled|bool == true and nextcloud_backup_enabled|bool
+  tags:
+    - backup
+    - backup-nextcloud

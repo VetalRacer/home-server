@@ -270,7 +270,12 @@ nextcloud_postgres_user: nextcloud
 # role/database is created; existing PostgreSQL objects are never modified.
 nextcloud_postgres_password: ""
 nextcloud_admin_user: admin
-nextcloud_admin_password: password
+# Used only on the first Nextcloud initialization. Store the real value in
+# Ansible Vault; changing it does not reset an existing administrator password.
+nextcloud_admin_password: ""
+# Keep this empty until nginx-proxy has a known, stable IP/CIDR. Do not place
+# the Nextcloud hostname here: trusted proxies must be IP addresses or ranges.
+nextcloud_trusted_proxies: []
 
 # Planka creds
 planka_postgres_user: planka

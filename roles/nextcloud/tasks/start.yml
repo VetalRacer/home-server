@@ -1,17 +1,17 @@
 ---
 
 - name: Ensure systemd reloaded
-  service:
-    daemon_reload: yes
+  ansible.builtin.systemd_service:
+    daemon_reload: true
 
 - name: Ensure Nextcloud services stopped
-  service:
+  ansible.builtin.systemd_service:
     name: "{{ item }}"
     state: stopped
   with_items: "{{ nextcloud_services_list }}"
 
 - name: Ensure Nextcloud services started
-  service:
+  ansible.builtin.systemd_service:
     name: "{{ item }}"
     enabled: yes
     state: started

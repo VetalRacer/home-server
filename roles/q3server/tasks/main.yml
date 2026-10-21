@@ -15,3 +15,4 @@
   when: q3server_installation_enabled|bool == true
   tags:
     - start
+    - start-q3server

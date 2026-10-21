@@ -499,6 +499,27 @@ changed. Store `planka_postgres_password` in Ansible Vault.
 You can read more about configured [here](https://hub.docker.com/r/linuxserver/planka) or [here](https://github.com/plankanban/planka)
 
 # Quake3 Server
-Quake3 Arena Server
+Quake 3 Arena dedicated server. It listens on UDP `27960` by default and is
+not an HTTP service: the role does not use nginx-proxy or a
+`q3server_service_hostname`. Players may still connect with a public DNS name
+that resolves to the router's public address.
 
-You can read more about configured [here](https://hub.docker.com/r/vetalracer/q3server) or [here](https://hub.docker.com/r/vetalracer/q3server)
+To make it reachable from the Internet, keep `q3server_listen_address` set to
+`0.0.0.0`, then forward **UDP only** port `27960` in the router to the server's
+LAN address. Do not forward TCP for this service. Restrict the port with a
+host firewall if external play is not required.
+
+`q3server_rcon_password` and `q3server_private_password` are required. Store
+them with Ansible Vault; do not put them in `server.cfg` or Git. For example:
+
+```bash
+ansible-vault encrypt_string --ask-vault-pass "$(openssl rand -hex 24)" --name q3server_rcon_password
+ansible-vault encrypt_string --ask-vault-pass "$(openssl rand -hex 24)" --name q3server_private_password
+```
+
+The role pins the image by both tag and digest. Change both only as a deliberate
+upgrade. `q3server_master_servers` is empty by default, so clients connect by
+the server's public IP or DNS name and port; configure only verified master
+servers if listing in a public browser is needed.
+
+More information about the image is available on [Docker Hub](https://hub.docker.com/r/vetalracer/q3server).

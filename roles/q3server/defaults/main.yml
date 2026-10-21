@@ -3,13 +3,31 @@ q3server_base_data_path: "{{ services_base_data_path }}/q3server"
 
 # Q3server edition
 q3server_docker_image_template: "vetalracer/q3server:__VERSION__"
-q3server_docker_image: "{{ q3server_docker_image_template|replace('__VERSION__', q3server_docker_image_tag) }}"
+q3server_docker_image: "{{ q3server_docker_image_template | replace('__VERSION__', q3server_docker_image_tag) }}{{ ('@' ~ q3server_docker_image_digest) if (q3server_docker_image_digest | default('') | length > 0) else '' }}"
 
 # Q3server-related data
 q3server_config_path: "{{ q3server_base_data_path }}/config"
 
-# Q3server envs
+# Q3server network settings. 0.0.0.0 exposes UDP on every IPv4 interface,
+# allowing a router to forward Internet traffic to this host.
 q3server_service_port: 27960
+q3server_listen_address: "0.0.0.0"
+
+# Sensitive values must be supplied in host vars, preferably encrypted with
+# Ansible Vault. They are deliberately empty by default.
+q3server_rcon_password: ""
+q3server_private_password: ""
+
+# Server metadata is safe to override in host vars.
+q3server_admin_name: ""
+q3server_admin_email: ""
+q3server_website: ""
+q3server_server_name: "Quake 3 Arena Server"
+q3server_motd: "Welcome to the Quake 3 server"
+
+# Optional public master servers. An empty list keeps the server available by
+# direct IP/port without registering it with an external master service.
+q3server_master_servers: []
 
 # Q3server services
 q3server_services_list: |

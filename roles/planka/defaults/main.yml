@@ -2,19 +2,23 @@
 planka_base_data_path: "{{ services_base_data_path }}/planka"
 
 # Planka edition
-planka_docker_image_template: "lscr.io/linuxserver/planka:__VERSION__"
+planka_docker_image_template: "ghcr.io/plankanban/planka:__VERSION__"
 planka_docker_image: "{{ planka_docker_image_template|replace('__VERSION__', planka_docker_image_tag) }}"
 
 # Planka content data
-planka_config_path: "{{ planka_base_data_path }}/config"
+planka_config_path: "{{ planka_base_data_path }}/data"
+planka_legacy_config_path: "{{ planka_base_data_path }}/config"
+planka_env_path: "{{ planka_base_data_path }}/planka.env"
 
 # Planka envs
 planka_service_port: 1337
-planka_uid: "1000"
-planka_gid: "1000"
 planka_postgres_host: "postgres"
 planka_postgres_db: "planka"
 planka_postgres_bootstrap_script_path: "{{ planka_base_data_path }}/postgres-bootstrap.sh"
+planka_base_url: "http://{{ planka_service_hostname }}"
+planka_secret_key: ""
+planka_trust_proxy: true
+planka_default_admin_name: "Admin"
 
 # Planka services
 planka_services_list: |

@@ -494,9 +494,24 @@ Elegant open source project tracking.
 When PostgreSQL is managed by this repository, the Planka role safely creates
 its `planka_postgres_user` and `planka_postgres_db` only when they do not
 already exist. Existing roles, passwords, database owners, and data are never
-changed. Store `planka_postgres_password` in Ansible Vault.
+changed. Store `planka_postgres_password`, `planka_secret_key`, and the admin
+password in Ansible Vault. The rendered environment file is root-readable only;
+Planka is exposed through nginx-proxy and does not publish port 1337 on the host.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/planka) or [here](https://github.com/plankanban/planka)
+For an existing v1 instance, use the deliberate migration sequence below. The
+migration is irreversible without the backups created by the script:
+
+1. Render but do not start the v2 service: `--tags=setup-planka`.
+2. Copy `scripts/migrate_planka_v1_to_v2.sh` to the server and run it as root
+   with `--execute`.
+3. Start the v2 service with `--tags=start-planka` and verify boards, cards,
+   attachments, and login before removing any legacy data.
+
+The script stores a PostgreSQL dump and archived v1 files in
+`{{ services_base_data_path }}/planka/migration-backups/`. It intentionally
+leaves Planka stopped after migration.
+
+Read the [official Planka v2 migration guide](https://docs.planka.cloud/docs/upgrade-to-v2/docker/) before execution.
 
 # Quake3 Server
 Quake 3 Arena dedicated server. It listens on UDP `27960` by default and is

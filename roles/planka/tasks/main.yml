@@ -16,3 +16,4 @@
   when: planka_installation_enabled|bool == true
   tags:
     - start
+    - start-planka

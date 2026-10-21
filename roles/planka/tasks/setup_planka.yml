@@ -1,19 +1,51 @@
 ---
 
-- name: Validate Planka PostgreSQL configuration
+- name: Validate Planka PostgreSQL connection configuration
   ansible.builtin.assert:
     that:
       - postgres_installation_enabled | bool
       - planka_postgres_host == 'postgres'
       - planka_postgres_db | default('') | trim | length > 0
       - planka_postgres_user | default('') | trim | length > 0
-      - planka_postgres_password | default('') | length > 0
-      - planka_postgres_user is not search('[\\r\\n]')
-      - planka_postgres_password is not search('[\\r\\n]')
+      - "'\\r' not in planka_postgres_user"
+      - "'\\n' not in planka_postgres_user"
     fail_msg: >-
-      Enable PostgreSQL and define Planka-specific database, user and password
-      values without line breaks.
+      Enable PostgreSQL and define a Planka-specific database and PostgreSQL
+      username without line breaks.
+
+- name: Assess Planka secrets without logging them
+  ansible.builtin.set_fact:
+    planka_postgres_password_is_present: >-
+      {{ planka_postgres_password | default('') | length > 0 }}
+    planka_postgres_password_has_line_break: >-
+      {{ '\\r' in planka_postgres_password or '\\n' in planka_postgres_password }}
+    planka_secret_key_is_valid: >-
+      {{
+        planka_secret_key | default('') | length >= 32
+        and '\\r' not in planka_secret_key
+        and '\\n' not in planka_secret_key
+      }}
   no_log: true
+
+- name: Validate Planka PostgreSQL password
+  ansible.builtin.assert:
+    that: planka_postgres_password_is_present | bool
+    fail_msg: >-
+      Define a non-empty planka_postgres_password in Ansible Vault.
+
+- name: Validate Planka PostgreSQL password does not contain line breaks
+  ansible.builtin.assert:
+    that: not (planka_postgres_password_has_line_break | bool)
+    fail_msg: >-
+      Re-encrypt planka_postgres_password without a line break. Use `printf`,
+      not `echo`, when piping it to ansible-vault encrypt_string.
+
+- name: Validate Planka secret key
+  ansible.builtin.assert:
+    that: planka_secret_key_is_valid | bool
+    fail_msg: >-
+      Define planka_secret_key in Ansible Vault with at least 32 characters
+      and without line breaks. Generate one with `openssl rand -hex 32`.
 
 - name: Ensure PostgreSQL service is available for Planka bootstrap
   ansible.builtin.systemd_service:
@@ -41,14 +73,24 @@
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
 - name: Ensure Planka paths exist
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0750
-    owner: "{{ planka_uid }}"
-    group: "{{ planka_gid }}"
+    mode: '0750'
+    owner: '1000'
+    group: '1000'
   with_items:
     - "{{ planka_config_path }}"
+
+- name: Ensure Planka environment file installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/planka/planka.env.j2"
+    dest: "{{ planka_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  # Enable only for a one-time rendering diagnosis and never combine with --diff.
+  no_log: "{{ not (planka_env_template_debug | default(false) | bool) }}"
 
 - name: Ensure Planka.service installed
   template:

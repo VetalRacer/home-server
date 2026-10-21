@@ -27,5 +27,5 @@
     # - { role: tubearchivist }
     # - { role: nextcloud }
     # - { role: searxng }
-    # - { role: planka }
-    - { role: q3server }
+    - { role: planka }
+    # - { role: q3server }

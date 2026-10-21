@@ -186,7 +186,7 @@ searxng_docker_image_tag: 2026.10.19-81371861f
 searxng_valkey_docker_image_tag: 9.0.6-alpine
 
 # Planka service tag
-planka_docker_image_tag: 1.26.1
+planka_docker_image_tag: 2.2.1
 
 # Q3Server service tag
 q3server_docker_image_tag: v1.0.0
@@ -277,6 +277,7 @@ planka_postgres_user: planka
 # Use Ansible Vault for this value. During setup, only a missing PostgreSQL
 # role/database is created; existing PostgreSQL objects are never modified.
 planka_postgres_password: ""
+planka_secret_key: ""
 planka_default_admin_username: admin
 planka_default_admin_password: password
 planka_default_admin_email: "admin@planka.YOUR_DOMAIN_NAME_HERE"

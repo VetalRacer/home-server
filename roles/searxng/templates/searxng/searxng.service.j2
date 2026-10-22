@@ -1,0 +1,38 @@
+[Unit]
+Description=SearXNG service
+Requires=docker.service searxng-valkey.service
+After=docker.service nginx-proxy.service searxng-valkey.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+EnvironmentFile={{ searxng_env_path }}
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill searxng 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm searxng 2>/dev/null'
+
+ExecStart=/usr/bin/docker run --rm --name searxng \
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--cap-drop=ALL \
+	--cap-add=CHOWN \
+	--cap-add=DAC_OVERRIDE \
+	--cap-add=SETGID \
+	--cap-add=SETUID \
+	--security-opt=no-new-privileges:true \
+	--env TZ={{ timezone }} \
+	--env VIRTUAL_HOST={{ searxng_service_hostname }} \
+	--env VIRTUAL_PORT={{ searxng_service_port }} \
+	--env SEARXNG_SECRET \
+	--env SEARXNG_BASE_URL \
+	--env SEARXNG_VALKEY_URL \
+	-v {{ searxng_config_path }}:/etc/searxng \
+	{{ searxng_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 searxng 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm searxng 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=searxng
+
+[Install]
+WantedBy=multi-user.target

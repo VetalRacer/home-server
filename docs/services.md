@@ -1,6 +1,17 @@
 # Nginx-proxy
 
-Nginx-proxy service proxies requests to internal services
+Nginx-proxy routes HTTP requests to the internal services that join the shared
+Docker network. By default it binds port `80` only to the host primary LAN
+address (`nginx_proxy_listen_address`), so services are reachable from the
+local network but are not exposed on every host interface or IPv6. Override
+`nginx_proxy_listen_address` and `nginx_proxy_http_port` only when a different
+listener is required.
+
+The role uses `nginxproxy/nginx-proxy` and accepts the optional settings
+`nginx_proxy_worker_processes`, `nginx_proxy_worker_connections`, and
+`nginx_proxy_client_max_body_size`. HTTP has no encryption or authentication
+at the proxy layer: keep it on a trusted LAN. If a router forwards this port
+to the Internet, add TLS and authentication at an Internet-facing proxy first.
 
 You can find all configs in `roles/nginx-proxy/templates/nginx-proxy/conf.d/` folder
 
@@ -12,19 +23,52 @@ Gitlab service help planning to production, brings teams together to shorten cyc
 
 Samba service provides file and print services for various Microsoft Windows clients and can integrate with a Microsoft Windows Server domain, either as a Domain Controller (DC) or as a domain member. As of version 4, it supports Active Directory and Microsoft Windows NT domains.
 
-You can find all configs in `roles/samba/templates/samba/` folder
+Samba is exposed only on the primary LAN interface and accepts clients from its
+directly connected subnet by default. Override `samba_listen_address` and
+`samba_allowed_hosts` for a multi-homed host. Before enabling the role, set
+the `samba_user_passwords` YAML map with a non-empty password for every user
+declared in `samba_users`; real values should be stored with Ansible Vault.
+`samba_shares` defines the host path and `read_users` / `write_users` lists for
+each share. The role uses the pinned upstream `ghcr.io/crazy-max/samba` image,
+disables SMB1, disallows guest fallback, and keeps the rendered credentials
+file readable only by root.
 
 # Transmission
 
 Transmission is a light-weight and cross-platform BitTorrent client.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/transmission)
+The Web UI is reachable through the reverse proxy and is authenticated with
+`transmission_username` and `transmission_password`. Store both values in
+Ansible Vault; the role renders them only to a root-readable environment file
+at `transmission_base_data_path/transmission.env`.
+
+By default, Transmission uses UID `1000` and GID `100`, matching the default
+Samba `admin:users` identity. Override `transmission_uid` and
+`transmission_gid` together when your download storage is owned by another
+account.
+
+You can read more about configuration in the
+[LinuxServer.io documentation](https://docs.linuxserver.io/images/docker-transmission/).
 
 # Plex
 
 Plex is an American streaming media service and a client–server media player platform, made by Plex, Inc. The Plex Media Server organizes video, audio, and photos from a user's collections and from online services, and streams it to the players. The official clients and unofficial third-party clients run on mobile devices, smart TVs, streaming boxes, and in web apps.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/plex)
+Plex runs as UID `1000` and GID `100` by default, matching the Samba
+`admin:users` identity. Override `plex_uid` and `plex_gid` together when media
+or configuration storage belongs to another account. Media and download mounts
+are read-only; Plex can write only to its configuration directory.
+
+Use a short-lived `plex_claim` only for the initial server claim and store it in
+Ansible Vault. The role renders it to a root-readable environment file instead
+of the systemd unit. The `plex_apikey` used by Homepage should also be stored in
+Ansible Vault.
+
+Plex Remote Access requires the published TCP port `32400`; the role keeps it
+available on all host interfaces.
+
+You can read more about configuration in the
+[LinuxServer.io documentation](https://docs.linuxserver.io/images/docker-plex/).
 
 # Homepage
 
@@ -32,121 +76,506 @@ A modern (fully static, fast), secure (fully proxied), highly customizable appli
 
 You can read more about configured [here](https://gethomepage.dev/en/installation/)
 
+Homepage displays container status through a local, allowlisted Docker API proxy.
+The proxy has no host port and accepts only the Docker read endpoints needed for
+status discovery. Do not mount `/var/run/docker.sock` into Homepage or expose
+the proxy outside the Docker network. Set `homepage_docker_integration_enabled:
+false` to disable container status discovery.
+
+The Homepage image in the example configuration is `v2.4.0`.
+
 # FileBrowser
 
 File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview, rename and edit your files. It allows the creation of multiple users and each user can have its own directory.
 
-You can read more about configured [here](https://filebrowser.org/)
+File Browser runs as UID `1000` and GID `100` by default, matching the Samba
+`admin:users` identity. Override `filebrowser_uid` and `filebrowser_gid`
+together when its configuration or root directory uses another account.
+`filebrowser_root_path` defaults to the whole sharefolder tree; set it to a
+subdirectory when the Web UI does not need access to every share.
+
+The initial File Browser administrator account must have a unique, strong
+password. Its built-in authentication has no brute-force protection, so expose
+the service only through a trusted LAN, VPN, or additional reverse-proxy access
+control.
+
+You can read more about configuration in the
+[File Browser documentation](https://filebrowser.org/).
 
 # Pi-hole
 
 Pi-hole is a Linux network-level advertisement and Internet tracker blocking application which acts as a DNS sinkhole and optionally a DHCP server, intended for use on a private network.
 
-You can read more about configured [here](https://github.com/pi-hole/docker-pi-hole) or [here](https://docs.pi-hole.net/)
+Pi-hole publishes DNS only on the server's primary LAN address by default. Set
+`pihole_dns_listen_address` when the server has multiple network interfaces.
+The admin password must be non-empty and should be encrypted with Ansible Vault;
+the role writes it only to `pihole.env`, readable by root.
+
+`pihole_dhcp_enabled` defaults to `false`. Enable it only when Pi-hole is your
+LAN DHCP server; this publishes UDP port 67 and grants the container
+`NET_ADMIN`. Do not enable it alongside DHCP on the router.
+
+`pihole_dnsmasq_enabled` keeps `/etc/dnsmasq.d` mounted for existing custom
+snippets and v5 migrations. Disable it for a new v6 installation that does not
+use custom dnsmasq configuration.
+
+The role no longer changes the host DNS resolver by default. The legacy
+`pihole_manage_host_resolver: true` option stops `systemd-resolved` and renders
+a static `/etc/resolv.conf`. Its fallback resolvers are `8.8.8.8` and
+`1.1.1.1`; override `pihole_host_resolvers` when using different upstream DNS
+servers. Existing hosts previously configured this way keep their current
+resolver state until it is changed manually.
+
+You can read more about configuration in the [official Pi-hole Docker documentation](https://docs.pi-hole.net/docker/).
 
 # ps3netsrv
 
-Is a server application used to stream content from a remote server to the PS3.
+ps3netsrv serves PS3 games to webMAN-MOD or multiMAN over TCP port 38008.
+The role binds that port only to the primary LAN address by default; override
+ps3netsrv_listen_address on multi-homed hosts.
 
-You can read more about configured [here](https://github.com/shawly/docker-ps3netsrv) or [here](https://github.com/aldostools/webMAN-MOD/wiki/~-PS3-NET-Server)
+It runs as UID 1000 and GID 100, matching the default Samba admin:users
+identity. Set ps3netsrv_uid and ps3netsrv_gid together when the games directory
+belongs to another account. Games are mounted read-only by default; set
+ps3netsrv_games_read_only: false only if writing to the library is required.
+
+The role creates GAMES, PKG, PS2ISO, PS3ISO, PSPISO, and PSXISO below
+ps3netsrv_game_path. Existing files are never moved or renamed.
+
+The image is pinned to v2.0.1. Configure the same host address and port in the
+PS3 client.
+
+You can read more in the [image documentation](https://github.com/shawly/docker-ps3netsrv) and the [webMAN-MOD guide](https://github.com/aldostools/webMAN-MOD/wiki/~-PS3-NET-Server).
 
 # Speedtest-Tracker
 
-This service runs a speedtest check every hour and graphs the results. The back-end is written in Laravel and the front-end uses React. It uses Ookla's Speedtest cli to get the data and uses Chart.js to plot the results.
+Speedtest Tracker periodically runs an Ookla speed test and stores the results in
+its SQLite database. The role uses the maintained
+[LinuxServer image](https://docs.linuxserver.io/images/docker-speedtest-tracker/)
+and runs it as `speedtest_uid:speedtest_gid` (by default `1000:100`).
 
-You can read more about configured [here](https://github.com/henrywhitaker3/Speedtest-Tracker) or [here](https://hub.docker.com/r/henrywhitaker3/speedtest-tracker)
+Before its first start, set `speedtest_app_key` and
+`speedtest_admin_password` in host variables with Ansible Vault. Generate the
+application key with `echo "base64:$(openssl rand -base64 32)"`; the default
+administrator email is `admin@example.com`. The default schedule is hourly and
+results are retained for 365 days; override `speedtest_schedule` and
+`speedtest_prune_results_older_than` when needed.
 
-# Overseerr
-This is a request management and media discovery tool built to work with your existing Plex ecosystem.
+The Homepage widget uses the version 2 Speedtest Tracker API. After the first
+start, sign in as the administrator, open `/admin/api-tokens`, and create a
+token with only the `Read Results` ability. Store it as
+`speedtest_homepage_api_key` with Ansible Vault, then redeploy Homepage. Until
+the token is configured, Homepage displays the Speedtest Tracker card without
+the widget rather than making unauthenticated API requests.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/overseerr)
+See the [upstream documentation](https://docs.speedtest-tracker.dev/) for
+application settings and usage.
+
+# Seerr
+
+Seerr is the supported successor to Overseerr. It manages media requests and
+discovery for Plex, then sends approved movie and TV requests to Radarr and
+Sonarr. It is available only through the reverse proxy at the configured
+`seerr_service_hostname`; port 5055 is not published on the host.
+
+For an Overseerr migration, Seerr deliberately reuses the existing host
+configuration directory, but mounts it at `/app/config`, as required by the
+official image. Before the first Seerr deployment, back up that directory and
+run `scripts/fix_storage_permissions.sh` on the host so Seerr's `1000:1000`
+runtime user can write it. The initial launch migrates the stored application
+data; do not run the old Overseerr service afterwards.
+
+During the setup wizard, connect Plex and use the Docker-network addresses
+`http://sonarr:8989` and `http://radarr:7878` for the respective integrations.
+Restrict request approval and administration permissions to trusted Plex users.
+Update the pinned `seerr_docker_image_tag` only after reviewing Seerr's release
+notes and migration guidance.
+
+See the [official Seerr documentation](https://docs.seerr.dev/getting-started/)
+and its [Overseerr migration guide](https://github.com/seerr-team/seerr/blob/develop/docs/migration-guide.mdx).
 
 # Sonarr
 This is a PVR for usenet and bittorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them. It can also be configured to automatically upgrade the quality of files already downloaded when a better quality format becomes available.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/overseerr)
+Sonarr is available through the reverse proxy on port 8989 inside the Docker
+network. It runs as the shared non-root `1000:100` identity with `UMASK=002`,
+so newly created media files remain writable by the common group. Its library
+is `/data/media/tv`; it also sees Transmission downloads at
+`/data/torrent/downloads` through the common `/data` mount.
+
+When adding Transmission as a download client, configure a Remote Path Mapping
+with host `transmission`, remote path `/downloads`, and local path
+`/data/torrent/downloads`. This preserves Transmission's existing path while
+allowing Sonarr to hardlink completed downloads instead of copying them.
+
+The image is pinned in host variables for predictable deployments. Review and
+update its tag deliberately after checking the Sonarr release notes.
+
+See the [LinuxServer image documentation](https://docs.linuxserver.io/images/docker-sonarr/)
+and the [Sonarr Docker guide](https://wiki.servarr.com/en/sonarr/installation/docker)
+for application configuration and storage-layout guidance.
 
 # Radarr
-A fork of Sonarr to work with movies à la Couchpotato.
+Radarr manages movie downloads and imports. It is exposed through the reverse
+proxy on port 7878 and runs as the shared non-root `1000:100` identity with
+`UMASK=002`. Its movie library is `/data/media/movies`; completed Transmission
+downloads are available at `/data/torrent/downloads` through the same mount.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/radarr)
+When adding Transmission as a download client, configure a Remote Path Mapping
+with host `transmission`, remote path `/downloads`, and local path
+`/data/torrent/downloads`. This keeps completed torrents seedable while Radarr
+imports the movie via a hardlink.
+
+The image tag is pinned in host variables. Update it deliberately after
+reviewing the release notes. See the
+[LinuxServer image documentation](https://docs.linuxserver.io/images/docker-radarr/)
+and the [Radarr Docker guide](https://wiki.servarr.com/en/radarr/installation/docker)
+for application configuration.
 
 # Jackett
-Jackett works as a proxy server: it translates queries from apps (Sonarr, SickRage, CouchPotato, Mylar, etc) into tracker-site-specific http queries, parses the html response, then sends results back to the requesting software. This allows for getting recent uploads (like RSS) and performing searches. Jackett is a single repository of maintained indexer scraping & translation logic - removing the burden from other apps.
+Jackett translates Sonarr and Radarr indexer requests into tracker-specific
+queries. Its web interface is available only through the reverse proxy at
+`http://jackett.loc` (or the configured hostname); port 9117 is not published
+directly on the host. Configure Sonarr and Radarr to use
+`http://jackett:9117` on the shared Docker network.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/jackett)
+Jackett runs as the shared non-root `1000:100` identity with `UMASK=002`. Its
+indexer credentials, cookies, API key, and settings are stored in `/config`.
+Set an Admin Password in the Jackett UI before enabling External Access. The
+application self-update feature is disabled; update the pinned image tag
+deliberately instead.
 
-# TVHeadend
-Tvheadend works as a proxy server: is a TV streaming server and recorder for Linux, FreeBSD and Android supporting DVB-S, DVB-S2, DVB-C, DVB-T, ATSC, ISDB-T, IPTV, SAT>IP and HDHomeRun as input sources. Tvheadend offers the HTTP (VLC, MPlayer), HTSP (Kodi, Movian) and SAT>IP streaming. Multiple EPG sources are supported (over-the-air DVB and ATSC including OpenTV DVB extensions, XMLTV, PyXML).
-
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/tvheadend)
+See the [LinuxServer image documentation](https://docs.linuxserver.io/images/docker-jackett/)
+and the [Jackett troubleshooting guide](https://github.com/Jackett/Jackett/wiki/Troubleshooting)
+for tracker and security configuration.
 
 # MeTube
-Web GUI for youtube-dl (using the yt-dlp fork) with playlist support. Allows you to download videos from YouTube and dozens of other sites (https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
+MeTube is a web interface for yt-dlp that downloads videos, audio, playlists,
+and subscriptions to `/datafolder/sharefolder/media/youtube/downloads`. It runs
+as the shared `1000:100` identity with `UMASK=002`, so downloads remain
+writable by the `users` group.
 
-You can read more about configured [here](https://hub.docker.com/r/alexta69/metube)
+The Web UI is available only from private networks through the reverse proxy;
+it has no built-in multi-user authentication. Do not expose it to the public
+Internet, and do not enable per-download yt-dlp option overrides: upstream
+notes that this may allow commands to run in the container. Downloads are
+limited to one concurrent job and 200 items per playlist by default. Custom
+download directories are disabled, keeping all writes below the managed
+download directory.
+
+Before applying the permissions change to an existing installation, run
+`scripts/fix_storage_permissions.sh` on the server. The role pins a MeTube
+image tag; update it deliberately because yt-dlp requires frequent updates to
+remain compatible with video sites.
+
+See the [official MeTube documentation](https://github.com/alexta69/metube)
+for supported sites and cookies for restricted content.
 
 # Nexus
-Nexus3 Disaster Recovery (N3DR) is a tool that is capable of downloading all artifacts from a Nexus3 server and to migrate them to another one.
+Nexus Repository stores internal and proxied packages, container images, and
+their metadata. Its persistent state is
+`/datafolder/homeserver/services/nexus/data`, mounted as `/nexus-data` and
+owned by the Nexus runtime user `200:200`.
 
-You can read more about configured [here](https://hub.docker.com/r/sonatype/nexus3)
+The main administration UI is available at `nexus_service_hostname`. Additional
+hosts in `nexus_repository` proxy HTTP connector ports configured in Nexus,
+for example Docker registry connectors. The reverse proxy disables request and
+response buffering and removes the upload-size limit for these hosts, allowing
+large image layers to be pushed reliably. Keep repository authentication and
+anonymous-access policy configured within Nexus itself.
+
+The first administrator password is generated in `admin.password` under the
+Nexus data directory. Use it only for the first sign-in, then change it; do
+not place it in host vars or Ansible output.
+
+The service is stopped gracefully for up to 120 seconds to protect its
+database and blob stores. Back up `/nexus-data` using a Nexus-consistent backup
+procedure before any version or database migration, and test restoration
+separately.
+
+This deployment intentionally remains on its configured Nexus image tag.
+Older Nexus versions may require a staged database migration rather than a
+direct image upgrade; follow Sonatype's upgrade documentation before changing
+`nexus_docker_image_tag`.
+
+See the [official Nexus container documentation](https://hub.docker.com/r/sonatype/nexus3)
+and [upgrade guidance](https://help.sonatype.com/en/upgrade-nexus-repository.html).
 
 # Prometheus
-Prometheus is a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts if some condition is observed to be true.
+Prometheus collects metrics from this host and the targets listed in
+`prometheus_additional_scrape_jobs`. Grafana reaches it internally at
+`http://prometheus:9090`; the Prometheus UI/API is deliberately not published
+to the host network by default. Set `prometheus_expose_via_proxy: true` only
+when direct access through `prometheus_service_hostname` is required and the
+network is trusted. A Grafana instance on another host can then use
+`http://<prometheus_service_hostname>` as its Prometheus datasource. Prometheus
+does not provide user authentication by default, so do not expose this hostname
+to an untrusted network or the Internet without adding authentication and TLS
+at the reverse proxy.
 
-You can read more about configured [here](https://hub.docker.com/r/prom/prometheus)
+The node, Blackbox, SMART and cAdvisor exporters are likewise accessible only
+on the shared Docker network. cAdvisor and the SMART exporter retain
+`--privileged`: their upstream images need host access to collect complete
+container and disk metrics. Treat these containers as trusted infrastructure.
+
+Pin all five image tags in host vars and upgrade them deliberately. Metrics are
+stored locally beneath the configured Prometheus service data path; both
+`prometheus_retention_time` and `prometheus_retention_size` apply, so the first
+reached limit removes the oldest data. Leave sufficient free disk space for
+TSDB compaction; Prometheus recommends reserving 15–20% beyond the size limit.
+
+`prometheus_additional_scrape_jobs` is a list of jobs with `job_name`,
+`targets`, and optional `labels`, for example:
+
+```yaml
+prometheus_additional_scrape_jobs:
+  - job_name: node-office-pc
+    targets: ["office-pc.example:9100"]
+    labels:
+      instance: office-pc
+```
+
+Run `ansible-playbook -i inventory/hosts setup.yml --tags=setup-prometheus,setup-exporter,start --check --diff`
+before applying an image upgrade. See the [Prometheus storage documentation](https://prometheus.io/docs/prometheus/latest/storage/)
+and [cAdvisor documentation](https://github.com/google/cadvisor).
 
 # Grafana
-Grafana allows you to query, visualize, alert on and understand your metrics no matter where they are stored. Create, explore, and share dashboards with your team and foster a data-driven culture.
+Grafana is available through `grafana_service_hostname` and uses the internal
+Prometheus URL `http://prometheus:9090`. Its port is not published directly on
+the host; nginx-proxy is the only public entry point.
 
-You can read more about configured [here](https://hub.docker.com/r/grafana/grafana) or [here](https://github.com/grafana/grafana)
+Set `grafana_username`, `grafana_password`, and a persistent
+`grafana_secret_key` in host variables. Store the password and secret key with
+Ansible Vault. The secret key must be at least 32 characters and must remain
+unchanged: Grafana uses it to encrypt stored secrets. For example:
+
+```bash
+openssl rand -base64 48 | tr -d '\n' | ansible-vault encrypt_string --stdin-name grafana_secret_key
+```
+
+The administrator username and password environment variables initialize a new
+database only; change an existing administrator password in the Grafana UI.
+Managed dashboards and the Prometheus datasource are provisioned read-only
+from this repository. To customize one, first make a copy in the UI rather
+than editing the provisioned dashboard.
+
+Grafana 13 is a major update from the previous 9.x image. Before applying this
+role for the first time, stop Grafana and copy
+`/datafolder/homeserver/services/grafana/data/grafana.db` to a safe location.
+Then run `scripts/fix_storage_permissions.sh` once so the database belongs to
+the container user (`472:472`), and apply with:
+
+```bash
+ansible-playbook -i inventory/hosts setup.yml --tags=setup-grafana,start
+```
+
+See the [Grafana Docker documentation](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/)
+and [provisioning documentation](https://grafana.com/docs/grafana/latest/administration/provisioning/).
 
 # Postgres
-Postgres is a free and open-source relational database management system (RDBMS) emphasizing extensibility and SQL compliance.
+PostgreSQL is available to other containers on the shared Docker network as
+`postgres`. For LAN clients, its TCP port is published only on
+`postgres_listen_address`, which defaults to the host's primary LAN address;
+it is not an HTTP service and is not routed through nginx-proxy.
 
-You can read more about configured [here](https://hub.docker.com/_/postgres)
+Set `postgres_user`, `postgres_password`, and optionally `postgres_database`
+before the first initialization. Store the password with Ansible Vault. The
+official image only uses those initialization variables for an empty data
+directory: changing them later does not change the existing role, password or
+database.
+
+The role does not encrypt backups itself. The dump files contain all database
+data and roles, so protect them with host-storage encryption when required.
+They are root-readable only at
+`postgres_backup_path`, are made daily by `postgres-backup.timer`, and
+are retained for `postgres_backup_retention_days` days. Run a backup manually
+with `make backup`, and verify restoration periodically on a separate host.
+
+Use `systemctl list-timers postgres-backup.timer` to inspect the next run and
+`journalctl -u postgres-backup.service` to inspect its result.
+
+See the [official PostgreSQL Docker image documentation](https://hub.docker.com/_/postgres).
 
 # pgAdmin
 pgAdmin 4 is a web based administration tool for the PostgreSQL database. 
+
+The service is available through `pgadmin_service_hostname` and reaches the
+PostgreSQL container through the internal Docker network; it does not publish
+an additional host port. The initial administrator is configured with
+`pgadmin_user` and `pgadmin_password`. These values only create the account
+when the pgAdmin data directory is empty, so changing them does not reset an
+existing pgAdmin password. Store `pgadmin_password` in Ansible Vault.
+
+The role stores credentials in a root-only environment file and disables the
+unused local Postfix service by default. Its persistent state is in
+`{{ services_base_data_path }}/pgadmin/data`; copy that directory before a
+major pgAdmin upgrade. pgAdmin listens on internal port `8080` because the
+container has no Linux capabilities; nginx-proxy forwards public requests to
+that port automatically.
 
 You can read more about configured [here](https://www.pgadmin.org/support/list/)
 
 # MotionEye
 MotionEye is an online interface for the software motion, a video surveillance program with motion detection.
 
+The web interface is served through `motioneye_service_hostname`. Its separate
+stream endpoint is published only on the primary LAN address at port `8081`;
+set `motioneye_stream_listen_address` in host vars when the server has more
+than one LAN interface. Keep that port reachable only from trusted clients.
+
+The role uses the maintained `motioneyeproject/motioneye` image and creates a
+one-time, root-only archive of the existing configuration at
+`{{ services_base_data_path }}/motioneye/backups/config-before-image-migration.tar.gz`
+before the first managed image migration. It does not copy the recordings in
+`media`, which can be large; back up `config` and the recordings to separate
+storage before a major upgrade. If the new image cannot use the configuration,
+restore the archived `config` directory and return to the prior image tag.
+
+The image switches to its service user during startup, so it retains Docker's
+default Linux capabilities but uses `no-new-privileges`. If using a local USB
+camera, explicitly review any required device mapping and permissions before
+enabling it.
+
 You can read more about configured [here](https://github.com/motioneye-project/motioneye/tree/dev)
 
 # Torrserver
 TorrServer, stream torrent to http.
+
+TorrServer is available only through `torrserver_service_hostname`; its web
+port is not published directly on the host. HTTP authentication is enabled by
+default. Store `torrserver_admin_password` and `torrserver_guest_password` in
+Ansible Vault; they must be different and are written to a root-only
+authentication file.
+
+The role persists configuration, logs, and the TorrServer torrents directory
+under `{{ services_base_data_path }}/torrserver/data`. Copy configuration and
+any data you need to independent storage before a major upgrade.
+
+The service runs without Linux capabilities and accepts no new privileges. It
+does not expose a peer/DHT port on the host: outbound peer connections continue
+to work, but incoming peers are unavailable unless this is deliberately added.
 
 You can read more about configured [here](https://github.com/YouROK/TorrServer)
 
 # TubeArchivist
 Your self hosted YouTube media server
 
+TubeArchivist, Redis and Elasticsearch communicate only over the Docker
+network. Their ports are intentionally not published on the server. The web
+interface is available through `tubearchivist_service_hostname`.
+
+Store `tubearchivist_password` and `tubearchivist_es_password` in Ansible
+Vault. The role renders them into a root-only environment file instead of a
+world-readable systemd unit. The credentials initialise a new archive; changing
+the variables does not reset passwords already stored by TubeArchivist or
+Elasticsearch.
+
+Elasticsearch requires `vm.max_map_count=262144`; the role persists and applies
+that host setting. Its heap size is configurable with
+`tubearchivist_es_java_heap` and defaults to `512m`.
+
 You can read more about configured [here](https://github.com/tubearchivist/tubearchivist) or [here](https://www.tubearchivist.com/)
 
 # Nextcloud
 Your self hosted Nextcloud server. A safe home for all your data. Access & share your files, calendars, contacts, mail & more from any device, on your terms.
 
+When PostgreSQL is managed by this repository, the Nextcloud role safely
+creates its `nextcloud_postgres_user` and `nextcloud_postgres_db` only when
+they do not already exist. Existing roles, passwords, database owners, and
+data are never changed. Store `nextcloud_postgres_password` and
+`nextcloud_admin_password` in Ansible Vault. They are written to a root-only
+environment file rather than the systemd unit command line.
+
+`nextcloud_service_hostname` is the canonical browser URL. On each role start,
+the role synchronizes this hostname to Nextcloud's `overwritehost` and primary
+trusted-domain setting, so rename it through Ansible rather than editing
+`config.php` on the server.
+
+The role runs `cron.php` every five minutes through a systemd timer. It also
+creates a consistent daily archive under `nextcloud_backup_path`: the archive
+contains a PostgreSQL custom-format dump and `main`, `apps`, `config`, and
+`data`. The application is put into maintenance mode only for the duration of
+the backup. Set `nextcloud_backup_path` to separately mounted storage; a backup
+kept on the same disk does not protect against loss of the server or disk.
+
+To run a backup immediately:
+
+```bash
+ansible-playbook -i inventory/hosts setup.yml --tags=backup-nextcloud --ask-vault-pass
+```
+
+To restore, stop Nextcloud, extract `files.tar.gz` into its service base path,
+then restore `database.dump.gz` into the `nextcloud` database with `pg_restore`.
+After starting the service, run `maintenance:data-fingerprint` as `www-data`.
+
+`nextcloud_trusted_proxies` accepts only IP addresses or CIDRs for trusted
+reverse proxies. Leave it empty for the image default, or set it only after
+identifying a stable nginx-proxy address. For HTTPS reverse proxy access, set
+both `nextcloud_overwrite_protocol: "https"` and
+`nextcloud_overwrite_cli_url` to the public URL.
+
 You can read more about configured [here](https://hub.docker.com/_/nextcloud) or [here](https://github.com/nextcloud/docker)
 
-# Whoogle
-Get Google search results, but without any ads, JavaScript, AMP links, cookies, or IP address tracking. Easily deployable in one click as a Docker app, and customizable with a single config file. Quick and simple to implement as a primary search engine replacement on both desktop and mobile.
+# SearXNG
 
-You can read more about configured [here](https://hub.docker.com/r/benbusby/whoogle-search) or [here](https://github.com/benbusby/whoogle-search)
+SearXNG is a privacy-respecting metasearch engine. Its web interface is
+available through `searxng_service_hostname`; Valkey is internal-only and
+provides rate limiting.
+
+Set `searxng_secret_key` to a unique value stored in Ansible Vault. Generate it
+with `openssl rand -hex 32`. SearXNG configuration is kept under
+`{{ services_base_data_path }}/searxng/config`; do not edit it on the host,
+because Ansible manages `settings.yml` and `limiter.toml`.
+
+You can read more in the [SearXNG documentation](https://docs.searxng.org/).
 
 # Planka
 Elegant open source project tracking.
 
-You can read more about configured [here](https://hub.docker.com/r/linuxserver/planka) or [here](https://github.com/plankanban/planka)
+When PostgreSQL is managed by this repository, the Planka role safely creates
+its `planka_postgres_user` and `planka_postgres_db` only when they do not
+already exist. Existing roles, passwords, database owners, and data are never
+changed. Store `planka_postgres_password`, `planka_secret_key`, and the admin
+password in Ansible Vault. The rendered environment file is root-readable only;
+Planka is exposed through nginx-proxy and does not publish port 1337 on the host.
 
-# WUD
-Keep your containers up-to-date!
+For an existing v1 instance, use the deliberate migration sequence below. The
+migration is irreversible without the backups created by the script:
 
-You can read more about configured [here](https://hub.docker.com/r/getwud/wud) or [here](https://github.com/getwud/wud)
+1. Render but do not start the v2 service: `--tags=setup-planka`.
+2. Copy `scripts/migrate_planka_v1_to_v2.sh` to the server and run it as root
+   with `--execute`.
+3. Start the v2 service with `--tags=start-planka` and verify boards, cards,
+   attachments, and login before removing any legacy data.
+
+The script stores a PostgreSQL dump and archived v1 files in
+`{{ services_base_data_path }}/planka/migration-backups/`. It intentionally
+leaves Planka stopped after migration.
+
+Read the [official Planka v2 migration guide](https://docs.planka.cloud/docs/upgrade-to-v2/docker/) before execution.
 
 # Quake3 Server
-Quake3 Arena Server
+Quake 3 Arena dedicated server. It listens on UDP `27960` by default and is
+not an HTTP service: the role does not use nginx-proxy or a
+`q3server_service_hostname`. Players may still connect with a public DNS name
+that resolves to the router's public address.
 
-You can read more about configured [here](https://hub.docker.com/r/vetalracer/q3server) or [here](https://hub.docker.com/r/vetalracer/q3server)
+To make it reachable from the Internet, keep `q3server_listen_address` set to
+`0.0.0.0`, then forward **UDP only** port `27960` in the router to the server's
+LAN address. Do not forward TCP for this service. Restrict the port with a
+host firewall if external play is not required.
+
+`q3server_rcon_password` and `q3server_private_password` are required. Store
+them with Ansible Vault; do not put them in `server.cfg` or Git. For example:
+
+```bash
+ansible-vault encrypt_string --ask-vault-pass "$(openssl rand -hex 24)" --name q3server_rcon_password
+ansible-vault encrypt_string --ask-vault-pass "$(openssl rand -hex 24)" --name q3server_private_password
+```
+
+The role pins the image by both tag and digest. Change both only as a deliberate
+upgrade. `q3server_master_servers` is empty by default, so clients connect by
+the server's public IP or DNS name and port; configure only verified master
+servers if listing in a public browser is needed.
+
+More information about the image is available on [Docker Hub](https://hub.docker.com/r/vetalracer/q3server).

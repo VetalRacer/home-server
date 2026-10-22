@@ -11,17 +11,18 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill jackett 2
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm jackett 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name jackett \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ jackett_service_hostname }} \
-			--env PUID={{ jackett_uid }} \
-  			--env PGID={{ jackett_gid }} \
-  			--env AUTO_UPDATE={{ jackett_auto_update }} \
-			-p 9117:9117 \
-      		-v {{ jackett_config_path }}:/config \
-#			-v {{ jackett_blackhole }}:/downloads \
-			{{ jackett_docker_image }}
+            --log-driver=none \
+            --network={{ nginx_docker_network }} \
+            --env TZ={{ timezone }} \
+            --env VIRTUAL_HOST={{ jackett_service_hostname }} \
+            --env VIRTUAL_PORT={{ jackett_service_port }} \
+            --env PUID={{ jackett_uid }} \
+            --env PGID={{ jackett_gid }} \
+            --env AUTO_UPDATE={{ jackett_auto_update | lower }} \
+            --env UMASK={{ jackett_umask }} \
+            --security-opt=no-new-privileges:true \
+            -v {{ jackett_config_path }}:/config \
+            {{ jackett_docker_image }}
 
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill jackett 2>/dev/null'

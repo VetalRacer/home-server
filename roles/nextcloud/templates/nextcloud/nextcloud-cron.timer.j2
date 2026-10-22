@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Nextcloud background jobs on a schedule
+
+[Timer]
+OnCalendar={{ nextcloud_cron_schedule }}
+Persistent=true
+Unit=nextcloud-cron.service
+
+[Install]
+WantedBy=timers.target

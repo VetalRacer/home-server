@@ -18,8 +18,19 @@ homepage_weather_timezone: Europe/Samara
 # Homepage envs
 homepage_service_port: 3000
 
+# Docker integration shows container status on service cards. Homepage reaches
+# a local allowlisted API proxy, never the Docker socket directly.
+homepage_docker_integration_enabled: true
+homepage_docker_api_proxy_name: homepage-docker-api
+homepage_docker_api_proxy_image: "nginx:1.30.5-alpine"
+homepage_docker_api_proxy_port: 2375
+homepage_docker_host: "{{ homepage_docker_api_proxy_name }}"
+homepage_docker_port: 2375
+homepage_docker_protocol: http
+
 # Homepage services
 homepage_services_list: |
   {{
-    (['homepage.service'])
+    ((['homepage-docker-api.service'] if homepage_docker_integration_enabled | bool else [])
+    + ['homepage.service'])
   }}

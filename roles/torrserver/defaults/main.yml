@@ -7,12 +7,17 @@ torrserver_docker_image: "{{ torrserver_docker_image_template|replace('__VERSION
 
 # Torrserver-related data
 torrserver_data_path: "{{ torrserver_base_data_path }}/data"
+torrserver_log_path: "{{ torrserver_data_path }}/log"
+torrserver_torrents_path: "{{ torrserver_data_path }}/torrents"
 
 # Torrserver config data
 torrserver_config_path: "{{ torrserver_data_path }}/config"
 
 # Torrserver envs
 torrserver_service_port: 8090
+torrserver_httpauth_enabled: true
+# Leave disabled so systemd can stop the server gracefully during maintenance.
+torrserver_dontkill: false
 
 # Torrserver services
 torrserver_services_list: |

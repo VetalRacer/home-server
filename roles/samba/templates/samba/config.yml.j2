@@ -1,110 +1,34 @@
 auth:
-  - user: admin
-    group: users
-    uid: 1000
-    gid: 100
-    password: admin_password
-  - user: example
-    group: users
-    uid: 1100
-    gid: 100
-    password: example_password
+{% for samba_user in samba_users %}
+  - user: {{ samba_user.name }}
+    group: {{ samba_user.group }}
+    uid: {{ samba_user.uid }}
+    gid: {{ samba_user.gid }}
+    password: ${SAMBA_PASSWORD_{{ samba_user.name | upper }}}
+{% endfor %}
 
 global:
   - "force group = {{ samba_force_group }}"
+  - "server min protocol = SMB2_10"
+  - "map to guest = never"
+  - "server smb encrypt = desired"
 
 share:
-  - name: sharefolder
-    comment: sharefolder
-    path: /samba/sharefolder
+{% for samba_share in samba_shares %}
+  - name: {{ samba_share.name }}
+    comment: {{ samba_share.name }}
+    path: {{ samba_share.container_path }}
     browsable: yes
     readonly: no
     guestok: no
-    validusers: admin, example
+    validusers: {{ (samba_share.read_users + samba_share.write_users) | unique | join(', ') }}
+{% if samba_share.read_users | length > 0 %}
+    readlist: {{ samba_share.read_users | join(', ') }}
+{% endif %}
+{% if samba_share.write_users | length > 0 %}
+    writelist: {{ samba_share.write_users | join(', ') }}
+{% endif %}
     invalidusers: guest
-    readlist: example
-    writelist: admin
     veto: no
     hidefiles: /_*
-  - name: program
-    comment: program
-    path: /samba/program
-    browsable: yes
-    readonly: no
-    guestok: no
-    validusers: admin, example
-    invalidusers: guest
-    readlist: example
-    writelist: admin
-    veto: no
-    hidefiles: /_*
-  - name: media
-    comment: media
-    path: /samba/media
-    browsable: yes
-    readonly: no
-    guestok: no
-    validusers: admin, example
-    invalidusers: guest
-    readlist: example, guest
-    writelist: admin
-    veto: no
-    hidefiles: /_*
-  - name: game
-    comment: game
-    path: /samba/game
-    browsable: yes
-    readonly: no
-    guestok: no
-    validusers: admin, example
-    invalidusers: guest
-    readlist: example
-    writelist: admin
-    veto: no
-    hidefiles: /_*
-  - name: music
-    comment: music
-    path: /samba/music
-    browsable: yes
-    readonly: no
-    guestok: no
-    validusers: admin, example
-    invalidusers: guest
-    readlist: example
-    writelist: admin
-    veto: no
-    hidefiles: /_*
-  - name: a_bit_all
-    comment: a_bit_all
-    path: /samba/a_bit_all
-    browsable: yes
-    readonly: no
-    guestok: no
-    validusers: admin, example
-    invalidusers: guest
-    readlist: example
-    writelist: admin
-    veto: no
-    hidefiles: /_*
-  - name: exchanger
-    comment: exchanger
-    path: /samba/exchanger
-    browsable: yes
-    readonly: no
-    guestok: no
-    validusers: admin, example
-    invalidusers: guest
-    writelist: admin, example
-    veto: no
-    hidefiles: /_*
-  - name: torrent
-    comment: torrent
-    path: /samba/torrent
-    browsable: yes
-    readonly: no
-    guestok: no
-    validusers: admin, example
-    invalidusers: guest
-    writelist: admin, example
-    veto: no
-    hidefiles: /_*
+{% endfor %}

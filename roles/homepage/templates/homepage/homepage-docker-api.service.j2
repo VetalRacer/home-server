@@ -1,0 +1,32 @@
+[Unit]
+Description=Restricted Docker API proxy for Homepage
+Requires=docker.service
+After=docker.service
+Before=homepage.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill {{ homepage_docker_api_proxy_name }} 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm {{ homepage_docker_api_proxy_name }} 2>/dev/null'
+ExecStart=/usr/bin/docker run --rm --name {{ homepage_docker_api_proxy_name }} \
+			--log-driver=none \
+			--network={{ nginx_docker_network }} \
+			--read-only \
+			--tmpfs /tmp:rw,noexec,nosuid,size=16m \
+			--cap-drop=ALL \
+			--cap-add=CHOWN \
+			--cap-add=SETUID \
+			--cap-add=SETGID \
+			--security-opt=no-new-privileges:true \
+			-v /var/run/docker.sock:/var/run/docker.sock:ro \
+			-v {{ homepage_data_path }}/docker-api-proxy.conf:/etc/nginx/nginx.conf:ro \
+			{{ homepage_docker_api_proxy_image }}
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill {{ homepage_docker_api_proxy_name }} 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm {{ homepage_docker_api_proxy_name }} 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=homepage-docker-api
+
+[Install]
+WantedBy=multi-user.target

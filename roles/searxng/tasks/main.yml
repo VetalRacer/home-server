@@ -1,0 +1,19 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: searxng_installation_enabled | bool
+  tags:
+    - setup-all
+    - setup-searxng
+
+- import_tasks: "{{ role_path }}/tasks/setup_searxng.yml"
+  when: searxng_installation_enabled | bool
+  tags:
+    - setup-all
+    - setup-searxng
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: searxng_installation_enabled | bool
+  tags:
+    - start
+    - start-searxng

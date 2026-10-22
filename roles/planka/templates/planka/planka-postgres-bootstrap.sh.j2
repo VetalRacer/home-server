@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# This script deliberately creates only missing objects.  It never changes an
+# existing role, password, database owner, or database contents.
+for attempt in $(seq 1 30); do
+  if /usr/bin/docker exec postgres sh -c \
+    'PGPASSWORD="$POSTGRES_PASSWORD" pg_isready -h 127.0.0.1 -U "$POSTGRES_USER" -d postgres' \
+    >/dev/null 2>&1; then
+    break
+  fi
+
+  if [[ "$attempt" == 30 ]]; then
+    echo "PostgreSQL did not become ready in time" >&2
+    exit 1
+  fi
+
+  sleep 1
+done
+
+/usr/bin/docker exec -i postgres sh -c \
+  'PGPASSWORD="$POSTGRES_PASSWORD" exec psql -h 127.0.0.1 -U "$POSTGRES_USER" -d postgres -v ON_ERROR_STOP=1' <<'SQL'
+DO $bootstrap$
+DECLARE
+  app_user text := convert_from(decode('{{ planka_postgres_user | b64encode }}', 'base64'), 'UTF8');
+  app_password text := convert_from(decode('{{ planka_postgres_password | b64encode }}', 'base64'), 'UTF8');
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = app_user) THEN
+    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', app_user, app_password);
+  END IF;
+END
+$bootstrap$;
+
+SELECT format('CREATE DATABASE %I OWNER %I', v.database_name, v.role_name)
+FROM (
+  SELECT
+    convert_from(decode('{{ planka_postgres_db | b64encode }}', 'base64'), 'UTF8') AS database_name,
+    convert_from(decode('{{ planka_postgres_user | b64encode }}', 'base64'), 'UTF8') AS role_name
+) AS v
+WHERE NOT EXISTS (
+  SELECT FROM pg_database AS database WHERE database.datname = v.database_name
+)
+\gexec
+SQL

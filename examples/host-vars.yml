@@ -7,6 +7,14 @@ host_command_sh: "/usr/bin/env sh"
 nginx_docker_network: nginx-proxy
 timezone: Etc/UTC
 
+# Optional host firewall policy. When enabled, all services remain available
+# from the listed LANs; only these explicitly listed Docker ports are public.
+# server_base_firewall_enabled: true
+# server_base_firewall_lan_cidrs:
+#   - "192.168.1.0/24"
+# server_base_firewall_public_tcp_ports: []
+# server_base_firewall_public_udp_ports: []
+
 # Install raid
 raid_installation_enabled: true
 nginx_proxy_installation_enabled: true
@@ -22,8 +30,7 @@ speedtest_installation_enabled: true
 sonarr_installation_enabled: true
 radarr_installation_enabled: true
 jackett_installation_enabled: true
-overseerr_installation_enabled: true
-tvheadend_installation_enabled: true
+seerr_installation_enabled: true
 metube_installation_enabled: true
 nexus_installation_enabled: true
 grafana_installation_enabled: true
@@ -34,14 +41,12 @@ motioneye_installation_enabled: true
 torrserver_installation_enabled: true
 tubearchivist_installation_enabled: true
 nextcloud_installation_enabled: true
-whoogle_installation_enabled: true
+searxng_installation_enabled: true
 planka_installation_enabled: true
-wud_installation_enabled: true
 q3server_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
-samba_service_hostname: "samba.YOUR_DOMAIN_NAME_HERE"
 transmission_service_hostname: "transmission.YOUR_DOMAIN_NAME_HERE"
 plex_service_hostname: "plex.YOUR_DOMAIN_NAME_HERE"
 homepage_service_hostname: "homepage.YOUR_DOMAIN_NAME_HERE"
@@ -51,22 +56,18 @@ speedtest_service_hostname: "speedtest.YOUR_DOMAIN_NAME_HERE"
 sonarr_service_hostname: "sonarr.YOUR_DOMAIN_NAME_HERE"
 radarr_service_hostname: "radarr.YOUR_DOMAIN_NAME_HERE"
 jackett_service_hostname: "jackett.YOUR_DOMAIN_NAME_HERE"
-overseerr_service_hostname: "overseerr.YOUR_DOMAIN_NAME_HERE"
-tvheadend_service_hostname: "tvheadend.YOUR_DOMAIN_NAME_HERE"
+seerr_service_hostname: "seerr.YOUR_DOMAIN_NAME_HERE"
 metube_service_hostname: "metube.YOUR_DOMAIN_NAME_HERE"
 nexus_service_hostname: "nexus.YOUR_DOMAIN_NAME_HERE"
 grafana_service_hostname: "grafana.YOUR_DOMAIN_NAME_HERE"
 prometheus_service_hostname: "prometheus.YOUR_DOMAIN_NAME_HERE"
-postgres_service_hostname: "postgres.YOUR_DOMAIN_NAME_HERE"
 pgadmin_service_hostname: "pgadmin.YOUR_DOMAIN_NAME_HERE"
 motioneye_service_hostname: "motioneye.YOUR_DOMAIN_NAME_HERE"
 torrserver_service_hostname: "torrserver.YOUR_DOMAIN_NAME_HERE"
 tubearchivist_service_hostname: "tubearchivist.YOUR_DOMAIN_NAME_HERE"
 nextcloud_service_hostname: "nextcloud.YOUR_DOMAIN_NAME_HERE"
-whoogle_service_hostname: "whoogle.YOUR_DOMAIN_NAME_HERE"
+searxng_service_hostname: "searxng.YOUR_DOMAIN_NAME_HERE"
 planka_service_hostname: "planka.YOUR_DOMAIN_NAME_HERE"
-wud_service_hostname: "wud.YOUR_DOMAIN_NAME_HERE"
-q3server_service_hostname: "q3server.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
 # Docker 20.10 complains with `WARNING: Error loading config file: .dockercfg: $HOME is not defined`
@@ -88,166 +89,188 @@ backups_base_data_path: "{{ base_data_path }}/backups"
 # Base directory that contains share folders
 sharefolder_base_data_path: "{{ base_data_path }}/sharefolder"
 
-# Gitlab root password
-gitlab_root_password: ''
-
-# Gitlab services tag
+# Docker image tags. Update these deliberately during a maintenance window.
+nginx_proxy_docker_image_tag: "1.11"
 gitlab_docker_image_tag: "15.5.1-ee.0"
-gitlab_runner_image_tag: v15.1.1
-
-# Samba services tag
-samba_docker_image_tag: 0.0.1
-
-# Nginx services tag
-nginx_proxy_docker_image_tag: 1.7
-
-# Transmission service tag
-transmission_docker_image_tag: 4.0.6
-
-# Plex service tag
-plex_docker_image_tag: 1.41.6
-
-# Homepage service tag
-homepage_docker_image_tag: v1.2.0
-
-# FileBrowser service tag
-filebrowser_docker_image_tag: v2.32.0-s6
-
-# Pihole service tag
-pihole_docker_image_tag: 2025.04.0
-
-# ps3netsrv service tag
-ps3netsrv_docker_image_tag: v1.10
-
-# Speedtest-Tracker service tag
-speedtest_docker_image_tag: latest
-
-# Sonarr service tag
-sonarr_docker_image_tag: latest
-
-# Radarr service tag
-radarr_docker_image_tag: latest
-
-# Jakett service tag
-jackett_docker_image_tag: 0.22.1857
-
-# Overseerr service tag
-overseerr_docker_image_tag: latest
-
-# TVheadend service tag
-tvheadend_docker_image_tag: latest
-
-# MeTube service tag
-metube_docker_image_tag: 2025-05-01
-
-# Nexus service tag
+samba_docker_image_tag: 4.23.8
+transmission_docker_image_tag: 4.1.3
+plex_docker_image_tag: 1.43.4
+homepage_docker_image_tag: v2.4.0
+homepage_docker_api_proxy_image: "nginx:1.30.5-alpine"
+filebrowser_docker_image_tag: v2.63.23-s6
+pihole_docker_image_tag: 2026.04.1
+ps3netsrv_docker_image_tag: v2.0.1
+speedtest_docker_image_tag: 1.15.0
+sonarr_docker_image_tag: 4.0.20.3014-ls326
+radarr_docker_image_tag: 6.4.4.10685-ls319
+jackett_docker_image_tag: v0.24.2800-ls51
+seerr_docker_image_tag: v3.4.1
+metube_docker_image_tag: 2026.10.09
 nexus_docker_image_tag: 3.47.1
-
-# Grafana service tag
-grafana_docker_image_tag: 9.2.8
-
-# Prometheus service tag
-prometheus_docker_image_tag: latest
-
-# Postgres service tag
+grafana_docker_image_tag: 13.2.2
+prometheus_docker_image_tag: v3.14.0
+prometheus_node_exporter_docker_image_tag: v1.10.2
+prometheus_smartctl_exporter_docker_image_tag: v2.5.0
+prometheus_cadvisor_exporter_docker_image_tag: 0.55.1
+prometheus_blackbox_exporter_docker_image_tag: v0.28.0
 postgres_docker_image_tag: 15.2
-
-# pgAdmin service tag
-pgadmin_docker_image_tag: 9.3.0
-
-# MotionEye service tag
-motioneye_docker_image_tag: master-amd64
-
-# Torrserver service tag
-torrserver_docker_image_tag: MatriX.135
-
-# TubeArchivist service tag
+pgadmin_docker_image_tag: 9.18.0
+motioneye_docker_image_tag: 0.43.1
+torrserver_docker_image_tag: MatriX.146.2
 tubearchivist_docker_image_tag: v0.4.1
 tubearchivist_redis_docker_image_tag: 7.2.0-v2
 tubearchivist_es_docker_image_tag: 8.9.0
-
-# Nextcloud service tag
 nextcloud_docker_image_tag: 28.0.1
-
-# Whoogle service tag
-whoogle_docker_image_tag: 0.9.3
-
-# Planka service tag
-planka_docker_image_tag: 1.26.1
-
-# WUD service tag
-wud_docker_image_tag: 8.0.1
-
-# Q3Server service tag
+searxng_docker_image_tag: 2026.10.19-81371861f
+searxng_valkey_docker_image_tag: 9.0.6-alpine
+planka_docker_image_tag: 2.2.1
 q3server_docker_image_tag: v1.0.0
+q3server_docker_image_digest: "sha256:cee856a51ef657b75493b1a039e99f6b6852a0c05009ea7cf83591627612f99d"
 
-# Transmission creds
-transmission_username: admin
-transmission_password: admin
+# Service-specific configuration and credentials.
+# Gitlab root password
+gitlab_root_password: ''
 
-# Grafana creds
+# Samba service image and non-empty passwords for every user defined in the role.
+samba_user_passwords:
+  admin: ""
+  vitalii: ""
+
+# Homepage receives container status through a local read-only API proxy.
+# Never expose the proxy port or mount the host Docker socket into Homepage.
+homepage_docker_integration_enabled: true
+homepage_docker_port: 2375
+homepage_docker_protocol: http
+
+# Optional connector hosts, for example Docker registries, must match HTTP
+# connector ports configured in Nexus itself.
+nexus_repository:
+  - hostname: "proxy.nexus.YOUR_DOMAIN_NAME_HERE"
+    port: 49001
+  - hostname: "registry.nexus.YOUR_DOMAIN_NAME_HERE"
+    port: 49002
+
+# Keep 0.0.0.0 when the router forwards UDP 27960 from the Internet. Set a
+# LAN address instead to restrict the service to one interface.
+q3server_listen_address: "0.0.0.0"
+# Store both passwords as Ansible Vault values. q3server_rcon_password controls
+# remote console commands; q3server_private_password controls reserved slots.
+q3server_rcon_password: ""
+q3server_private_password: ""
+# Optional metadata displayed by the game server.
+q3server_admin_name: ""
+q3server_admin_email: ""
+q3server_website: ""
+q3server_server_name: "Quake 3 Arena Server"
+q3server_motd: "Welcome to the Quake 3 server"
+# Leave empty for direct connections by IP/port only. Add only verified master
+# servers if public listing is required.
+q3server_master_servers: []
+
+# Transmission credentials. Use Ansible Vault for real values.
+transmission_username: ""
+transmission_password: ""
+
+# Grafana credentials and the persistent encryption key. Encrypt real values
+# with Ansible Vault. Changing the secret key makes previously encrypted
+# Grafana data (for example datasource credentials) unreadable.
 grafana_username: admin
-grafana_password: admin
+grafana_password: ""
+grafana_secret_key: ""
 
-# Pihole creds
-pihole_service_webpassword: admin
+# Pi-hole administrator password. Store the real value with Ansible Vault.
+pihole_service_webpassword: ""
 
-# Postgres creds
+# Speedtest Tracker application key and initial administrator password. Generate
+# an APP_KEY with openssl rand -base64 32 and store both secret values with
+# Ansible Vault before the first start.
+speedtest_app_key: ""
+speedtest_admin_password: ""
+# Homepage requires a Speedtest Tracker API token with only the Read Results
+# ability. Store the real token with Ansible Vault.
+speedtest_homepage_api_key: ""
+
+# PostgreSQL credentials. Store the real password with Ansible Vault. These
+# variables initialize a new cluster only; changing them does not modify an
+# existing PostgreSQL role or database.
 postgres_user: admin
-postgres_password: admin
+postgres_password: ""
+# PostgreSQL listens only on the host's primary LAN IP by default. Override
+# this for multi-homed hosts that must accept LAN clients on another address.
+# postgres_listen_address: "192.168.1.10"
+# postgres_host_port: 5432
+# A root-only pg_dumpall archive is created daily by default.
+# postgres_backup_schedule: "*-*-* 03:15:00"
+# postgres_backup_retention_days: 14
 
 # pgAdmin creds
 pgadmin_user: admin@localhost
-pgadmin_password: admin
+# Use Ansible Vault for this value. The initial pgAdmin account variables are
+# used only when its data directory is first initialized.
+pgadmin_password: ""
 
 # Torrserver creds
-torrserver_admin_password: admin
-torrserver_guest_password: guest
+# Store both passwords in Ansible Vault. They are written to a root-only
+# TorrServer authentication file during setup.
+torrserver_admin_password: ""
+torrserver_guest_password: ""
 
 # TubeArchivist creds
+# Store passwords in Ansible Vault. These values initialise accounts only on a
+# new archive; changing them does not reset existing credentials.
 tubearchivist_username: tubearchivist
-tubearchivist_password: verysecret
-tubearchivist_es_password: verysecret
+tubearchivist_password: ""
+tubearchivist_es_password: ""
 
 # Nextcloud creds
 nextcloud_postgres_user: nextcloud
-nextcloud_postgres_password: password
+# Use Ansible Vault for this value. During setup, only a missing PostgreSQL
+# role/database is created; existing PostgreSQL objects are never modified.
+nextcloud_postgres_password: ""
 nextcloud_admin_user: admin
-nextcloud_admin_password: password
+# Used only on the first Nextcloud initialization. Store the real value in
+# Ansible Vault; changing it does not reset an existing administrator password.
+nextcloud_admin_password: ""
+# Keep this empty until nginx-proxy has a known, stable IP/CIDR. Do not place
+# the Nextcloud hostname here: trusted proxies must be IP addresses or ranges.
+nextcloud_trusted_proxies: []
 
 # Planka creds
 planka_postgres_user: planka
-planka_postgres_password: password
+# Use Ansible Vault for this value. During setup, only a missing PostgreSQL
+# role/database is created; existing PostgreSQL objects are never modified.
+planka_postgres_password: ""
+planka_secret_key: ""
 planka_default_admin_username: admin
 planka_default_admin_password: password
 planka_default_admin_email: "admin@planka.YOUR_DOMAIN_NAME_HERE"
-
-# WUD creds
-wud_lscr_username: username
-wud_lscr_token: usertoken
 
 # Plex settings
 plex_claim: ''
 plex_apikey: '' # see https://www.plexopedia.com/plex-media-server/general/plex-token/
 
 # Prometheus settings
-prometheus_retantion_time_enabled: false
-prometheus_retantion_time: 180d
+# Both limits apply: the oldest metrics are removed when either is reached.
+prometheus_retention_time: 180d
+prometheus_retention_size: 100GB
+# Keep false unless Prometheus UI/API access through nginx-proxy is intentional.
+# prometheus_expose_via_proxy: true
+# Site-specific remote monitoring targets. Local Prometheus and exporters are
+# configured by the role and do not need to be repeated here.
+prometheus_additional_scrape_jobs: []
 
 # TubeArchivist settings
 tubearchivist_apikey: ''
 
-# Required secrets (can be generated with something like `pwgen -Bsv1 64`)
-# We recommend encrypting the values using `ansible-vault encrypt_string`.
-gitlab_secrets_otp_key_base: ''
-gitlab_secrets_secret_key_base: ''
-gitlab_secrets_db_key_base: ''
-
-# Choose an encryption password (to be used for gpg).
-# We recommend encrypting the values using `ansible-vault encrypt_string`.
-gitlab_backup_encryption_password: ''
+# SearXNG settings. Generate a value with `openssl rand -hex 32` and encrypt
+# it with Ansible Vault before use.
+searxng_secret_key: ""
 
 gitlab_backup_cron_email_to: YOUR_EMAIL_ADDRESS_HERE
+
+# Optional off-host copy. Generate a Yandex Disk OAuth token with access only
+# to the application folder and encrypt it using `ansible-vault encrypt_string`.
+# gitlab_backup_yandex_token: ''
 
 # After you've installed Gitlab for the first time and everything is running,
 # you should uncomment and populate this.

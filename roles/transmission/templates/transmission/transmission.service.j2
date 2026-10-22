@@ -13,17 +13,15 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm transmissio
 ExecStart=/usr/bin/docker run --rm --name transmission \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--env TZ=Europe/Samara \
-            --env PUID={{ transmission_uid }} \
-            --env PGID={{ transmission_gid }} \
-            --env TZ={{ timezone }} \
-            --env USER={{ transmission_username }} \
-            --env PASS={{ transmission_password }} \
-            --env VIRTUAL_HOST={{ transmission_service_hostname }} \
-            --env VIRTUAL_PORT={{ transmission_service_port }} \
-            -v {{ transmission_data_path }}:/config \
-            -v {{ transmission_file_path }}/downloads:/downloads \
-            -v {{ transmission_file_path }}/watch:/watch \
+			--env PUID={{ transmission_uid }} \
+			--env PGID={{ transmission_gid }} \
+			--env TZ={{ timezone }} \
+			--env VIRTUAL_HOST={{ transmission_service_hostname }} \
+			--env VIRTUAL_PORT={{ transmission_service_port }} \
+			--env-file {{ transmission_env_path }} \
+			-v {{ transmission_data_path }}:/config \
+			-v {{ transmission_file_path }}/downloads:/downloads \
+			-v {{ transmission_file_path }}/watch:/watch \
 			{{ transmission_docker_image }}
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill transmission 2>/dev/null'

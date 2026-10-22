@@ -1,5 +1,23 @@
 ---
 
+- name: Validate Transmission configuration
+  assert:
+    that:
+      - transmission_username is defined
+      - transmission_username | length > 0
+      - transmission_password is defined
+      - transmission_password | length > 0
+      - transmission_username is not search('[\\r\\n]')
+      - transmission_password is not search('[\\r\\n]')
+      - transmission_uid | int > 0
+      - transmission_gid | int > 0
+      - transmission_service_port | int > 0
+      - transmission_service_port | int < 65536
+    fail_msg: >-
+      Define non-empty Transmission credentials without line breaks, valid
+      non-root UID/GID values, and a valid service port.
+  no_log: true
+
 - name: Ensure Transmission image is pulled
   docker_image:
     name: "{{ transmission_docker_image }}"
@@ -9,11 +27,31 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: 0750
-    owner: "root"
-    group: "root"
+    mode: '0750'
+    owner: "{{ transmission_uid }}"
+    group: "{{ transmission_gid }}"
   with_items:
     - "{{ transmission_data_path }}"
+
+- name: Ensure Transmission download paths exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '2770'
+    owner: "{{ transmission_uid }}"
+    group: "{{ transmission_gid }}"
+  with_items:
+    - "{{ transmission_file_path }}/downloads"
+    - "{{ transmission_file_path }}/watch"
+
+- name: Ensure Transmission credentials environment file
+  template:
+    src: "{{ role_path }}/templates/transmission/transmission.env.j2"
+    dest: "{{ transmission_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
 
 - name: Ensure Transmission.service installed
   template:

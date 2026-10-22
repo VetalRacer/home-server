@@ -1,0 +1,15 @@
+---
+- name: Reload Prometheus systemd units
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart Prometheus exporters
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop: "{{ exporter_services_list }}"
+
+- name: Restart Prometheus
+  ansible.builtin.systemd:
+    name: prometheus.service
+    state: restarted

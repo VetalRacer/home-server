@@ -6,21 +6,74 @@
 - include_tasks: "{{ role_path }}/tasks/setup_server_base_debian.yml"
   when: ansible_os_family == 'Debian'
 
+- name: Validate server-base firewall configuration
+  ansible.builtin.assert:
+    that:
+      - server_base_firewall_lan_cidrs is not string
+      - server_base_firewall_lan_cidrs | length > 0
+      - server_base_firewall_lan_cidrs | select('string') | map('trim') | reject('equalto', '') | list | length == server_base_firewall_lan_cidrs | length
+      - server_base_firewall_public_tcp_ports is not string
+      - server_base_firewall_public_tcp_ports | map('int') | select('lt', 1) | list | length == 0
+      - server_base_firewall_public_tcp_ports | map('int') | select('gt', 65535) | list | length == 0
+      - server_base_firewall_public_udp_ports is not string
+      - server_base_firewall_public_udp_ports | map('int') | select('lt', 1) | list | length == 0
+      - server_base_firewall_public_udp_ports | map('int') | select('gt', 65535) | list | length == 0
+    fail_msg: >-
+      Define non-empty LAN CIDRs and valid public TCP/UDP port lists for the
+      server-base firewall.
+  when: server_base_firewall_enabled | bool
+
+- name: Ensure SSH hardening configuration directory exists
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: server_base_ssh_hardening_enabled | bool and ansible_os_family == 'Debian'
+
+- name: Ensure SSH key-only access policy is installed
+  ansible.builtin.template:
+    src: ssh/99-home-server-hardening.conf.j2
+    dest: /etc/ssh/sshd_config.d/99-home-server-hardening.conf
+    owner: root
+    group: root
+    mode: '0644'
+  register: server_base_sshd_hardening_result
+  when: server_base_ssh_hardening_enabled | bool and ansible_os_family == 'Debian'
+
+- name: Validate and reload SSH after hardening changes
+  ansible.builtin.command: /usr/sbin/sshd -t
+  changed_when: false
+  when:
+    - server_base_sshd_hardening_result is defined
+    - server_base_sshd_hardening_result is changed
+    - ansible_os_family == 'Debian'
+
+- name: Reload SSH after hardening changes
+  ansible.builtin.systemd_service:
+    name: ssh
+    state: reloaded
+  when:
+    - server_base_sshd_hardening_result is defined
+    - server_base_sshd_hardening_result is changed
+    - ansible_os_family == 'Debian'
+
 - name: Ensure Docker is started and autoruns
-  service:
+  ansible.builtin.service:
     name: docker
     state: started
     enabled: yes
   when: docker_installation_enabled|bool
 
 - name: "Ensure {{ ntpd_service }} is started and autoruns"
-  service:
+  ansible.builtin.service:
     name: "{{ ntpd_service }}"
     state: started
     enabled: yes
 
 - name: Set hostname "{{ hostname }}"
-  hostname:
+  ansible.builtin.hostname:
     name: "{{ hostname }}"
 
 - name: Set timezone to "{{ timezone }}"

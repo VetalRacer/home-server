@@ -1,5 +1,29 @@
 docker_installation_enabled: true
 docker_package_name: "docker-ce"
+docker_apt_architecture: "{{ {'x86_64': 'amd64', 'aarch64': 'arm64', 'armv7l': 'armhf'}.get(ansible_architecture, ansible_architecture) }}"
+docker_apt_keyring_path: /etc/apt/keyrings/docker.asc
+
+# Base-system updates are intentionally separate from Docker image updates.
+# This enables only the distribution security updates on Debian-family hosts.
+server_base_automatic_security_updates_enabled: true
+
+# SSH uses key-based root access for Ansible. These settings remove password
+# and X11 access without changing the configured SSH port.
+server_base_ssh_hardening_enabled: true
+server_base_ssh_permit_root_login: prohibit-password
+server_base_ssh_password_authentication: false
+server_base_ssh_x11_forwarding: false
+server_base_ssh_max_auth_tries: 3
+
+# Firewall management is opt-in because published ports and public services
+# are deployment-specific. When enabled, LAN clients retain access to all host
+# services and only the explicitly listed Docker ports remain public.
+server_base_firewall_enabled: false
+server_base_firewall_lan_cidrs:
+  - "{{ ansible_default_ipv4.network | default('') }}/{{ ansible_default_ipv4.netmask | default('') }}"
+server_base_firewall_public_tcp_ports: []
+server_base_firewall_public_udp_ports: []
+server_base_docker_firewall_script_path: /usr/local/sbin/home-server-docker-firewall
 
 ntpd_package: "{{ 'systemd-timesyncd' if (ansible_os_family == 'RedHat' and ansible_distribution_major_version|int > 7) or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int > 18)  else ( 'systemd' if ansible_os_family == 'Suse' else 'ntp' ) }}"
 ntpd_service: "{{ 'systemd-timesyncd' if (ansible_os_family == 'RedHat' and ansible_distribution_major_version|int > 7) or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int > 18) or ansible_distribution == 'Archlinux' or ansible_os_family == 'Suse' else ('ntpd' if ansible_os_family == 'RedHat' else 'ntp') }}"

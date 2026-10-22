@@ -4,6 +4,7 @@
   when: pgadmin_installation_enabled|bool == true
   tags:
     - setup-all
+    - setup-pgadmin
 
 - import_tasks: "{{ role_path }}/tasks/setup_pgadmin.yml"
   when: pgadmin_installation_enabled|bool == true
@@ -15,3 +16,4 @@
   when: pgadmin_installation_enabled|bool == true
   tags:
     - start
+    - start-pgadmin

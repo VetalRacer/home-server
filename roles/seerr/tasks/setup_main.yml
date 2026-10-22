@@ -1,0 +1,19 @@
+---
+- name: Check existence of Nginx-proxy network in Docker
+  ansible.builtin.command:
+    argv:
+      - docker
+      - network
+      - ls
+      - -q
+      - "--filter=name=^{{ nginx_docker_network }}$"
+  register: seerr_nginx_docker_network
+  changed_when: false
+
+- name: Fail if Docker network is not defined
+  ansible.builtin.assert:
+    that:
+      - seerr_nginx_docker_network.stdout | length > 0
+    fail_msg: >-
+      You need to define the Docker network {{ nginx_docker_network }} before
+      installing Seerr.

@@ -7,9 +7,27 @@ postgres_docker_image: "{{ postgres_docker_image_template|replace('__VERSION__',
 
 # Postgres-related data
 postgres_data_path: "{{ postgres_base_data_path }}/data"
+postgres_env_path: "{{ postgres_base_data_path }}/postgres.env"
+postgres_backup_path: "{{ postgres_base_data_path }}/backups"
+postgres_backup_script_path: "{{ postgres_base_data_path }}/postgres-backup.sh"
+
+# The official PostgreSQL image uses this identity for PostgreSQL 15.
+postgres_uid: "999"
+postgres_gid: "999"
+postgres_database: "{{ postgres_user }}"
+
+# Keep PostgreSQL available to LAN clients, but bind only to the host's primary
+# LAN address rather than every interface.
+postgres_listen_address: "{{ ansible_default_ipv4.address | default('') }}"
+postgres_host_port: 5432
+
+# A logical dump is portable across storage backends and can be restored with
+# psql. Backup archives contain database data and role password hashes, so the
+# directory is readable only by root.
+postgres_backup_enabled: true
+postgres_backup_schedule: "*-*-* 03:15:00"
+postgres_backup_retention_days: 30
 
 # Postgres services
-postgres_services_list: |
-  {{
-    (['postgres.service'])
-  }}
+postgres_services_list:
+  - postgres.service

@@ -1,43 +1,56 @@
 ---
 
-- name: Ensure Gitlab image is pulled
+- name: Ensure GitLab image is pulled
   docker_image:
     name: "{{ gitlab_docker_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
-- name: Ensure Gitlab paths exist
-  file:
+- name: Ensure GitLab paths exist
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
     mode: "{{ item.mode }}"
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
   with_items:
+    - path: "{{ gitlab_base_path }}"
+      owner: "{{ gitlab_uid }}"
+      group: "{{ gitlab_gid }}"
+      mode: '0750'
+
+    - path: "{{ gitlab_config_dir_path }}"
+      owner: "{{ gitlab_uid }}"
+      group: "{{ gitlab_gid }}"
+      mode: '0750'
+
     - path: "{{ gitlab_data_dir_path }}"
       owner: "{{ gitlab_uid }}"
-      group: "{{ gitlab_uid }}"
+      group: "{{ gitlab_gid }}"
       mode: '0755'
 
     - path: "{{ gitlab_log_dir_path }}"
       owner: "{{ gitlab_uid }}"
-      group: "{{ gitlab_uid }}"
+      group: "{{ gitlab_gid }}"
       mode: '0755'
 
     - path: "{{ gitlab_data_ssh_dir_path }}"
       owner: "0"
       group: "0"
-      mode: '0777'
+      mode: '0700'
 
-- name: Ensure Gitlab environment variables file created
-  template:
+- name: Ensure GitLab environment variables file created
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/gitlab/{{ item }}.j2"
-    dest: "{{ gitlab_base_path }}/{{ item }}"
-    mode: 0640
+    dest: "{{ gitlab_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
   with_items:
     - "env-gitlab"
+  no_log: true
 
-- name: Ensure Gitlab SSH host keys installed (if provided)
-  copy:
+- name: Ensure GitLab SSH host keys installed (if provided)
+  ansible.builtin.copy:
     content: "{{ item.content }}"
     dest: "{{ gitlab_data_ssh_dir_path }}/{{ item.name }}"
     owner: "root"
@@ -46,13 +59,13 @@
   with_items: "{{ gitlab_shell_ssh_host_keys }}"
 
 - name: Ensure gitlab.service installed
-  template:
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/gitlab/gitlab.service.j2"
     dest: "/etc/systemd/system/gitlab.service"
     mode: 0644
   register: gitlab_systemd_service_result
 
 - name: Ensure systemd reloaded after gitlab.service installation
-  service:
+  ansible.builtin.systemd_service:
     daemon_reload: yes
   when: gitlab_systemd_service_result.changed

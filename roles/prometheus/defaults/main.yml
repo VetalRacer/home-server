@@ -1,38 +1,55 @@
-# Base directory that contains everything
+# Base directories
 prometheus_base_data_path: "{{ services_base_data_path }}/prometheus"
 prometheus_exporters_base_data_path: "{{ services_base_data_path }}/prometheus-exporters"
-
-# Prometheus edition
-prometheus_docker_image_template: "prom/prometheus:__VERSION__"
-prometheus_docker_image: "{{ prometheus_docker_image_template|replace('__VERSION__', prometheus_docker_image_tag) }}"
-
-# Prometheus-related data
 prometheus_data_path: "{{ prometheus_base_data_path }}/data"
 prometheus_config_path: "{{ prometheus_base_data_path }}/config"
-
-# Exporters edition
-prometheus_node_exporter_docker_image: quay.io/prometheus/node-exporter:latest
-prometheus_smartctl_exporter_docker_image: matusnovak/prometheus-smartctl:latest
-prometheus_cadvisor_exporter_docker_image: gcr.io/cadvisor/cadvisor:latest
-prometheus_blackbox_exporter_docker_image: quay.io/prometheus/blackbox-exporter:latest
-
-# Exporters data
 prometheus_blackbox_exporter_config_path: "{{ prometheus_exporters_base_data_path }}/blackbox/config"
 
-# Exporter services
-exporter_services_list: |
-  {{
-    (['prometheus-smartctl.service'])
-    +
-    (['prometheus-node.service'])
-    +
-    (['prometheus-cadvisor.service'])
-    +
-    (['prometheus-blackbox.service'])
-  }}
+# Prometheus is only reachable from the shared Docker network by default.
+# Grafana uses http://prometheus:9090 there. Enable this only when direct UI/API
+# access through nginx-proxy is intentionally required.
+prometheus_expose_via_proxy: false
+prometheus_service_port: 9090
+prometheus_shutdown_timeout: 30
 
-# Prometheus services
-prometheus_services_list: |
-  {{
-    (['prometheus.service'])
-  }}
+# Pin every image. Override the tags in host vars as part of a deliberate upgrade.
+prometheus_docker_image_template: "prom/prometheus:__VERSION__"
+prometheus_docker_image: "{{ prometheus_docker_image_template | replace('__VERSION__', prometheus_docker_image_tag) }}"
+prometheus_node_exporter_docker_image_template: "quay.io/prometheus/node-exporter:__VERSION__"
+prometheus_node_exporter_docker_image: "{{ prometheus_node_exporter_docker_image_template | replace('__VERSION__', prometheus_node_exporter_docker_image_tag) }}"
+prometheus_smartctl_exporter_docker_image_template: "matusnovak/prometheus-smartctl:__VERSION__"
+prometheus_smartctl_exporter_docker_image: "{{ prometheus_smartctl_exporter_docker_image_template | replace('__VERSION__', prometheus_smartctl_exporter_docker_image_tag) }}"
+prometheus_cadvisor_exporter_docker_image_template: "ghcr.io/google/cadvisor:__VERSION__"
+prometheus_cadvisor_exporter_docker_image: "{{ prometheus_cadvisor_exporter_docker_image_template | replace('__VERSION__', prometheus_cadvisor_exporter_docker_image_tag) }}"
+prometheus_blackbox_exporter_docker_image_template: "quay.io/prometheus/blackbox-exporter:__VERSION__"
+prometheus_blackbox_exporter_docker_image: "{{ prometheus_blackbox_exporter_docker_image_template | replace('__VERSION__', prometheus_blackbox_exporter_docker_image_tag) }}"
+prometheus_exporter_docker_images:
+  - "{{ prometheus_node_exporter_docker_image }}"
+  - "{{ prometheus_smartctl_exporter_docker_image }}"
+  - "{{ prometheus_cadvisor_exporter_docker_image }}"
+  - "{{ prometheus_blackbox_exporter_docker_image }}"
+
+# Retention is limited by both age and data size; whichever limit is reached
+# first removes the oldest blocks.
+prometheus_retention_time: "180d"
+prometheus_retention_size: "100GB"
+prometheus_scrape_interval: "15s"
+prometheus_evaluation_interval: "15s"
+# Keep labels stable for dashboards while still deriving a sensible value from
+# an FQDN inventory name such as home-server.loc.
+prometheus_local_instance_name: "{{ inventory_hostname_short | default('home-server') }}"
+
+# Public probe destinations can be overridden per host. Additional scrape jobs
+# are site-specific and belong in host vars, not this role.
+prometheus_blackbox_targets:
+  - "8.8.8.8"
+  - "ya.ru"
+prometheus_additional_scrape_jobs: []
+
+exporter_services_list:
+  - prometheus-smartctl.service
+  - prometheus-node.service
+  - prometheus-cadvisor.service
+  - prometheus-blackbox.service
+prometheus_services_list:
+  - prometheus.service

@@ -13,10 +13,11 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm speedtest 2
 ExecStart=/usr/bin/docker run --rm --name speedtest \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ speedtest_service_hostname }} \
-      		-v {{ speedtest_config_path }}:/config \
-      		-e OOKLA_EULA_GDPR=true \
+			--env-file={{ speedtest_env_path }} \
+			--env VIRTUAL_HOST={{ speedtest_service_hostname }} \
+			--env VIRTUAL_PORT={{ speedtest_service_port }} \
+			--security-opt=no-new-privileges:true \
+			-v {{ speedtest_config_path }}:/config \
 			{{ speedtest_docker_image }}
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill speedtest 2>/dev/null'

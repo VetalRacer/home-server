@@ -1,0 +1,10 @@
+[Unit]
+Description=Run PostgreSQL logical backup on a schedule
+
+[Timer]
+OnCalendar={{ postgres_backup_schedule }}
+Persistent=true
+Unit=postgres-backup.service
+
+[Install]
+WantedBy=timers.target

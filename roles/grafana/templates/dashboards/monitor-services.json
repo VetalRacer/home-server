@@ -91,7 +91,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "(time() - process_start_time_seconds{instance=\"localhost:9090\",job=\"prometheus\"})",
+          "expr": "(time() - process_start_time_seconds{instance=\"prometheus:9090\",job=\"prometheus\"})",
           "interval": "10s",
           "intervalFactor": 1,
           "legendFormat": "",

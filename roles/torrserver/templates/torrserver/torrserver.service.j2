@@ -1,8 +1,7 @@
 [Unit]
 Description=Torrserver service
 Requires=docker.service
-After=docker.service
-DefaultDependencies=no
+After=docker.service nginx-proxy.service
 
 [Service]
 Type=simple
@@ -11,17 +10,25 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill torrserve
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm torrserver 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name torrserver \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TS_HTTPAUTH=1 \
-			--env TS_DONTKILL=1 \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ torrserver_service_hostname }} \
-			--env VIRTUAL_PORT={{ torrserver_service_port }} \
-			-v {{ torrserver_config_path }}:/opt/ts/config \
-			{{ torrserver_docker_image }}
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--cap-drop=ALL \
+	--security-opt=no-new-privileges:true \
+	--env TS_PORT={{ torrserver_service_port }} \
+	--env TS_CONF_PATH=/opt/ts/config \
+	--env TS_LOG_PATH=/opt/ts/log \
+	--env TS_TORR_DIR=/opt/ts/torrents \
+	--env TS_HTTPAUTH={{ '1' if torrserver_httpauth_enabled | bool else '0' }} \
+	--env TS_DONTKILL={{ '1' if torrserver_dontkill | bool else '0' }} \
+	--env TZ={{ timezone }} \
+	--env VIRTUAL_HOST={{ torrserver_service_hostname }} \
+	--env VIRTUAL_PORT={{ torrserver_service_port }} \
+	-v {{ torrserver_config_path }}:/opt/ts/config \
+	-v {{ torrserver_log_path }}:/opt/ts/log \
+	-v {{ torrserver_torrents_path }}:/opt/ts/torrents \
+	{{ torrserver_docker_image }}
 
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill torrserver 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 torrserver 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm torrserver 2>/dev/null'
 Restart=always
 RestartSec=30

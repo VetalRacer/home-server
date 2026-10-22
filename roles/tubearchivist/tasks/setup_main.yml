@@ -1,7 +1,7 @@
 ---
 
 - name: Ensure TubeArchivist base path exists
-  file:
+  ansible.builtin.file:
     path: "{{ tubearchivist_base_data_path }}"
     state: directory
     mode: 0750
@@ -9,13 +9,33 @@
     group: root
 
 - name: Check existence of Nginx-proxy network in Docker
-  shell:
+  ansible.builtin.shell:
     cmd: "docker network ls -q --filter='name=^{{ nginx_docker_network }}$'"
   register: nginx_result_docker_network
   changed_when: false
+  check_mode: false
 
 - name: Fail if docker network not defined
-  fail:
+  ansible.builtin.fail:
     msg: >-
       You need to define a docker network (`{{ nginx_docker_network }}`) for using this service.
   when: nginx_result_docker_network.stdout == ''
+
+- name: Persist Elasticsearch virtual memory map limit
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-tubearchivist.conf
+    owner: root
+    group: root
+    mode: '0644'
+    content: "vm.max_map_count = 262144\n"
+  register: tubearchivist_sysctl_config
+
+- name: Read current Elasticsearch virtual memory map limit
+  ansible.builtin.command: /sbin/sysctl -n vm.max_map_count
+  register: tubearchivist_vm_max_map_count
+  changed_when: false
+  check_mode: false
+
+- name: Apply Elasticsearch virtual memory map limit
+  ansible.builtin.command: /sbin/sysctl -w vm.max_map_count=262144
+  when: tubearchivist_vm_max_map_count.stdout | int < 262144

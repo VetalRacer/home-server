@@ -1,18 +1,12 @@
 ---
 
 - name: Ensure systemd reloaded
-  service:
+  ansible.builtin.service:
     daemon_reload: yes
 
-- name: Ensure Grafana services stopped
-  service:
-    name: "{{ item }}"
-    state: stopped
-  with_items: "{{ grafana_services_list }}"
-
 - name: Ensure Grafana services started
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     enabled: yes
     state: started
-  with_items: "{{ grafana_services_list }}"
+  loop: "{{ grafana_services_list }}"

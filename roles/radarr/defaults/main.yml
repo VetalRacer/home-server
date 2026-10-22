@@ -11,13 +11,17 @@ radarr_data_path: "{{ radarr_base_data_path }}/data"
 # Radarr config data
 radarr_config_path: "{{ radarr_data_path }}/config"
 
-# Sonarr media data
-radarr_tv_path: "{{ sharefolder_base_data_path }}/media/tvseries"
-radarr_downloads_path: "{{ sharefolder_base_data_path }}/torrent"
+# Shared media tree. It is mounted as /data so Radarr can hardlink imports
+# from the same filesystem as Transmission downloads.
+radarr_storage_path: "{{ sharefolder_base_data_path }}"
+radarr_movies_path: "{{ radarr_storage_path }}/media/movies"
+radarr_downloads_path: "{{ radarr_storage_path }}/torrent/downloads"
 
-# Radarr global envs
-radarr_uid: "0"
-radarr_gid: "0"
+# Radarr runtime configuration
+radarr_uid: "1000"
+radarr_gid: "100"
+radarr_service_port: 7878
+radarr_umask: "002"
 
 # Radarr services
 radarr_services_list: |

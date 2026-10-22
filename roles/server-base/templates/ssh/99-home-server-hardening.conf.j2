@@ -1,0 +1,6 @@
+# Managed by Ansible. Keep key-based root access for the Ansible control host.
+PermitRootLogin {{ server_base_ssh_permit_root_login }}
+PasswordAuthentication {{ 'yes' if server_base_ssh_password_authentication | bool else 'no' }}
+KbdInteractiveAuthentication no
+X11Forwarding {{ 'yes' if server_base_ssh_x11_forwarding | bool else 'no' }}
+MaxAuthTries {{ server_base_ssh_max_auth_tries }}

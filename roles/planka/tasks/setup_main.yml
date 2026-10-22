@@ -4,18 +4,18 @@
   file:
     path: "{{ planka_base_data_path }}"
     state: directory
-    mode: 0750
+    mode: '0750'
     owner: root
     group: root
 
 - name: Check existence of Nginx-proxy network in Docker
-  shell:
+  ansible.builtin.shell:
     cmd: "docker network ls -q --filter='name=^{{ nginx_docker_network }}$'"
   register: nginx_result_docker_network
   changed_when: false
 
 - name: Fail if docker network not defined
-  fail:
+  ansible.builtin.fail:
     msg: >-
       You need to define a docker network (`{{ nginx_docker_network }}`) for using this service.
   when: nginx_result_docker_network.stdout == ''

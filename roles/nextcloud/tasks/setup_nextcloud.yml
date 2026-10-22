@@ -1,28 +1,172 @@
 ---
 
+- name: Validate Nextcloud non-secret configuration
+  ansible.builtin.assert:
+    that:
+      - postgres_installation_enabled | bool
+      - nextcloud_postgres_host == 'postgres'
+      - nextcloud_docker_image_tag | default('') is match('^\\S+$')
+      - nextcloud_service_hostname | default('') is match('^\\S+$')
+      - nextcloud_postgres_db | default('') | trim | length > 0
+      - nextcloud_postgres_user | default('') | trim | length > 0
+      - nextcloud_postgres_user is not search('[\\r\\n]')
+      - nextcloud_trusted_proxies is not string
+      - nextcloud_trusted_proxies | select('string') | map('trim') | reject('equalto', '') | list | length == nextcloud_trusted_proxies | length
+      - nextcloud_overwrite_protocol in ['', 'http', 'https']
+      - nextcloud_overwrite_cli_url | default('') is not search('[\\r\\n]')
+      - nextcloud_cron_schedule | default('') | trim | length > 0
+      - nextcloud_backup_schedule | default('') | trim | length > 0
+      - nextcloud_backup_retention_days | int > 0
+    fail_msg: >-
+      Enable PostgreSQL and define a valid Nextcloud image tag, hostname,
+      database settings, proxy settings and timer configuration.
+
+- name: Validate Nextcloud secrets
+  ansible.builtin.assert:
+    that:
+      - nextcloud_postgres_password | default('') | length > 0
+      - nextcloud_admin_user | default('') | trim | length > 0
+      - nextcloud_admin_password | default('') | length > 0
+      - nextcloud_postgres_password is not search('[\\r\\n]')
+      - nextcloud_admin_user is not search('[\\r\\n]')
+      - nextcloud_admin_password is not search('[\\r\\n]')
+    fail_msg: >-
+      Define non-empty Nextcloud database and administrator credentials without
+      line breaks. Store passwords in Ansible Vault.
+  no_log: true
+
+- name: Ensure PostgreSQL service is available for Nextcloud bootstrap
+  ansible.builtin.systemd_service:
+    name: postgres.service
+    state: started
+    daemon_reload: true
+
+- name: Ensure Nextcloud PostgreSQL bootstrap script installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud-postgres-bootstrap.sh.j2"
+    dest: "{{ nextcloud_postgres_bootstrap_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+  no_log: true
+
+- name: Ensure Nextcloud PostgreSQL role and database exist
+  ansible.builtin.command: "{{ nextcloud_postgres_bootstrap_script_path }}"
+  changed_when: false
+  no_log: true
+
 - name: Ensure Nextcloud image is pulled
   docker_image:
     name: "{{ nextcloud_docker_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
-- name: Ensure Nextcloud paths exist
-  file:
+- name: Ensure Nextcloud persistent paths exist
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: 0750
     owner: 33
     group: 33
-  with_items:
+  loop:
+    - "{{ nextcloud_main_path }}"
+    - "{{ nextcloud_apps_path }}"
+    - "{{ nextcloud_config_path }}"
     - "{{ nextcloud_data_path }}"
 
-- name: Ensure nextcloud.service installed
-  template:
+- name: Ensure Nextcloud backup path exists
+  ansible.builtin.file:
+    path: "{{ nextcloud_backup_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  when: nextcloud_backup_enabled | bool
+
+- name: Ensure Nextcloud environment file installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud.env.j2"
+    dest: "{{ nextcloud_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
+- name: Ensure Nextcloud cron script installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud-cron.sh.j2"
+    dest: "{{ nextcloud_cron_script_path }}"
+    owner: root
+    group: root
+    mode: '0750'
+  when: nextcloud_cron_enabled | bool
+
+- name: Ensure Nextcloud backup script installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud-backup.sh.j2"
+    dest: "{{ nextcloud_backup_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+  no_log: true
+  when: nextcloud_backup_enabled | bool
+
+- name: Ensure Nextcloud service installed
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/nextcloud/nextcloud.service.j2"
     dest: "/etc/systemd/system/nextcloud.service"
     mode: 0644
   register: nextcloud_systemd_service_result
 
-- name: Ensure systemd reloaded after nextcloud.service installation
-  service:
-    daemon_reload: yes
-  when: nextcloud_systemd_service_result.changed
+- name: Ensure Nextcloud cron service installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud-cron.service.j2"
+    dest: /etc/systemd/system/nextcloud-cron.service
+    owner: root
+    group: root
+    mode: '0644'
+  when: nextcloud_cron_enabled | bool
+
+- name: Ensure Nextcloud cron timer installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud-cron.timer.j2"
+    dest: /etc/systemd/system/nextcloud-cron.timer
+    owner: root
+    group: root
+    mode: '0644'
+  when: nextcloud_cron_enabled | bool
+
+- name: Ensure Nextcloud backup service installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud-backup.service.j2"
+    dest: /etc/systemd/system/nextcloud-backup.service
+    owner: root
+    group: root
+    mode: '0644'
+  when: nextcloud_backup_enabled | bool
+
+- name: Ensure Nextcloud backup timer installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nextcloud/nextcloud-backup.timer.j2"
+    dest: /etc/systemd/system/nextcloud-backup.timer
+    owner: root
+    group: root
+    mode: '0644'
+  when: nextcloud_backup_enabled | bool
+
+- name: Ensure systemd reloaded after Nextcloud unit installation
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Ensure Nextcloud cron timer enabled
+  ansible.builtin.systemd_service:
+    name: nextcloud-cron.timer
+    enabled: true
+    state: started
+  when: nextcloud_cron_enabled | bool
+
+- name: Ensure Nextcloud backup timer enabled
+  ansible.builtin.systemd_service:
+    name: nextcloud-backup.timer
+    enabled: true
+    state: started
+  when: nextcloud_backup_enabled | bool

@@ -1,34 +1,35 @@
 [Unit]
 Description=Prometheus service
 Requires=docker.service
-After=docker.service
-DefaultDependencies=no
+After=docker.service nginx-proxy.service
 
 [Service]
 Type=simple
 Environment="HOME={{ systemd_unit_home_path }}"
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus 2>/dev/null'
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus 2>/dev/null'
-
 ExecStart=/usr/bin/docker run --rm --name prometheus \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ prometheus_service_hostname }} \
-			-p 9090:9090 \
-      		-v {{ prometheus_config_path }}:/etc/prometheus \
-			-v {{ prometheus_data_path }}:/prometheus \
-			{{ prometheus_docker_image }}
-{% if prometheus_retantion_time_enabled == true %}
-			--storage.tsdb.retention.time={{ prometheus_retantion_time }} \
-            --config.file=/etc/prometheus/prometheus.yml \
-            --storage.tsdb.path=/prometheus
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--env TZ={{ timezone }} \
+{% if prometheus_expose_via_proxy | bool %}
+	--env VIRTUAL_HOST={{ prometheus_service_hostname }} \
+	--env VIRTUAL_PORT={{ prometheus_service_port }} \
 {% endif %}
-
-
-
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus 2>/dev/null'
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus 2>/dev/null'
+	--read-only \
+	--tmpfs /tmp:rw,noexec,nosuid,size=64m \
+	--cap-drop=ALL \
+	--security-opt=no-new-privileges:true \
+	-v {{ prometheus_config_path }}:/etc/prometheus:ro \
+	-v {{ prometheus_data_path }}:/prometheus \
+	{{ prometheus_docker_image }} \
+	--config.file=/etc/prometheus/prometheus.yml \
+	--storage.tsdb.path=/prometheus \
+	--storage.tsdb.retention.time={{ prometheus_retention_time }} \
+	--storage.tsdb.retention.size={{ prometheus_retention_size }}
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout={{ prometheus_shutdown_timeout }} prometheus 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus 2>/dev/null'
+TimeoutStopSec={{ prometheus_shutdown_timeout | int + 30 }}
 Restart=always
 RestartSec=30
 SyslogIdentifier=prometheus

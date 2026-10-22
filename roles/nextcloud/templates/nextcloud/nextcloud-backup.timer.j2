@@ -1,0 +1,10 @@
+[Unit]
+Description=Run consistent Nextcloud backup on a schedule
+
+[Timer]
+OnCalendar={{ nextcloud_backup_schedule }}
+Persistent=true
+Unit=nextcloud-backup.service
+
+[Install]
+WantedBy=timers.target

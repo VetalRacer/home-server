@@ -1,5 +1,18 @@
 ---
 
+- name: Validate FileBrowser configuration
+  assert:
+    that:
+      - filebrowser_uid | int > 0
+      - filebrowser_gid | int > 0
+      - filebrowser_service_port | int > 0
+      - filebrowser_service_port | int < 65536
+      - filebrowser_root_path is match('^/datafolder/sharefolder(?:/.*)?$')
+    fail_msg: >-
+      Define valid non-root FileBrowser UID/GID values, a valid service port,
+      and a root path inside /datafolder/sharefolder.
+  no_log: true
+
 - name: Ensure FileBrowser image is pulled
   docker_image:
     name: "{{ filebrowser_docker_image }}"
@@ -9,11 +22,13 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: 0750
-    owner: "root"
-    group: "root"
+    mode: '0750'
+    owner: "{{ filebrowser_uid }}"
+    group: "{{ filebrowser_gid }}"
   with_items:
     - "{{ filebrowser_data_path }}"
+    - "{{ filebrowser_config_path }}"
+    - "{{ filebrowser_database_path }}"
 
 - name: Ensure filebrowser.service installed
   template:

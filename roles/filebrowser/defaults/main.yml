@@ -11,10 +11,13 @@ filebrowser_data_path: "{{ filebrowser_base_data_path }}/data"
 # FileBrowser config data
 filebrowser_config_path: "{{ filebrowser_data_path }}/config"
 filebrowser_database_path: "{{ filebrowser_data_path }}/database"
+filebrowser_root_path: "{{ sharefolder_base_data_path }}"
 
-# FileBrowser global envs
-filebrowser_uid: "0"
-filebrowser_gid: "0"
+# FileBrowser runtime identity. These values match the default `admin:users`
+# account used by the Samba role; override them in host vars when needed.
+filebrowser_uid: "1000"
+filebrowser_gid: "100"
+filebrowser_service_port: 80
 
 # FileBrowser services
 filebrowser_services_list: |

@@ -1,8 +1,7 @@
 [Unit]
 Description=Postgres service
 Requires=docker.service
-After=docker.service
-DefaultDependencies=no
+After=docker.service nginx-proxy.service
 
 [Service]
 Type=simple
@@ -11,18 +10,17 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill postgres 
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm postgres 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name postgres \
-			      --log-driver=none \
-			      --network={{ nginx_docker_network }} \
-			      --env TZ={{ timezone }} \
-            --env VIRTUAL_HOST={{ postgres_service_hostname }} \
-            --env POSTGRES_USER={{ postgres_user }} \
-            --env POSTGRES_PASSWORD={{ postgres_password }} \
-            --env PGDATA=/var/lib/postgresql/data/pgdata \
-            -p 5432:5432 \
-            -v {{ postgres_data_path }}:/var/lib/postgresql/data \
-			      {{ postgres_docker_image }}
-
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill postgres 2>/dev/null'
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--user {{ postgres_uid }}:{{ postgres_gid }} \
+	--cap-drop=ALL \
+	--security-opt=no-new-privileges:true \
+	--env TZ={{ timezone }} \
+	--env-file {{ postgres_env_path }} \
+	-p {{ postgres_listen_address }}:{{ postgres_host_port }}:5432 \
+	-v {{ postgres_data_path }}:/var/lib/postgresql/data \
+	{{ postgres_docker_image }}
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 postgres 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm postgres 2>/dev/null'
 Restart=always
 RestartSec=30

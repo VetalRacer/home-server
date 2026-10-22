@@ -1,25 +1,89 @@
 ---
 
-- name: Fail if required settings not defined
-  fail:
-    msg: >-
-      You need to define a required configuration setting (`{{ item }}`) for using this role.
-  when: "vars[item] == ''"
-  with_items:
-    - "gitlab_service_hostname"
-#   - "gitlab_secrets_otp_key_base"
-#   - "gitlab_secrets_secret_key_base"
-#   - "gitlab_secrets_db_key_base"
-#   - "gitlab_backup_cron_email_to"
-#   - "gitlab_backup_encryption_password"
-    - "gitlab_docker_image_tag"
-    - "gitlab_runner_image_tag"
+- name: Validate GitLab non-secret configuration
+  ansible.builtin.assert:
+    that:
+      - gitlab_service_hostname | default('') is match('^\\S+$')
+      - gitlab_docker_image_tag | default('') is match('^\\S+$')
+      - gitlab_shm_size | default('') is match('^[1-9][0-9]*[kKmMgG]$')
+      - gitlab_service_port | int > 0
+      - gitlab_service_port | int < 65536
+      - gitlab_ssh_port | int > 0
+      - gitlab_ssh_port | int < 65536
+      - gitlab_ssh_host_port | int > 0
+      - gitlab_ssh_host_port | int < 65536
+      - gitlab_ssh_listen_address | default('') | trim | length > 0
+      - gitlab_ssh_listen_address is not search('\\s')
+      - gitlab_puma_workers | int > 0
+      - gitlab_sidekiq_concurrency | int > 0
+      - gitlab_backup_days_to_keep_local | int > 0
+      - gitlab_backup_user | default('') is match('^[a-z_][a-z0-9_-]*[$]?$')
+      - gitlab_smtp_port | int > 0
+      - gitlab_smtp_port | int < 65536
+      - gitlab_email | default('') is not search('[\\r\\n]')
+      - gitlab_email_reply_to | default('') is not search('[\\r\\n]')
+      - gitlab_root_password | default('') is not search('[\\r\\n]')
+      - gitlab_smtp_domain | default('') is not search('[\\r\\n]')
+      - gitlab_smtp_host | default('') is not search('[\\r\\n]')
+      - gitlab_smtp_user | default('') is not search('[\\r\\n]')
+      - gitlab_smtp_authentication | default('') is not search('[\\r\\n]')
+    fail_msg: >-
+      Define a hostname, image tag, LAN address, valid HTTP/SSH/SMTP ports,
+      positive worker/retention values, and environment values without line
+      breaks.
 
-- name: (Deprecation) Catch and report renamed variables
-  fail:
+- name: Validate GitLab SSH host key metadata
+  ansible.builtin.assert:
+    that:
+      - item.name | default('') is match('^[A-Za-z0-9._-]+$')
+      - item.type | default('') in ['private', 'public']
+      - item.content | default('') | length > 0
+    fail_msg: >-
+      Every GitLab SSH host key needs a safe file name, a public/private type,
+      and non-empty content.
+  loop: "{{ gitlab_shell_ssh_host_keys }}"
+  no_log: true
+
+- name: Validate GitLab Runner configuration when enabled
+  ansible.builtin.assert:
+    that:
+      - gitlab_runner_image_tag | default('') is match('^\\S+$')
+      - gitlab_runner_configuration_runners_token | default('') | length > 0
+      - gitlab_runner_configuration_runners_token | default('') is not search('[\\r\\n]')
+    fail_msg: >-
+      A Runner requires a valid image tag and a non-empty runner token without
+      line breaks. Keep it disabled unless its Docker-socket access is needed.
+  when: gitlab_runner_enabled | bool
+  no_log: true
+
+- name: Validate GitLab SMTP password format when SMTP authentication is used
+  ansible.builtin.assert:
+    that:
+      - gitlab_smtp_pass | default('') | length > 0
+      - gitlab_smtp_pass | default('') is not search('[\\r\\n]')
+    fail_msg: Define a non-empty SMTP password without line breaks.
+  when: gitlab_smtp_authentication | default('') | length > 0
+  no_log: true
+
+- name: Validate Yandex Disk backup configuration when enabled
+  ansible.builtin.assert:
+    that:
+      - gitlab_backup_yandex_token | default('') | length > 0
+      - gitlab_backup_yandex_token | default('') is not search('[\\r\\n]')
+      - gitlab_backup_yandex_directory | default('') is match('^[A-Za-z0-9._-]+$')
+      - gitlab_backup_yandex_days_to_keep | int > 0
+    fail_msg: >-
+      Enable Yandex Disk backups only with a Vault token without line breaks, a
+      safe remote directory name, and a positive retention period.
+  when: gitlab_backup_yandex_enabled | bool
+  no_log: true
+
+- name: Catch and report renamed GitLab variables
+  ansible.builtin.fail:
     msg: >-
-      Your configuration contains a variable, which now has a different name.
-      Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
-  when: "vars | dict2items | selectattr('key', 'match', item.old) | list | items2dict"
-  with_items:
-    - {'old': 'gitlab_unicorn_workers', 'new': 'gitlab_puma_workers'}
+      Your configuration contains a variable with a new name. Rename
+      `{{ item.old }}` to `{{ item.new }}`.
+  when: vars | dict2items | selectattr('key', 'match', item.old) | list | length > 0
+  loop:
+    - old: '^gitlab_unicorn_workers$'
+      new: gitlab_puma_workers

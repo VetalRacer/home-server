@@ -1,10 +1,13 @@
 ---
 
 - name: Ensure Grafana base path exists
-  file:
+  ansible.builtin.file:
     path: "{{ grafana_base_data_path }}"
     state: directory
-    mode: 0750
+    # The container runs as UID 472 and must traverse this directory to read
+    # the root-owned, read-only provisioning tree. Sensitive files inside it
+    # (grafana.env) have their own 0600 mode.
+    mode: '0755'
     owner: root
     group: root
 

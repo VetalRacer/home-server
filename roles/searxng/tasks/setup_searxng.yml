@@ -1,0 +1,89 @@
+---
+
+- name: Validate SearXNG non-secret configuration
+  ansible.builtin.assert:
+    that:
+      - searxng_docker_image_tag | default('') | trim | length > 0
+      - searxng_valkey_docker_image_tag | default('') | trim | length > 0
+      - searxng_service_hostname | default('') is match('^\\S+$')
+      - searxng_service_port | int > 0
+      - searxng_service_port | int <= 65535
+      - searxng_valkey_port | int > 0
+      - searxng_valkey_port | int <= 65535
+    fail_msg: >-
+      Define pinned image tags, a hostname, and valid service ports for
+      SearXNG.
+
+- name: Assess SearXNG secret key without logging it
+  ansible.builtin.set_fact:
+    searxng_secret_key_is_valid: >-
+      {{
+        searxng_secret_key | default('') is match('^[A-Za-z0-9]+$')
+        and searxng_secret_key | length >= 32
+      }}
+  no_log: true
+
+- name: Validate SearXNG secret key
+  ansible.builtin.assert:
+    that:
+      - searxng_secret_key_is_valid | bool
+    fail_msg: >-
+      Define searxng_secret_key as an Ansible Vault value with at least 32
+      alphanumeric characters. Generate a compatible value with
+      `openssl rand -hex 32`.
+
+- name: Ensure SearXNG images are pulled
+  docker_image:
+    name: "{{ item }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+  loop:
+    - "{{ searxng_docker_image }}"
+    - "{{ searxng_valkey_docker_image }}"
+
+- name: Ensure SearXNG configuration path exists
+  ansible.builtin.file:
+    path: "{{ searxng_config_path }}"
+    state: directory
+    owner: '977'
+    group: '977'
+    mode: '0750'
+
+- name: Ensure SearXNG settings are installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/searxng/settings.yml.j2"
+    dest: "{{ searxng_config_path }}/settings.yml"
+    owner: '977'
+    group: '977'
+    mode: '0640'
+
+- name: Ensure SearXNG limiter settings are installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/searxng/limiter.toml.j2"
+    dest: "{{ searxng_config_path }}/limiter.toml"
+    owner: '977'
+    group: '977'
+    mode: '0640'
+
+- name: Ensure SearXNG environment file is installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/searxng/searxng.env.j2"
+    dest: "{{ searxng_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
+- name: Ensure SearXNG systemd services are installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/searxng/{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ searxng_services_list }}"
+  register: searxng_systemd_services
+
+- name: Reload systemd after SearXNG service installation
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when: searxng_systemd_services.changed

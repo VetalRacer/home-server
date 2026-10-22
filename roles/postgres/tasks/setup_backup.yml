@@ -1,0 +1,50 @@
+---
+
+- name: Validate PostgreSQL backup configuration
+  ansible.builtin.assert:
+    that:
+      - postgres_backup_schedule | default('') | trim | length > 0
+      - postgres_backup_retention_days | int > 0
+    fail_msg: Define a PostgreSQL backup schedule and positive retention period.
+
+- name: Ensure PostgreSQL backup path exists
+  ansible.builtin.file:
+    path: "{{ postgres_backup_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Ensure PostgreSQL backup script installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/postgres/postgres-backup.sh.j2"
+    dest: "{{ postgres_backup_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+  no_log: true
+
+- name: Ensure PostgreSQL backup service installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/postgres/postgres-backup.service.j2"
+    dest: /etc/systemd/system/postgres-backup.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload systemd
+
+- name: Ensure PostgreSQL backup timer installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/postgres/postgres-backup.timer.j2"
+    dest: /etc/systemd/system/postgres-backup.timer
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload systemd
+
+- name: Ensure PostgreSQL backup timer enabled
+  ansible.builtin.systemd_service:
+    name: postgres-backup.timer
+    enabled: true
+    state: started
+    daemon_reload: true

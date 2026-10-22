@@ -1,29 +1,28 @@
 [Unit]
 Description=Grafana service
 Requires=docker.service
-After=docker.service
-DefaultDependencies=no
+After=docker.service nginx-proxy.service
 
 [Service]
 Type=simple
 Environment="HOME={{ systemd_unit_home_path }}"
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill grafana 2>/dev/null'
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm grafana 2>/dev/null'
-
 ExecStart=/usr/bin/docker run --rm --name grafana \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ grafana_service_hostname }} \
-			--env GF_SECURITY_ADMIN_USER={{ grafana_username }} \
-			--env GF_SECURITY_ADMIN_PASSWORD={{ grafana_password }} \
-#			--env GF_SERVER_ROOT_URL=grafana.loc \
-      		-v {{ grafana_data_path }}:/var/lib/grafana \
-      		-v {{ grafana_config_path }}:/etc/grafana \
-			{{ grafana_docker_image }}
-
-
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill grafana 2>/dev/null'
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--user {{ grafana_uid }}:{{ grafana_gid }} \
+	--tmpfs /tmp:rw,noexec,nosuid,size=64m \
+	--cap-drop=ALL \
+	--security-opt=no-new-privileges:true \
+	--env TZ={{ timezone }} \
+	--env VIRTUAL_HOST={{ grafana_service_hostname }} \
+	--env VIRTUAL_PORT={{ grafana_service_port }} \
+	--env-file {{ grafana_env_path }} \
+	-v {{ grafana_data_path }}:/var/lib/grafana \
+	-v {{ grafana_config_path }}:/etc/grafana:ro \
+	{{ grafana_docker_image }}
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=30 grafana 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm grafana 2>/dev/null'
 Restart=always
 RestartSec=30

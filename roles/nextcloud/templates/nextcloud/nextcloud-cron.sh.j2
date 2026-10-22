@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+{{ host_command_docker }} exec -u www-data nextcloud php /var/www/html/occ background:cron
+exec {{ host_command_docker }} exec -u www-data nextcloud php -f /var/www/html/cron.php

@@ -1,57 +1,112 @@
 ---
 
+- name: Validate Grafana configuration
+  ansible.builtin.assert:
+    that:
+      - grafana_docker_image_tag | default('') | trim | length > 0
+      - grafana_service_hostname | default('') | trim | length > 0
+      - grafana_service_hostname is not search('\\s')
+      - grafana_username | default('') | trim | length > 0
+      - grafana_username is not search('[\\r\\n]')
+      - grafana_password | default('') | length > 0
+      - grafana_password is not search('[\\r\\n]')
+      - grafana_secret_key | default('') | length >= 32
+      - grafana_secret_key is not search('[\\r\\n]')
+      - grafana_uid is match('^[1-9][0-9]*$')
+      - grafana_gid is match('^[1-9][0-9]*$')
+      - grafana_service_port | int > 0
+      - grafana_service_port | int < 65536
+    fail_msg: >-
+      Define a Grafana hostname, non-empty administrator credentials without
+      line breaks, a Vault-managed secret key of at least 32 characters,
+      non-root UID/GID values, a valid service port, and an image tag.
+
 - name: Ensure Grafana image is pulled
   docker_image:
     name: "{{ grafana_docker_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
-- name: Ensure Grafana paths exist
-  file:
+- name: Ensure Grafana configuration paths exist
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0770
-    owner: "root"
-    group: "root"
-  with_items:
-    - "{{ grafana_data_path }}"
+    mode: '0755'
+    # Grafana validates provisioning paths as its runtime user. The bind mount
+    # is still read-only inside the container, so this does not let Grafana
+    # alter managed configuration.
+    owner: "{{ grafana_uid }}"
+    group: "{{ grafana_gid }}"
+  loop:
     - "{{ grafana_config_path }}"
-    - "{{ grafana_data_path }}/dashboards"
+    - "{{ grafana_config_path }}/provisioning"
     - "{{ grafana_config_dashboards_path }}"
     - "{{ grafana_config_datasources_path }}"
+    - "{{ grafana_config_alerting_path }}"
+    - "{{ grafana_config_notifiers_path }}"
+    - "{{ grafana_config_plugins_path }}"
+
+- name: Ensure Grafana data path exists for the container user
+  ansible.builtin.file:
+    path: "{{ grafana_data_path }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ grafana_uid }}"
+    group: "{{ grafana_gid }}"
 
 - name: Ensure grafana.ini config installed
-  template:
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/grafana/grafana.ini.j2"
     dest: "{{ grafana_config_path }}/grafana.ini"
-    mode: 0644
+    owner: "{{ grafana_uid }}"
+    group: "{{ grafana_gid }}"
+    mode: '0644'
+  notify: Restart Grafana
+
+- name: Ensure Grafana environment file installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/grafana/grafana.env.j2"
+    dest: "{{ grafana_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+  notify: Restart Grafana
 
 - name: Ensure grafana dashboard config installed
-  template:
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/dashboards/local.yml.j2"
     dest: "{{ grafana_config_dashboards_path }}/local.yml"
-    mode: 0644
+    owner: "{{ grafana_uid }}"
+    group: "{{ grafana_gid }}"
+    mode: '0644'
+  notify: Restart Grafana
 
 - name: Ensure grafana datasources installed
-  template:
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/dashboards/datasources.yml.j2"
     dest: "{{ grafana_config_datasources_path }}/datasources.yml"
-    mode: 0644
+    owner: "{{ grafana_uid }}"
+    group: "{{ grafana_gid }}"
+    mode: '0644'
+  notify: Restart Grafana
 
 - name: Ensure grafana dashboards installed
-  copy:
+  ansible.builtin.copy:
     src: "{{ role_path }}/templates/dashboards/{{ item }}.json"
-    dest: "{{ grafana_data_path }}/dashboards/{{ item }}.json"
-    mode: 0644
-  with_items: "{{ grafana_dashboards_list }}"
+    dest: "{{ grafana_config_dashboards_path }}/{{ item }}.json"
+    owner: "{{ grafana_uid }}"
+    group: "{{ grafana_gid }}"
+    mode: '0644'
+  loop: "{{ grafana_dashboards_list }}"
+  notify: Restart Grafana
 
 - name: Ensure grafana.service installed
-  template:
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/grafana/grafana.service.j2"
     dest: "/etc/systemd/system/grafana.service"
-    mode: 0644
-  register: grafana_systemd_service_result
-
-- name: Ensure systemd reloaded after grafana.service installation
-  service:
-    daemon_reload: yes
-  when: grafana_systemd_service_result.changed
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart Grafana

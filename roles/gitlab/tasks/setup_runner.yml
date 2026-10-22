@@ -2,12 +2,12 @@
 
 
 - block:
-    - name: Ensure Gitlab Runner image is pulled
+    - name: Ensure GitLab Runner image is pulled
       docker_image:
         name: "{{ gitlab_runner_container_image }}"
         source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
-    - name: Ensure Gitlab Runner paths exist
+    - name: Ensure GitLab Runner paths exist
       file:
         path: "{{ item }}"
         state: directory
@@ -19,10 +19,13 @@
         - "{{ gitlab_runner_config_path }}"
 
     - name: Ensure gitlab-runner configuration installed
-      template:
+      ansible.builtin.template:
         src: "{{ role_path }}/templates/gitlab-runner/config.toml.j2"
         dest: "{{ gitlab_runner_config_path }}/config.toml"
-        mode: 0644
+        owner: root
+        group: root
+        mode: '0600'
+      no_log: true
 
     - name: Ensure gitlab-runner.service installed
       template:
@@ -62,8 +65,8 @@
         daemon_reload: yes
       when: gitlab_runner_service_stat.stat.exists
 
-    - name: Ensure Gitlab Runner directory removed
-      file:
+    - name: Ensure GitLab Runner directory removed
+      ansible.builtin.file:
         path: "{{ gitlab_runner_base_path }}"
         state: absent
-  when: not gitlab_runner_enabled
+  when: not (gitlab_runner_enabled | bool)

@@ -1,11 +1,12 @@
 apiVersion: 1
 
 providers:
-- name: 'default'
-  orgId: 1
-  folder: ''
-  type: file
-  disableDeletion: false
-  updateIntervalSeconds: 10 #how often Grafana will scan for changed dashboards
-  options:
-    path: /var/lib/grafana/dashboards
+  - name: home-server
+    orgId: 1
+    folder: Home Server
+    type: file
+    disableDeletion: true
+    updateIntervalSeconds: 60
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/provisioning/dashboards

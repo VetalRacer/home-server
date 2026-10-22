@@ -89,67 +89,59 @@ backups_base_data_path: "{{ base_data_path }}/backups"
 # Base directory that contains share folders
 sharefolder_base_data_path: "{{ base_data_path }}/sharefolder"
 
+# Docker image tags. Update these deliberately during a maintenance window.
+nginx_proxy_docker_image_tag: "1.11"
+gitlab_docker_image_tag: "15.5.1-ee.0"
+samba_docker_image_tag: 4.23.8
+transmission_docker_image_tag: 4.1.3
+plex_docker_image_tag: 1.43.4
+homepage_docker_image_tag: v2.4.0
+homepage_docker_api_proxy_image: "nginx:1.30.5-alpine"
+filebrowser_docker_image_tag: v2.63.23-s6
+pihole_docker_image_tag: 2026.04.1
+ps3netsrv_docker_image_tag: v2.0.1
+speedtest_docker_image_tag: 1.15.0
+sonarr_docker_image_tag: 4.0.20.3014-ls326
+radarr_docker_image_tag: 6.4.4.10685-ls319
+jackett_docker_image_tag: v0.24.2800-ls51
+seerr_docker_image_tag: v3.4.1
+metube_docker_image_tag: 2026.10.09
+nexus_docker_image_tag: 3.47.1
+grafana_docker_image_tag: 13.2.2
+prometheus_docker_image_tag: v3.14.0
+prometheus_node_exporter_docker_image_tag: v1.10.2
+prometheus_smartctl_exporter_docker_image_tag: v2.5.0
+prometheus_cadvisor_exporter_docker_image_tag: 0.55.1
+prometheus_blackbox_exporter_docker_image_tag: v0.28.0
+postgres_docker_image_tag: 15.2
+pgadmin_docker_image_tag: 9.18.0
+motioneye_docker_image_tag: 0.43.1
+torrserver_docker_image_tag: MatriX.146.2
+tubearchivist_docker_image_tag: v0.4.1
+tubearchivist_redis_docker_image_tag: 7.2.0-v2
+tubearchivist_es_docker_image_tag: 8.9.0
+nextcloud_docker_image_tag: 28.0.1
+searxng_docker_image_tag: 2026.10.19-81371861f
+searxng_valkey_docker_image_tag: 9.0.6-alpine
+planka_docker_image_tag: 2.2.1
+q3server_docker_image_tag: v1.0.0
+q3server_docker_image_digest: "sha256:cee856a51ef657b75493b1a039e99f6b6852a0c05009ea7cf83591627612f99d"
+
+# Service-specific configuration and credentials.
 # Gitlab root password
 gitlab_root_password: ''
 
-# Gitlab services tag
-gitlab_docker_image_tag: "15.5.1-ee.0"
-
 # Samba service image and non-empty passwords for every user defined in the role.
-samba_docker_image_tag: 4.23.8
 samba_user_passwords:
   admin: ""
   vitalii: ""
 
-# Nginx services tag
-nginx_proxy_docker_image_tag: "1.11"
-
-# Transmission service tag
-transmission_docker_image_tag: 4.1.3
-
-# Plex service tag
-plex_docker_image_tag: 1.43.4
-
-# Homepage service tag
-homepage_docker_image_tag: v2.4.0
-
 # Homepage receives container status through a local read-only API proxy.
 # Never expose the proxy port or mount the host Docker socket into Homepage.
 homepage_docker_integration_enabled: true
-homepage_docker_api_proxy_image: "nginx:1.30.5-alpine"
 homepage_docker_port: 2375
 homepage_docker_protocol: http
 
-# FileBrowser service tag
-filebrowser_docker_image_tag: v2.63.23-s6
-
-# Pihole service tag
-pihole_docker_image_tag: 2026.04.1
-
-# ps3netsrv service tag
-ps3netsrv_docker_image_tag: v2.0.1
-
-# Speedtest-Tracker service tag
-speedtest_docker_image_tag: 1.15.0
-
-# Sonarr service tag
-sonarr_docker_image_tag: 4.0.20.3014-ls326
-
-# Radarr service tag
-radarr_docker_image_tag: 6.4.4.10685-ls319
-
-# Jackett service tag
-jackett_docker_image_tag: v0.24.2800-ls51
-
-# Seerr service tag.
-seerr_docker_image_tag: v3.4.1
-
-
-# MeTube service tag
-metube_docker_image_tag: 2026.10.09
-
-# Nexus service tag
-nexus_docker_image_tag: 3.47.1
 # Optional connector hosts, for example Docker registries, must match HTTP
 # connector ports configured in Nexus itself.
 nexus_repository:
@@ -158,47 +150,6 @@ nexus_repository:
   - hostname: "registry.nexus.YOUR_DOMAIN_NAME_HERE"
     port: 49002
 
-# Grafana service tag
-grafana_docker_image_tag: 13.2.2
-
-# Prometheus service tag
-prometheus_docker_image_tag: v3.14.0
-prometheus_node_exporter_docker_image_tag: v1.10.2
-prometheus_smartctl_exporter_docker_image_tag: v2.5.0
-prometheus_cadvisor_exporter_docker_image_tag: 0.55.1
-prometheus_blackbox_exporter_docker_image_tag: v0.28.0
-
-# Postgres service tag
-postgres_docker_image_tag: 15.2
-
-# pgAdmin service tag
-pgadmin_docker_image_tag: 9.18.0
-
-# MotionEye service tag
-motioneye_docker_image_tag: 0.43.1
-
-# Torrserver service tag
-torrserver_docker_image_tag: MatriX.146.2
-
-# TubeArchivist service tag
-tubearchivist_docker_image_tag: v0.4.1
-tubearchivist_redis_docker_image_tag: 7.2.0-v2
-tubearchivist_es_docker_image_tag: 8.9.0
-
-# Nextcloud service tag
-nextcloud_docker_image_tag: 28.0.1
-
-# SearXNG service tags. Pin these values; do not use `latest` in production.
-searxng_docker_image_tag: 2026.10.19-81371861f
-searxng_valkey_docker_image_tag: 9.0.6-alpine
-
-# Planka service tag
-planka_docker_image_tag: 2.2.1
-
-# Q3Server service tag
-q3server_docker_image_tag: v1.0.0
-# Pin the known image content as well as its tag. Update both deliberately.
-q3server_docker_image_digest: "sha256:cee856a51ef657b75493b1a039e99f6b6852a0c05009ea7cf83591627612f99d"
 # Keep 0.0.0.0 when the router forwards UDP 27960 from the Internet. Set a
 # LAN address instead to restrict the service to one interface.
 q3server_listen_address: "0.0.0.0"

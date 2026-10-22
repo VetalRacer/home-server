@@ -13,6 +13,7 @@ gitlab_docker_image: "{{ gitlab_docker_image_template|replace('__VERSION__', git
 
 # Gitlab-related data
 gitlab_base_path: "{{ gitlab_base_data_path }}/gitlab"
+gitlab_env_path: "{{ gitlab_base_path }}/env-gitlab"
 gitlab_data_dir_path: "{{ gitlab_base_path }}/data"
 gitlab_config_dir_path: "{{ gitlab_base_path }}/config"
 gitlab_log_dir_path: "{{ gitlab_base_path }}/log"
@@ -22,10 +23,23 @@ gitlab_source_backups_dir_path: "{{ gitlab_data_dir_path }}/backups"
 gitlab_uid: "0"
 gitlab_gid: "0"
 gitlab_service_port: 80
+# GitLab uses shared memory for PostgreSQL and bundled services. The Docker
+# default (64 MiB) is too small for the official GitLab image.
+gitlab_shm_size: 256m
+# Keep the host SSH port free for OpenSSH. GitLab Shell still listens on 22 in
+# the container; clients use this published host port for SSH clones.
 gitlab_ssh_port: 22
+gitlab_ssh_host_port: 2222
+gitlab_ssh_listen_address: "{{ ansible_default_ipv4.address | default('') }}"
 
-gitlab_puma_workers: 5
-gitlab_sidekiq_concurrency: 5
+# A small LAN-only instance does not need the Linux package's much higher
+# defaults. These values are rendered into GITLAB_OMNIBUS_CONFIG.
+gitlab_puma_workers: 2
+gitlab_sidekiq_concurrency: 10
+
+# This host already runs Prometheus as a separate service. Disabling GitLab's
+# bundled monitoring avoids a second Prometheus process and its exporters.
+gitlab_builtin_monitoring_enabled: false
 
 gitlab_default_theme: 2
 
@@ -42,7 +56,9 @@ gitlab_projects_issues: true
 # - disabling the mailer service (`gitlab_mailer_enabled: false`)
 # - enabling TLS below (`gitlab_smtp_tls: true`)
 # - using `gitlab_smtp_authentication: login`, etc.
-gitlab_smtp_enabled: true
+# The role does not install an MTA. Keep delivery disabled until a real SMTP
+# relay is configured in host variables.
+gitlab_smtp_enabled: false
 gitlab_smtp_domain: "{{ gitlab_service_hostname }}"
 gitlab_smtp_host: "gitlab-mailer"
 gitlab_smtp_port: 8025
@@ -54,25 +70,22 @@ gitlab_smtp_authentication: ""
 gitlab_email: "gitlab@{{ gitlab_service_hostname }}"
 gitlab_email_reply_to: "{{ gitlab_email }}"
 
-# Required secrets (can be generated with something like `pwgen -Bsv1 64`)
-gitlab_secrets_otp_key_base: ''
-gitlab_secrets_secret_key_base: ''
-gitlab_secrets_db_key_base: ''
-
-
 # Gitlab backup settings
 gitlab_backup_user: backup
 gitlab_backup_cron_email_to: ""
 gitlab_backup_program_install_dir: "{{ scripts_base_data_path }}/gitlab"
 gitlab_backup_directory: "{{ backups_base_data_path }}/gitlab"
-gitlab_backup_encryption_password: ""
 gitlab_backup_user_authorized_keys: []
 gitlab_backup_days_to_keep_local: 14
 
-# Gitlab backup yandex config
-gitlab_backup_yandex_enabled: true
-gitlab_backup_yandex_days_to_keep: 30
+# Optional off-host replica in the application folder of Yandex Disk. Keep the
+# token in Ansible Vault; remote copies contain GitLab secrets and SSH keys.
 gitlab_backup_yandex_token: ""
+# Supplying the Vault token is the explicit opt-in. This keeps ordinary GitLab
+# installs local-only without repeating a boolean in host variables.
+gitlab_backup_yandex_enabled: "{{ gitlab_backup_yandex_token | default('') | length > 0 }}"
+gitlab_backup_yandex_directory: gitlab
+gitlab_backup_yandex_days_to_keep: 30
 
 
 # A list of SSH host keys to install for the Gitlab Shell SSH server.
@@ -99,8 +112,7 @@ gitlab_shell_ssh_host_keys: []
 gitlab_services_list: |
   {{
     (['gitlab.service'])
-    +
-    (["gitlab-runner.service"])
+    + (['gitlab-runner.service'] if gitlab_runner_enabled | bool else [])
   }}
 
 # Controls whether to install a Gitlab Runner service.
@@ -132,7 +144,11 @@ gitlab_services_list: |
 # 6. Put that runner token (from step 5) into `gitlab_runner_configuration_runners_token` in your `vars.yml` file
 # 7. Re-run the install (`--tags=setup-all,start`)
 # 8. Optionally restrict which projects can run builds on this runner from the admin panel: https://gitlab.DOMAIN/admin/runners
-gitlab_runner_enabled: true
+# Keep the runner opt-in. A runner with access to the host Docker socket is a
+# security boundary for the whole server, not merely a GitLab feature.
+gitlab_runner_enabled: false
+# Set gitlab_runner_image_tag in host vars only when enabling the runner. Pin
+# it to a version compatible with the installed GitLab version.
 
 gitlab_runner_base_path: "{{ gitlab_base_data_path }}/runner"
 gitlab_runner_config_path: "{{ gitlab_runner_base_path }}/config"

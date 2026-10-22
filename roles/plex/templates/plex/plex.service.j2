@@ -14,17 +14,17 @@ ExecStart=/usr/bin/docker run --rm --name plex \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
 			--env TZ={{ timezone }} \
-            --env PUID={{ plex_uid }} \
-            --env PGID={{ plex_gid }} \
-            --env VERSION=docker \
-            --env PLEX_CLAIM={{ plex_claim }} \
-            --env VIRTUAL_HOST={{ plex_service_hostname }} \
-            --env VIRTUAL_PORT={{ plex_service_port }} \
-            -p {{ plex_service_port }}:{{ plex_service_port }} \
-            -v {{ plex_data_path }}:/config \
-            -v {{ plex_tvseries_path }}:/tv \
-            -v {{ plex_movies_path }}:/movies \
-            -v {{ transmission_file_path }}/downloads:/torrent \
+			--env PUID={{ plex_uid }} \
+			--env PGID={{ plex_gid }} \
+			--env VERSION=docker \
+			--env VIRTUAL_HOST={{ plex_service_hostname }} \
+			--env VIRTUAL_PORT={{ plex_service_port }} \
+			--env-file {{ plex_env_path }} \
+			-p {{ plex_service_port }}:{{ plex_service_port }} \
+			-v {{ plex_data_path }}:/config \
+			-v {{ plex_tvseries_path }}:/tv:ro \
+			-v {{ plex_movies_path }}:/movies:ro \
+			-v {{ transmission_file_path }}/downloads:/torrent:ro \
 			{{ plex_docker_image }}
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill plex 2>/dev/null'

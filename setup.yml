@@ -15,8 +15,7 @@
     - { role: sonarr }
     - { role: radarr }
     - { role: jackett }
-    - { role: overseerr }
-    - { role: tvheadend }
+    - { role: seerr }
     - { role: metube }
     - { role: nexus }
     - { role: prometheus }
@@ -27,7 +26,6 @@
     - { role: torrserver }
     - { role: tubearchivist }
     - { role: nextcloud }
-    - { role: whoogle }
+    - { role: searxng }
     - { role: planka }
-    - { role: wud }
     - { role: q3server }

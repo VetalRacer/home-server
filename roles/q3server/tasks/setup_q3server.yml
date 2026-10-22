@@ -1,5 +1,38 @@
 ---
 
+- name: Validate Q3server non-secret configuration
+  ansible.builtin.assert:
+    that:
+      - q3server_docker_image_tag | default('') is match('^[^\\s@]+$')
+      - q3server_docker_image_digest | default('') == '' or q3server_docker_image_digest is match('^sha256:[a-f0-9]{64}$')
+      - q3server_service_port | string is match('^[0-9]+$')
+      - q3server_service_port | int > 0
+      - q3server_service_port | int < 65536
+      - q3server_listen_address is match('^(0\\.0\\.0\\.0|([0-9]{1,3}\\.){3}[0-9]{1,3})$')
+      - q3server_admin_name is not search('[\\\r\\\n\"]')
+      - q3server_admin_email is not search('[\\\r\\\n\"]')
+      - q3server_website is not search('[\\\r\\\n\"]')
+      - q3server_server_name is not search('[\\\r\\\n\"]')
+      - q3server_motd is not search('[\\\r\\\n\"]')
+      - q3server_master_servers is sequence
+      - q3server_master_servers is not string
+      - q3server_master_servers | reject('search', '[\\\r\\\n\"]') | list | length == q3server_master_servers | length
+    fail_msg: >-
+      Define a valid image tag/digest, IPv4 listen address, UDP port and
+      server metadata without line breaks or double quotes.
+
+- name: Validate Q3server RCON password
+  ansible.builtin.assert:
+    that: q3server_rcon_password | default('') | length > 0
+    fail_msg: >-
+      Define a non-empty q3server_rcon_password in Ansible Vault.
+
+- name: Validate Q3server private-slot password
+  ansible.builtin.assert:
+    that: q3server_private_password | default('') | length > 0
+    fail_msg: >-
+      Define a non-empty q3server_private_password in Ansible Vault.
+
 - name: Ensure Q3server image is pulled
   docker_image:
     name: "{{ q3server_docker_image }}"
@@ -12,11 +45,14 @@
     mode: 0644
   register: q3server_systemd_service_result
 
-- name: Ensure Samba configured (main config override)
-  template:
-    src: "{{ role_path }}/templates/q3server/server.cfg"
+- name: Ensure Q3server configuration installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/q3server/server.cfg.j2"
     dest: "{{ q3server_config_path }}/server.cfg"
-    mode: 0644
+    owner: root
+    group: root
+    mode: '0640'
+  no_log: true
 
 - name: Ensure systemd reloaded after q3server.service installation
   service:

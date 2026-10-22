@@ -6,7 +6,7 @@
     state: directory
     mode: 0750
     owner: root
-    group: root
+    group: "{{ sonarr_gid }}"
 
 - name: Check existence of Nginx-proxy network in Docker
   shell:

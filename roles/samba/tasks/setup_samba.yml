@@ -1,5 +1,67 @@
 ---
 
+- name: Validate Samba network security configuration
+  assert:
+    that:
+      - samba_listen_address | length > 0
+      - samba_allowed_hosts | length > 0
+      - samba_allowed_hosts | select('match', '^0\\.0\\.0\\.0/0$') | list | length == 0
+    fail_msg: >-
+      Define a specific Samba listen address and allowed LAN subnet.
+  no_log: true
+
+- name: Validate Samba users
+  assert:
+    that:
+      - samba_users | length > 0
+      - item.name is match('^[a-z][a-z0-9_]*$')
+      - item.group is match('^[a-z][a-z0-9_]*$')
+      - item.uid | int > 0
+      - item.gid | int > 0
+      - samba_user_passwords[item.name] is defined
+      - samba_user_passwords[item.name] | length > 0
+    fail_msg: >-
+      Every Samba user needs a lowercase name, numeric UID/GID and a matching
+      non-empty password in samba_user_passwords.
+  loop: "{{ samba_users }}"
+  loop_control:
+    label: "{{ item.name | default('invalid-user') }}"
+  no_log: true
+
+- name: Validate Samba user uniqueness
+  assert:
+    that:
+      - samba_users | map(attribute='name') | list | unique | length == samba_users | length
+      - samba_users | map(attribute='uid') | list | unique | length == samba_users | length
+    fail_msg: Samba user names and UIDs must each be unique.
+  no_log: true
+
+- name: Validate Samba shares
+  assert:
+    that:
+      - samba_shares | length > 0
+      - item.name is match('^[a-z][a-z0-9_]*$')
+      - item.host_path is match('^/datafolder/sharefolder(?:/.*)?$')
+      - item.container_path is match('^/samba/[a-z][a-z0-9_]*$')
+      - item.read_users | difference(samba_users | map(attribute='name') | list) | length == 0
+      - item.write_users | difference(samba_users | map(attribute='name') | list) | length == 0
+      - item.read_users | length + item.write_users | length > 0
+    fail_msg: >-
+      Every Samba share needs safe paths and at least one existing user in its
+      read_users or write_users list.
+  loop: "{{ samba_shares }}"
+  loop_control:
+    label: "{{ item.name | default('invalid-share') }}"
+  no_log: true
+
+- name: Validate Samba share uniqueness
+  assert:
+    that:
+      - samba_shares | map(attribute='name') | list | unique | length == samba_shares | length
+      - samba_shares | map(attribute='container_path') | list | unique | length == samba_shares | length
+    fail_msg: Samba share names and container paths must each be unique.
+  no_log: true
+
 - name: Ensure Samba image is pulled
   docker_image:
     name: "{{ samba_docker_image }}"
@@ -20,6 +82,15 @@
     src: "{{ role_path }}/templates/samba/config.yml.j2"
     dest: "{{ samba_data_path }}/config.yml"
     mode: 0644
+
+- name: Ensure Samba credentials environment file
+  template:
+    src: "{{ role_path }}/templates/samba/samba.env.j2"
+    dest: "{{ samba_base_data_path }}/samba.env"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
 
 - name: Ensure Samba.service installed
   template:

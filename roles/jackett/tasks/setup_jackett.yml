@@ -1,5 +1,19 @@
 ---
 
+- name: Validate Jackett configuration
+  assert:
+    that:
+      - jackett_uid | int > 0
+      - jackett_gid | int > 0
+      - jackett_service_port | int > 0
+      - jackett_service_port | int < 65536
+      - jackett_umask is match('^[0-7]{3,4}$')
+      - jackett_auto_update | bool == false
+      - jackett_service_hostname is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+    fail_msg: >-
+      Define non-root Jackett UID/GID values, a valid hostname, port and umask,
+      and keep AUTO_UPDATE disabled so image tags remain reproducible.
+
 - name: Ensure Jackett image is pulled
   docker_image:
     name: "{{ jackett_docker_image }}"
@@ -10,10 +24,11 @@
     path: "{{ item }}"
     state: directory
     mode: 0750
-    owner: "root"
-    group: "root"
+    owner: "{{ jackett_uid }}"
+    group: "{{ jackett_gid }}"
   with_items:
     - "{{ jackett_data_path }}"
+    - "{{ jackett_config_path }}"
 
 - name: Ensure jackett.service installed
   template:

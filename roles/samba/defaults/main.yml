@@ -3,38 +3,97 @@
 # Base directory that contains everything
 samba_base_data_path: "{{ services_base_data_path }}/samba"
 
-# Samba edition
-samba_docker_image_template: "vetalracer/docker-samba:__VERSION__"
+# Samba edition.
+samba_docker_image_template: "ghcr.io/crazy-max/samba:__VERSION__"
 samba_docker_image: "{{ samba_docker_image_template|replace('__VERSION__', samba_docker_image_tag) }}"
 
 # Samba-related data
 samba_data_path: "{{ samba_base_data_path }}/data"
 
-# Samba global envs
-samba_force_group: root
+# Samba access control.
+samba_users:
+  - name: admin
+    uid: 1000
+    gid: 100
+    group: users
+  - name: vitalii
+    uid: 1100
+    gid: 100
+    group: users
+samba_user_passwords: {}
+
+# New files are assigned to the existing non-root users group (GID 100), which
+# must have matching permissions on the host share directories.
+samba_force_group: users
+
+# Restrict SMB to the primary host interface and its directly connected LAN.
+# Override these values in host vars for hosts with multiple networks.
+samba_listen_address: "{{ ansible_default_ipv4.address | default('') }}"
+samba_allowed_hosts:
+  - "{{ ansible_default_ipv4.network | default('') }}/{{ ansible_default_ipv4.netmask | default('') }}"
 
 # Samba log level
 samba_log_level: 0
 
-# Samba share folders
-samba_share_folders: |
-  {{
-    (['-v /datafolder/sharefolder:/samba/sharefolder'])
-    +
-    (['-v /datafolder/sharefolder/program:/samba/program'])
-    +
-    (['-v /datafolder/sharefolder/media:/samba/media'])
-    +
-    (['-v /datafolder/sharefolder/game:/samba/game'])
-    +
-    (['-v /datafolder/sharefolder/music:/samba/music'])
-    +
-    (['-v /datafolder/sharefolder/a_bit_all:/samba/a_bit_all'])
-    +
-    (['-v /datafolder/sharefolder/exchanger:/samba/exchanger'])
-    +
-    (['-v /datafolder/sharefolder/torrent:/samba/torrent'])
-  }}
+# Samba shares. `host_path` is mounted into the container as `container_path`.
+# Access lists use names from `samba_users`.
+samba_shares:
+  - name: sharefolder
+    host_path: /datafolder/sharefolder
+    container_path: /samba/sharefolder
+    read_users:
+      - vitalii
+    write_users:
+      - admin
+  - name: program
+    host_path: /datafolder/sharefolder/program
+    container_path: /samba/program
+    read_users:
+      - vitalii
+    write_users:
+      - admin
+  - name: media
+    host_path: /datafolder/sharefolder/media
+    container_path: /samba/media
+    read_users:
+      - vitalii
+    write_users:
+      - admin
+  - name: game
+    host_path: /datafolder/sharefolder/game
+    container_path: /samba/game
+    read_users:
+      - vitalii
+    write_users:
+      - admin
+  - name: music
+    host_path: /datafolder/sharefolder/music
+    container_path: /samba/music
+    read_users:
+      - vitalii
+    write_users:
+      - admin
+  - name: a_bit_all
+    host_path: /datafolder/sharefolder/a_bit_all
+    container_path: /samba/a_bit_all
+    read_users:
+      - vitalii
+    write_users:
+      - admin
+  - name: exchanger
+    host_path: /datafolder/sharefolder/exchanger
+    container_path: /samba/exchanger
+    read_users: []
+    write_users:
+      - admin
+      - vitalii
+  - name: torrent
+    host_path: /datafolder/sharefolder/torrent
+    container_path: /samba/torrent
+    read_users: []
+    write_users:
+      - admin
+      - vitalii
 
 # Samba services
 samba_services_list: |

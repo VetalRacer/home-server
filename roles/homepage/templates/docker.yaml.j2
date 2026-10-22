@@ -1,6 +1,11 @@
 ---
-# For configuration options and examples, please see:
-# https://gethomepage.dev/en/configs/docker/
-
+# Docker integration is intentionally opt-in. Configure a protected read-only
+# Docker API proxy; never expose the host Docker socket to Homepage directly.
+{% if homepage_docker_integration_enabled | bool %}
 homeserver:
-  socket: /var/run/docker.sock
+  host: {{ homepage_docker_host }}
+  port: {{ homepage_docker_port }}
+  protocol: {{ homepage_docker_protocol }}
+{% else %}
+{}
+{% endif %}

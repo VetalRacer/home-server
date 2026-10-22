@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+chain='HOME_SERVER_DOCKER'
+
+iptables -N "$chain" 2>/dev/null || true
+iptables -C DOCKER-USER -j "$chain" 2>/dev/null || iptables -I DOCKER-USER 1 -j "$chain"
+iptables -F "$chain"
+
+# Keep established flows and traffic between Docker networks working.
+iptables -A "$chain" -m conntrack --ctstate RELATED,ESTABLISHED -j RETURN
+iptables -A "$chain" -s 172.16.0.0/12 -j RETURN
+
+# All services remain reachable from the explicitly trusted LANs.
+{% for cidr in server_base_firewall_lan_cidrs %}
+iptables -A "$chain" -s {{ cidr }} -j RETURN
+{% endfor %}
+
+# Only deliberate public Docker-published ports bypass the default drop.
+{% for port in server_base_firewall_public_tcp_ports %}
+iptables -A "$chain" -p tcp --dport {{ port }} -j RETURN
+{% endfor %}
+{% for port in server_base_firewall_public_udp_ports %}
+iptables -A "$chain" -p udp --dport {{ port }} -j RETURN
+{% endfor %}
+
+iptables -A "$chain" -j DROP
+
+# Docker can also publish IPv6 listeners. UFW's IPv6 policy does not filter
+# Docker-published ports, so apply the same explicit policy to ip6tables.
+if command -v ip6tables >/dev/null 2>&1; then
+  ip6tables -N "$chain" 2>/dev/null || true
+  ip6tables -C DOCKER-USER -j "$chain" 2>/dev/null || ip6tables -I DOCKER-USER 1 -j "$chain"
+  ip6tables -F "$chain"
+  ip6tables -A "$chain" -m conntrack --ctstate RELATED,ESTABLISHED -j RETURN
+{% for cidr in server_base_firewall_lan_cidrs if ':' in cidr %}
+  ip6tables -A "$chain" -s {{ cidr }} -j RETURN
+{% endfor %}
+{% for port in server_base_firewall_public_tcp_ports %}
+  ip6tables -A "$chain" -p tcp --dport {{ port }} -j RETURN
+{% endfor %}
+{% for port in server_base_firewall_public_udp_ports %}
+  ip6tables -A "$chain" -p udp --dport {{ port }} -j RETURN
+{% endfor %}
+  ip6tables -A "$chain" -j DROP
+fi

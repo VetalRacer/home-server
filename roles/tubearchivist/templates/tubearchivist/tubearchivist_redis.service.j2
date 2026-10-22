@@ -1,8 +1,7 @@
 [Unit]
-Description=TubeArchivist_Redis service
-Requires=docker.service tubearchivist_es.service
+Description=TubeArchivist Redis service
+Requires=docker.service
 After=docker.service
-DefaultDependencies=no
 
 [Service]
 Type=simple
@@ -11,15 +10,15 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchi
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist_redis 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name tubearchivist_redis \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-			--env VIRTUAL_PORT={{ tubearchivist_redis_service_port }} \
-			-p 6379:6379 \
-			-v {{ tubearchivist_redis_data }}:/data \
-			{{ tubearchivist_redis_docker_image }}
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--cap-drop=ALL \
+	--security-opt=no-new-privileges:true \
+	--env TZ={{ timezone }} \
+	-v {{ tubearchivist_redis_data }}:/data \
+	{{ tubearchivist_redis_docker_image }}
 
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill tubearchivist_redis 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 tubearchivist_redis 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm tubearchivist_redis 2>/dev/null'
 Restart=always
 RestartSec=30

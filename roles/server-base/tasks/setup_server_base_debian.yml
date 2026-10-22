@@ -1,43 +1,190 @@
 ---
 
+- name: Remove legacy unsigned Docker repository entry
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/download_docker_com_linux_{{ ansible_distribution | lower }}.list"
+    state: absent
+  when: docker_installation_enabled|bool and docker_package_name == 'docker-ce'
+
 - name: Ensure APT usage dependencies are installed
-  apt:
+  ansible.builtin.apt:
     name:
       - apt-transport-https
       - ca-certificates
+      - curl
+      - gnupg
       - postgresql-client
       - postgresql-client-common
     state: present
     update_cache: yes
+    cache_valid_time: 3600
 
-- name: Ensure Docker's APT key is trusted
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
-    state: present
-  register: add_repository_key
-  ignore_errors: true
+- name: Check Docker APT keyring directory
+  ansible.builtin.stat:
+    path: "{{ docker_apt_keyring_path | dirname }}"
+  register: docker_apt_keyring_directory
+
+- name: Ensure Docker APT keyring directory exists
+  ansible.builtin.file:
+    path: "{{ docker_apt_keyring_path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
   when: docker_installation_enabled|bool and docker_package_name == 'docker-ce'
 
+- name: Ensure Docker's APT signing key is installed
+  ansible.builtin.get_url:
+    url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+    dest: "{{ docker_apt_keyring_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - docker_installation_enabled | bool
+    - docker_package_name == 'docker-ce'
+    - not ansible_check_mode or docker_apt_keyring_directory.stat.exists
+
 - name: Ensure Docker repository is enabled
-  apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable"
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ docker_apt_architecture }} signed-by={{ docker_apt_keyring_path }}] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable"
+    filename: docker
     state: present
     update_cache: yes
+    mode: '0644'
   when: docker_installation_enabled|bool and docker_package_name == 'docker-ce'
 
 - name: Ensure APT packages are installed
-  apt:
+  ansible.builtin.apt:
     name:
       - "{{ ntpd_package }}"
-      - gnupg
-    state: latest
+    state: present
     update_cache: yes
+    cache_valid_time: 3600
 
 - name: Ensure Docker is installed
-  apt:
+  ansible.builtin.apt:
     name:
       - "{{ docker_package_name }}"
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
       - "python{{'3' if ansible_python.version.major == 3 else ''}}-docker"
-    state: latest
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
   when: docker_installation_enabled|bool
+
+- name: Ensure unattended security updates are installed
+  ansible.builtin.apt:
+    name: unattended-upgrades
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: server_base_automatic_security_updates_enabled | bool
+
+- name: Ensure unattended security updates are enabled
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    owner: root
+    group: root
+    mode: '0644'
+  when: server_base_automatic_security_updates_enabled | bool
+
+- name: Ensure UFW is installed
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: server_base_firewall_enabled | bool
+
+- name: Read UFW status
+  ansible.builtin.command: ufw status
+  register: server_base_ufw_status
+  changed_when: false
+  when: server_base_firewall_enabled | bool
+
+- name: Set UFW default incoming policy
+  ansible.builtin.command: ufw default deny incoming
+  register: server_base_ufw_incoming_policy
+  changed_when: "'Default incoming policy changed' in server_base_ufw_incoming_policy.stdout"
+  when: server_base_firewall_enabled | bool
+
+- name: Set UFW default outgoing policy
+  ansible.builtin.command: ufw default allow outgoing
+  register: server_base_ufw_outgoing_policy
+  changed_when: "'Default outgoing policy changed' in server_base_ufw_outgoing_policy.stdout"
+  when: server_base_firewall_enabled | bool
+
+- name: Allow all host services from LAN networks
+  ansible.builtin.command: "ufw allow from {{ item }}"
+  register: server_base_ufw_lan_rule
+  changed_when: "'Rule added' in server_base_ufw_lan_rule.stdout"
+  loop: "{{ server_base_firewall_lan_cidrs }}"
+  when: server_base_firewall_enabled | bool
+
+- name: Allow public host TCP ports
+  ansible.builtin.command: "ufw allow {{ item }}/tcp"
+  register: server_base_ufw_public_tcp_rule
+  changed_when: "'Rule added' in server_base_ufw_public_tcp_rule.stdout"
+  loop: "{{ server_base_firewall_public_tcp_ports }}"
+  when: server_base_firewall_enabled | bool
+
+- name: Allow public host UDP ports
+  ansible.builtin.command: "ufw allow {{ item }}/udp"
+  register: server_base_ufw_public_udp_rule
+  changed_when: "'Rule added' in server_base_ufw_public_udp_rule.stdout"
+  loop: "{{ server_base_firewall_public_udp_ports }}"
+  when: server_base_firewall_enabled | bool
+
+- name: Ensure Docker firewall script is installed
+  ansible.builtin.template:
+    src: firewall/home-server-docker-firewall.sh.j2
+    dest: "{{ server_base_docker_firewall_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+  when: server_base_firewall_enabled | bool
+
+- name: Ensure Docker firewall systemd drop-in directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: server_base_firewall_enabled | bool
+
+- name: Ensure Docker reapplies firewall rules after restart
+  ansible.builtin.template:
+    src: firewall/docker-firewall.conf.j2
+    dest: /etc/systemd/system/docker.service.d/home-server-firewall.conf
+    owner: root
+    group: root
+    mode: '0644'
+  register: server_base_docker_firewall_dropin
+  when: server_base_firewall_enabled | bool
+
+- name: Reload systemd after Docker firewall drop-in change
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when:
+    - server_base_firewall_enabled | bool
+    - server_base_docker_firewall_dropin is changed
+
+- name: Apply Docker firewall rules now
+  ansible.builtin.command: "{{ server_base_docker_firewall_script_path }}"
+  changed_when: false
+  when: server_base_firewall_enabled | bool
+
+- name: Enable UFW after access rules are in place
+  ansible.builtin.command: ufw --force enable
+  changed_when: "'Firewall is active' in server_base_ufw_status.stdout"
+  when:
+    - server_base_firewall_enabled | bool
+    - "'Status: active' not in server_base_ufw_status.stdout"

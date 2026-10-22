@@ -1,0 +1,17 @@
+---
+- name: Ensure systemd is reloaded
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Ensure Seerr service is stopped
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+  loop: "{{ seerr_services_list }}"
+
+- name: Ensure Seerr service is started
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop: "{{ seerr_services_list }}"

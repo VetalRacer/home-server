@@ -4,6 +4,7 @@
   when: nginx_proxy_installation_enabled|bool == true
   tags:
     - setup-all
+    - setup-nginx-proxy
 
 - import_tasks: "{{ role_path }}/tasks/setup_nginx_proxy.yml"
   when: nginx_proxy_installation_enabled|bool == true
@@ -15,3 +16,4 @@
   when: nginx_proxy_installation_enabled|bool == true
   tags:
     - start
+    - start-nginx-proxy

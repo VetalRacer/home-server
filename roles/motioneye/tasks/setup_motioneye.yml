@@ -1,5 +1,19 @@
 ---
 
+- name: Validate MotionEye configuration
+  ansible.builtin.assert:
+    that:
+      - motioneye_docker_image_tag | default('') | trim | length > 0
+      - motioneye_service_hostname | default('') is match('^\\S+$')
+      - motioneye_service_port | int > 0
+      - motioneye_service_port | int <= 65535
+      - motioneye_stream_listen_address | default('') | trim | length > 0
+      - motioneye_stream_port | int > 0
+      - motioneye_stream_port | int <= 65535
+    fail_msg: >-
+      Define a MotionEye image tag, hostname, valid service and stream ports,
+      and a LAN address for the stream endpoint.
+
 - name: Ensure MotionEye image is pulled
   docker_image:
     name: "{{ motioneye_docker_image }}"
@@ -15,6 +29,25 @@
   with_items:
     - "{{ motioneye_config_path }}"
     - "{{ motioneye_media_path }}"
+
+- name: Ensure MotionEye backup path exists
+  ansible.builtin.file:
+    path: "{{ motioneye_backup_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Preserve MotionEye configuration before image migration
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/tar
+      - -C
+      - "{{ motioneye_config_path }}"
+      - -czf
+      - "{{ motioneye_migration_backup_path }}"
+      - .
+    creates: "{{ motioneye_migration_backup_path }}"
 
 - name: Ensure MotionEye.service installed
   template:

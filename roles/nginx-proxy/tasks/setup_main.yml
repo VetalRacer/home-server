@@ -13,13 +13,27 @@
 #   docker_network:
 #     name: "{{ nginx_docker_network }}"
 #     driver: bridge
-- name: Check existence of Nginx-proxy network in Docker
-  shell:
-    cmd: "docker network ls -q --filter='name=^{{ nginx_docker_network }}$'"
-  register: nginx_result_docker_network
-  changed_when: false
+- name: Validate Nginx-proxy network and listener configuration
+  ansible.builtin.assert:
+    that:
+      - nginx_docker_network | default('') is match('^[A-Za-z0-9][A-Za-z0-9_.-]*$')
+      - nginx_proxy_listen_address | default('') is match('^([0-9]{1,3}\\.){3}[0-9]{1,3}$')
+      - nginx_proxy_http_port | int > 0
+      - nginx_proxy_http_port | int < 65536
+      - nginx_proxy_worker_processes | string in ['auto'] or nginx_proxy_worker_processes | int > 0
+      - nginx_proxy_worker_connections | int > 0
+      - nginx_proxy_client_max_body_size | default('') is match('^[1-9][0-9]*[kKmMgG]$')
+      - nginx_proxy_docker_image_tag | default('') is match('^[A-Za-z0-9][A-Za-z0-9._-]*$')
+    fail_msg: >-
+      Define safe Docker network names, a LAN listen address, valid HTTP and
+      worker limits, a valid body-size limit, and pinned image tags.
 
-- name: Create Nginx-proxy network in Docker
-  shell:
-    cmd: "docker network create --driver=bridge {{ nginx_docker_network }}"
-  when: "nginx_result_docker_network.stdout == ''"
+- name: Ensure Nginx-proxy Docker networks exist
+  community.docker.docker_network:
+    name: "{{ item.name }}"
+    driver: bridge
+    internal: "{{ item.internal }}"
+    state: present
+  loop:
+    - name: "{{ nginx_docker_network }}"
+      internal: false

@@ -2,7 +2,6 @@
 Description=Prometheus-node service
 Requires=docker.service
 After=docker.service
-DefaultDependencies=no
 
 [Service]
 Type=simple
@@ -11,18 +10,21 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheu
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-node 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name prometheus-node \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-			-p 9100:9100 \
-			-v "/:/host:ro,rslave" \
-			{{ prometheus_node_exporter_docker_image }} \
-			--path.rootfs=/host
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--env TZ={{ timezone }} \
+	--read-only \
+	--cap-drop=ALL \
+	--security-opt=no-new-privileges:true \
+	-v /:/host:ro,rslave \
+	{{ prometheus_node_exporter_docker_image }} \
+	--path.rootfs=/host
 
 
 
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill prometheus-node 2>/dev/null'
-ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-node 2>/dev/null'
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout={{ prometheus_shutdown_timeout }} prometheus-node 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm prometheus-node 2>/dev/null'
+TimeoutStopSec={{ prometheus_shutdown_timeout | int + 30 }}
 Restart=always
 RestartSec=30
 SyslogIdentifier=prometheus-node

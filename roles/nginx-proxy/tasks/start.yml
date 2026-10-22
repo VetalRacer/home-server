@@ -4,15 +4,17 @@
   service:
     daemon_reload: yes
 
-- name: Ensure Nginx-proxy services stopped
-  service:
+- name: Ensure Nginx-proxy service stopped
+  ansible.builtin.service:
     name: "{{ item }}"
     state: stopped
-  with_items: "{{ nginx_services_list }}"
+  loop: "{{ nginx_proxy_services_list }}"
+  when: not ansible_check_mode
 
-- name: Ensure Nginx-proxy services started
-  service:
+- name: Ensure Nginx-proxy service started
+  ansible.builtin.service:
     name: "{{ item }}"
-    enabled: yes
+    enabled: true
     state: started
-  with_items: "{{ nginx_services_list }}"
+  loop: "{{ nginx_proxy_services_list }}"
+  when: not ansible_check_mode

@@ -13,18 +13,23 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm pihole 2>/d
 ExecStart=/usr/bin/docker run --rm --name pihole \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
+			--env-file={{ pihole_env_path }} \
 			--env TZ={{ timezone }} \
-            --env FTLCONF_dns_listeningMode=all \
-            --env FTLCONF_webserver_api_password={{ pihole_service_webpassword }} \
-            --env FTLCONF_webserver_port={{ pihole_service_port }} \
-            -p 53:53/tcp \
-            -p 53:53/udp \
-            -p 67:67/udp \
-            --env VIRTUAL_HOST={{ pihole_service_hostname }} \
-            --env VIRTUAL_PORT={{ pihole_service_port }} \
-            --hostname={{ pihole_service_hostname }} \
-            -v {{ pihole_data_path }}:/etc/pihole \
-            -v {{ pihole_dnsmasq_path }}:/etc/dnsmasq.d \
+			--env FTLCONF_dns_listeningMode=all \
+			--env FTLCONF_webserver_port={{ pihole_service_port }} \
+			-p {{ pihole_dns_listen_address }}:53:53/tcp \
+			-p {{ pihole_dns_listen_address }}:53:53/udp \
+{% if pihole_dhcp_enabled | bool %}
+			--cap-add=NET_ADMIN \
+			-p 67:67/udp \
+{% endif %}
+			--env VIRTUAL_HOST={{ pihole_service_hostname }} \
+			--env VIRTUAL_PORT={{ pihole_service_port }} \
+			--hostname={{ pihole_service_hostname }} \
+			-v {{ pihole_data_path }}:/etc/pihole \
+{% if pihole_dnsmasq_enabled | bool %}
+			-v {{ pihole_dnsmasq_path }}:/etc/dnsmasq.d \
+{% endif %}
 			{{ pihole_docker_image }}
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill pihole 2>/dev/null'

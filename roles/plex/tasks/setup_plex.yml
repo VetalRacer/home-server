@@ -1,5 +1,18 @@
 ---
 
+- name: Validate Plex configuration
+  assert:
+    that:
+      - plex_uid | int > 0
+      - plex_gid | int > 0
+      - plex_service_port | int > 0
+      - plex_service_port | int < 65536
+      - plex_claim | default('') is not search('[\\r\\n]')
+    fail_msg: >-
+      Define valid non-root Plex UID/GID values, a valid service port, and a
+      claim token without line breaks.
+  no_log: true
+
 - name: Ensure Plex image is pulled
   docker_image:
     name: "{{ plex_docker_image }}"
@@ -9,11 +22,20 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: 0750
-    owner: "root"
-    group: "root"
+    mode: '0750'
+    owner: "{{ plex_uid }}"
+    group: "{{ plex_gid }}"
   with_items:
     - "{{ plex_data_path }}"
+
+- name: Ensure Plex claim environment file
+  template:
+    src: "{{ role_path }}/templates/plex/plex.env.j2"
+    dest: "{{ plex_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
 
 - name: Ensure Plex.service installed
   template:

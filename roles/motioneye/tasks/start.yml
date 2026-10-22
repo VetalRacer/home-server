@@ -1,18 +1,9 @@
 ---
 
-- name: Ensure systemd reloaded
-  service:
-    daemon_reload: yes
-
-- name: Ensure MotionEye services stopped
-  service:
+- name: Ensure MotionEye services enabled and restarted
+  ansible.builtin.systemd_service:
     name: "{{ item }}"
-    state: stopped
-  with_items: "{{ motioneye_services_list }}"
-
-- name: Ensure MotionEye services started
-  service:
-    name: "{{ item }}"
-    enabled: yes
-    state: started
+    enabled: true
+    state: restarted
+    daemon_reload: true
   with_items: "{{ motioneye_services_list }}"

@@ -1429,6 +1429,7 @@
     {
       "aliasColors": {},
       "bars": true,
+      "barWidth": 0.8,
       "dashLength": 10,
       "dashes": false,
       "datasource": {

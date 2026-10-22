@@ -5,6 +5,12 @@
     name: "{{ homepage_docker_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
+- name: Ensure Homepage Docker API proxy image is pulled
+  docker_image:
+    name: "{{ homepage_docker_api_proxy_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+  when: homepage_docker_integration_enabled | bool
+
 - name: Ensure Homepage paths exist
   file:
     path: "{{ item }}"
@@ -39,6 +45,21 @@
     dest: "{{ homepage_data_path }}/docker.yaml"
     mode: 0644
 
+- name: Ensure Homepage proxmox.yaml config
+  template:
+    src: "{{ role_path }}/templates/proxmox.yaml.j2"
+    dest: "{{ homepage_data_path }}/proxmox.yaml"
+    mode: 0644
+
+- name: Ensure Homepage Docker API proxy configured
+  template:
+    src: "{{ role_path }}/templates/docker-api-proxy.conf.j2"
+    dest: "{{ homepage_data_path }}/docker-api-proxy.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  when: homepage_docker_integration_enabled | bool
+
 - name: Ensure Homepage settings.yaml config
   template:
     src: "{{ role_path }}/templates/settings.yaml.j2"
@@ -52,7 +73,20 @@
     mode: 0644
   register: homepage_systemd_service_result
 
+- name: Ensure Homepage Docker API proxy service installed
+  template:
+    src: "{{ role_path }}/templates/homepage/homepage-docker-api.service.j2"
+    dest: "/etc/systemd/system/homepage-docker-api.service"
+    owner: root
+    group: root
+    mode: '0644'
+  register: homepage_docker_api_proxy_systemd_service_result
+  when: homepage_docker_integration_enabled | bool
+
 - name: Ensure systemd reloaded after homepage.service installation
   service:
     daemon_reload: yes
-  when: homepage_systemd_service_result.changed
+  when: >-
+    homepage_systemd_service_result.changed or
+    (homepage_docker_integration_enabled | bool and
+    homepage_docker_api_proxy_systemd_service_result.changed)

@@ -1,0 +1,9 @@
+[Unit]
+Description=Consistent Nextcloud backup
+Requires=nextcloud.service postgres.service
+After=nextcloud.service postgres.service
+
+[Service]
+Type=oneshot
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStart={{ nextcloud_backup_script_path }}

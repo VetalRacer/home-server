@@ -2,17 +2,27 @@
 - import_tasks: "{{ role_path }}/tasks/validate_config.yml"
   when: gitlab_installation_enabled|bool == true
   tags:
-    - always
+    - setup-all
+    - setup-gitlab
+    - setup-runner
+    - setup-backup
+    - start
+    - start-gitlab
+    - backup
+    - backup-gitlab
+    - restore-backup
 
 - import_tasks: "{{ role_path }}/tasks/create_backup.yml"
   when: gitlab_installation_enabled|bool == true
   tags:
     - backup
+    - backup-gitlab
 
 - import_tasks: "{{ role_path }}/tasks/setup_main.yml"
   when: gitlab_installation_enabled|bool == true
   tags:
     - setup-all
+    - setup-gitlab
 
 - import_tasks: "{{ role_path }}/tasks/setup_gitlab.yml"
   when: gitlab_installation_enabled|bool == true
@@ -36,6 +46,7 @@
   when: gitlab_installation_enabled|bool == true
   tags:
     - start
+    - start-gitlab
 
 - import_tasks: "{{ role_path }}/tasks/restore_backup.yml"
   when: gitlab_installation_enabled|bool == true

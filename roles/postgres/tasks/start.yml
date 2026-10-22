@@ -1,18 +1,12 @@
 ---
 
 - name: Ensure systemd reloaded
-  service:
+  ansible.builtin.service:
     daemon_reload: yes
 
-- name: Ensure Postgres services stopped
-  service:
-    name: "{{ item }}"
-    state: stopped
-  with_items: "{{ postgres_services_list }}"
-
 - name: Ensure Postgres services started
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     enabled: yes
     state: started
-  with_items: "{{ postgres_services_list }}"
+  loop: "{{ postgres_services_list }}"

@@ -7,6 +7,15 @@ pgadmin_docker_image: "{{ pgadmin_docker_image_template|replace('__VERSION__', p
 
 # pgAdmin-related data
 pgadmin_data_path: "{{ pgadmin_base_data_path }}/data"
+pgadmin_env_path: "{{ pgadmin_base_data_path }}/pgadmin.env"
+
+# The official image runs pgAdmin as UID 5050 in group root.
+pgadmin_uid: "5050"
+pgadmin_gid: "0"
+pgadmin_disable_postfix: true
+# Port 80 requires NET_BIND_SERVICE. The container intentionally runs without
+# capabilities, so pgAdmin listens on an unprivileged internal port instead.
+pgadmin_service_port: 8080
 
 # pgAdmin services
 pgadmin_services_list: |

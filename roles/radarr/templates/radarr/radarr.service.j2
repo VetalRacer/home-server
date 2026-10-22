@@ -11,17 +11,18 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill radarr 2>
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm radarr 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name radarr \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ radarr_service_hostname }} \
-			--env PUID={{ radarr_uid }} \
-  			--env PGID={{ radarr_gid }} \
-#			-p 8989:8989 \
-      		-v {{ radarr_config_path }}:/config \
-			-v {{ radarr_tv_path }}:/tv \
-			-v {{ radarr_downloads_path }}:/downloads \
-			{{ radarr_docker_image }}
+            --log-driver=none \
+            --network={{ nginx_docker_network }} \
+            --env TZ={{ timezone }} \
+            --env VIRTUAL_HOST={{ radarr_service_hostname }} \
+            --env VIRTUAL_PORT={{ radarr_service_port }} \
+            --env PUID={{ radarr_uid }} \
+            --env PGID={{ radarr_gid }} \
+            --env UMASK={{ radarr_umask }} \
+            --security-opt=no-new-privileges:true \
+            -v {{ radarr_config_path }}:/config \
+            -v {{ radarr_storage_path }}:/data \
+            {{ radarr_docker_image }}
 
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill radarr 2>/dev/null'

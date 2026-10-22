@@ -1,0 +1,9 @@
+[Unit]
+Description=Nextcloud background jobs
+Requires=nextcloud.service
+After=nextcloud.service
+
+[Service]
+Type=oneshot
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStart={{ nextcloud_cron_script_path }}

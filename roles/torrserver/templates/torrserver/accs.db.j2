@@ -1,5 +1,4 @@
 {
-"admin": "{{ torrserver_admin_password }}",
-"guest": "{{ torrserver_guest_password }}"
+"admin": {{ torrserver_admin_password | to_json }},
+"guest": {{ torrserver_guest_password | to_json }}
 }
-

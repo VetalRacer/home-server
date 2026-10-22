@@ -1,33 +1,35 @@
 [Unit]
 Description=Planka service
-Requires=docker.service
-After=docker.service
-DefaultDependencies=no
+Requires=docker.service postgres.service
+After=docker.service postgres.service
 
 [Service]
 Type=simple
 Environment="HOME={{ systemd_unit_home_path }}"
-ExecStartPre=-{{ host_command_sh }} -c 'until pg_isready -h localhost -p 5432; do sleep 10; done'
+EnvironmentFile={{ planka_env_path }}
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill planka 2>/dev/null'
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm planka 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name planka \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-            --env PUID={{ planka_uid }} \
-            --env PGID={{ planka_gid }} \
-            --env BASE_URL=http://{{ planka_service_hostname }} \
-            --env DATABASE_URL=postgresql://{{ planka_postgres_user }}:{{ planka_postgres_password }}@{{ planka_postgres_host }}/{{ planka_postgres_db }}  \
-            --env SECRET_KEY=notsecretkey \
+			--cap-drop=ALL \
+			--security-opt=no-new-privileges:true \
+			--read-only \
+			--tmpfs /tmp:rw,noexec,nosuid,size=64m \
+			--tmpfs /app/.tmp:rw,noexec,nosuid,size=64m \
+			--tmpfs /app/logs:rw,noexec,nosuid,size=64m \
+            --env BASE_URL \
+            --env DATABASE_URL \
+            --env SECRET_KEY \
+            --env TRUST_PROXY \
             --env VIRTUAL_HOST={{ planka_service_hostname }} \
             --env VIRTUAL_PORT={{ planka_service_port }} \
-            --env DEFAULT_ADMIN_EMAIL={{ planka_default_admin_email }} \
-            --env DEFAULT_ADMIN_USERNAME={{ planka_default_admin_username }} \
-            --env DEFAULT_ADMIN_PASSWORD={{ planka_default_admin_password }} \
-            --env DEFAULT_ADMIN_NAME="Admin" \
-            -v {{ planka_config_path }}:/config \
-            -p {{ planka_service_port }}:{{ planka_service_port }} \
+			--env DEFAULT_ADMIN_EMAIL \
+			--env DEFAULT_ADMIN_USERNAME \
+			--env DEFAULT_ADMIN_PASSWORD \
+			--env DEFAULT_ADMIN_NAME \
+            -v {{ planka_config_path }}:/app/data \
 			{{ planka_docker_image }}
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill planka 2>/dev/null'

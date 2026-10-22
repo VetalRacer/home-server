@@ -1,30 +1,40 @@
 ---
 
 - name: Ensure Exporters paths exist
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0644
-  with_items:
+    owner: root
+    group: root
+    # The Blackbox image runs without root privileges and must traverse this
+    # read-only directory to load its non-secret probe configuration.
+    mode: '0755'
+  loop:
     - "{{ prometheus_blackbox_exporter_config_path }}"
 
+- name: Ensure Prometheus exporter images are pulled
+  docker_image:
+    name: "{{ item }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+  loop: "{{ prometheus_exporter_docker_images }}"
+  notify: Restart Prometheus exporters
+
 - name: Ensure prometheus_exporter services installed
-  template:
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/exporter/{{ item }}.j2"
     dest: "/etc/systemd/system/{{ item }}"
     mode: 0644
-  with_items: "{{ exporter_services_list }}"
+  loop: "{{ exporter_services_list }}"
   register: prometheus_exporter_systemd_service_result
+  notify:
+    - Reload Prometheus systemd units
+    - Restart Prometheus exporters
 
 - name: Ensure blackbox_exporter configs installed
-  template:
+  ansible.builtin.template:
     src: "{{ role_path }}/templates/exporter/{{ item }}.j2"
     dest: "{{ prometheus_blackbox_exporter_config_path }}/{{ item }}"
     mode: 0644
-  with_items: "blackbox.yml"
-  register: prometheus_exporter_systemd_service_result
-
-- name: Ensure systemd reloaded after prometheus_exporter services installation
-  service:
-    daemon_reload: yes
-  when: prometheus_exporter_systemd_service_result.changed
+  loop:
+    - blackbox.yml
+  notify: Restart Prometheus exporters

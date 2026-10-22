@@ -1,18 +1,9 @@
 ---
 
-- name: Ensure systemd reloaded
-  service:
-    daemon_reload: yes
-
-- name: Ensure TubeArchivist services stopped
-  service:
+- name: Ensure TubeArchivist services enabled and restarted
+  ansible.builtin.systemd_service:
     name: "{{ item }}"
-    state: stopped
-  with_items: "{{ tubearchivist_services_list }}"
-
-- name: Ensure TubeArchivist services started
-  service:
-    name: "{{ item }}"
-    enabled: yes
-    state: started
+    enabled: true
+    state: restarted
+    daemon_reload: true
   with_items: "{{ tubearchivist_services_list }}"

@@ -1,32 +1,54 @@
 ---
 
+- name: Validate Nexus configuration
+  ansible.builtin.assert:
+    that:
+      - nexus_service_port | int >= 1
+      - nexus_service_port | int <= 65535
+      - nexus_shutdown_timeout | int >= 30
+      - nexus_service_hostname is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+      - nexus_jvm_options is not search('[\\r\\n]')
+      - nexus_repository is iterable
+      - nexus_repository | map(attribute='hostname') | list | unique | length == nexus_repository | length
+    fail_msg: >-
+      Define a valid Nexus hostname and port, a shutdown timeout of at least
+      30 seconds, one-line JVM options, and unique connector hostnames.
+
+- name: Validate Nexus connector configuration
+  ansible.builtin.assert:
+    that:
+      - item is mapping
+      - item.hostname is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+      - item.port | int >= 1
+      - item.port | int <= 65535
+    fail_msg: Each Nexus connector requires a valid hostname and TCP port.
+  loop: "{{ nexus_repository }}"
+
 - name: Ensure Nexus image is pulled
   docker_image:
     name: "{{ nexus_docker_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
 
-- name: Ensure Nexus paths exist
-  file:
-    path: "{{ item }}"
+- name: Ensure Nexus data path exists
+  ansible.builtin.file:
+    path: "{{ nexus_data_path }}"
     state: directory
-    mode: 0750
-    owner: 200
-    group: 200
-  with_items:
-    - "{{ nexus_data_path }}"
+    mode: '0750'
+    owner: '200'
+    group: '200'
 
 - name: Ensure Nginx-proxy configured (Nexus)
   template:
     src: "{{ role_path }}/templates/conf.d/nexus.conf.j2"
     dest: "{{ nginx_proxy_confd_path }}/nexus.conf"
     mode: 0644
-  register: nginx_proxy_plex_configured_result
+  register: nexus_nginx_proxy_configured
 
-- name: Ensure systemd reloaded after plex nginx-proxy configured
-  service:
+- name: Reload Nginx-proxy after Nexus configuration changes
+  ansible.builtin.service:
     name: nginx-proxy.service
-    state: restarted
-  when: nginx_proxy_plex_configured_result.changed
+    state: reloaded
+  when: nexus_nginx_proxy_configured.changed
 
 - name: Ensure nexus.service installed
   template:

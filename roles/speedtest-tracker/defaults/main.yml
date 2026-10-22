@@ -2,7 +2,7 @@
 speedtest_base_data_path: "{{ services_base_data_path }}/speedtest"
 
 # Speedtest-Tracker edition
-speedtest_docker_image_template: "henrywhitaker3/speedtest-tracker:__VERSION__"
+speedtest_docker_image_template: "lscr.io/linuxserver/speedtest-tracker:__VERSION__"
 speedtest_docker_image: "{{ speedtest_docker_image_template|replace('__VERSION__', speedtest_docker_image_tag) }}"
 
 # Speedtest-Tracker-related data
@@ -10,11 +10,17 @@ speedtest_data_path: "{{ speedtest_base_data_path }}/data"
 
 # Speedtest-Tracker config data
 speedtest_config_path: "{{ speedtest_data_path }}/config"
-speedtest_database_path: "{{ speedtest_data_path }}/database"
+speedtest_env_path: "{{ speedtest_base_data_path }}/speedtest.env"
 
-# Speedtest-Tracker global envs
-speedtest_uid: "0"
-speedtest_gid: "0"
+# Speedtest-Tracker runtime configuration
+speedtest_uid: "1000"
+speedtest_gid: "100"
+speedtest_service_port: 80
+speedtest_app_url: "http://{{ speedtest_service_hostname }}"
+speedtest_admin_name: "admin"
+speedtest_admin_email: "admin@speedtest.loc"
+speedtest_schedule: "0 * * * *"
+speedtest_prune_results_older_than: 365
 
 # Speedtest-Tracker services
 speedtest_services_list: |

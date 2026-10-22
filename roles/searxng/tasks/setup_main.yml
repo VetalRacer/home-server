@@ -1,0 +1,23 @@
+---
+
+- name: Ensure SearXNG base path exists
+  ansible.builtin.file:
+    path: "{{ searxng_base_data_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Check existence of Nginx-proxy network in Docker
+  ansible.builtin.shell:
+    cmd: "docker network ls -q --filter='name=^{{ nginx_docker_network }}$'"
+  register: searxng_nginx_docker_network
+  changed_when: false
+  check_mode: false
+
+- name: Fail if Nginx-proxy Docker network is absent
+  ansible.builtin.fail:
+    msg: >-
+      You need to define the Docker network `{{ nginx_docker_network }}` before
+      installing SearXNG.
+  when: searxng_nginx_docker_network.stdout == ''

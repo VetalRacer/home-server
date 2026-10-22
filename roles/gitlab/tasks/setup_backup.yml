@@ -1,35 +1,51 @@
 ---
 
 - name: Ensure backup user account created
-  user: name="{{ gitlab_backup_user }}"
+  ansible.builtin.user:
+    name: "{{ gitlab_backup_user }}"
+    create_home: true
 
 - name: Ensure .ssh directory exists
-  file: path="/home/{{ gitlab_backup_user }}/.ssh" state=directory mode=0700 owner="{{ gitlab_backup_user }}"
+  ansible.builtin.file:
+    path: "/home/{{ gitlab_backup_user }}/.ssh"
+    state: directory
+    owner: "{{ gitlab_backup_user }}"
+    group: "{{ gitlab_backup_user }}"
+    mode: '0700'
 
 - name: Ensure backups directory exists
-  file: path="{{ gitlab_backup_directory }}" state=directory mode=0700 owner="{{ gitlab_backup_user }}"
+  ansible.builtin.file:
+    path: "{{ gitlab_backup_directory }}"
+    state: directory
+    owner: "{{ gitlab_backup_user }}"
+    group: "{{ gitlab_backup_user }}"
+    mode: '0700'
 
 - name: Ensure backup user's authorized_keys is up-to-date
-  authorized_key: user="{{ gitlab_backup_user }}" key="{{ item }}"
-  with_items: "{{ gitlab_backup_user_authorized_keys }}"
+  authorized_key:
+    user: "{{ gitlab_backup_user }}"
+    key: "{{ item }}"
+  loop: "{{ gitlab_backup_user_authorized_keys }}"
 
 - name: Ensure backup program directory exists
-  file: path="{{ gitlab_backup_program_install_dir }}" state=directory mode=0700 owner="root"
+  ansible.builtin.file:
+    path: "{{ gitlab_backup_program_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
 
 - name: Ensure backup program installed
-  template:
+  ansible.builtin.template:
     src: templates/gitlab-backup/backup.sh.j2
     dest: "{{ gitlab_backup_program_install_dir }}/backup.sh"
-    mode: 0700
-
-- name: Ensure backup program encryption password file installed
-  copy:
-    content: "{{ gitlab_backup_encryption_password }}"
-    dest: "{{ gitlab_backup_program_install_dir }}/encryption_password.txt"
-    mode: 0700
+    owner: root
+    group: root
+    mode: '0700'
+  no_log: true
 
 - name: Ensure cronjob installed
-  template:
+  ansible.builtin.template:
     src: templates/gitlab-backup/cron.d/gitlab-backup.j2
     dest: "/etc/cron.d/gitlab-backup"
     mode: 0644

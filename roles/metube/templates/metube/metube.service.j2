@@ -11,12 +11,23 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill metube 2>
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm metube 2>/dev/null'
 
 ExecStart=/usr/bin/docker run --rm --name metube \
-			--log-driver=none \
-			--network={{ nginx_docker_network }} \
-			--env TZ={{ timezone }} \
-      		--env VIRTUAL_HOST={{ metube_service_hostname }} \
-			-v {{ metube_downloads_path }}:/downloads \
-			{{ metube_docker_image }}
+  --log-driver=none \
+  --network={{ nginx_docker_network }} \
+  --env TZ={{ timezone }} \
+  --env VIRTUAL_HOST={{ metube_service_hostname }} \
+  --env VIRTUAL_PORT={{ metube_service_port }} \
+  --env NETWORK_ACCESS={{ metube_network_access }} \
+  --env PUID={{ metube_uid }} \
+  --env PGID={{ metube_gid }} \
+  --env UMASK={{ metube_umask }} \
+  --env CHOWN_DIRS=false \
+  --env MAX_CONCURRENT_DOWNLOADS={{ metube_max_concurrent_downloads }} \
+  --env DEFAULT_OPTION_PLAYLIST_ITEM_LIMIT={{ metube_playlist_item_limit }} \
+  --env CUSTOM_DIRS={{ metube_custom_dirs | lower }} \
+  --env ALLOW_YTDL_OPTIONS_OVERRIDES={{ metube_allow_ytdl_options_overrides | lower }} \
+  --security-opt=no-new-privileges:true \
+  -v {{ metube_downloads_path }}:/downloads \
+  {{ metube_docker_image }}
 
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} kill metube 2>/dev/null'
 ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} rm metube 2>/dev/null'

@@ -4,6 +4,26 @@
   ansible.builtin.systemd_service:
     daemon_reload: true
 
+- name: Stop Nextcloud background-job timers before service restart
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+  loop: >-
+    {{
+      (['nextcloud-cron.timer'] if nextcloud_cron_enabled | bool else [])
+      + (['nextcloud-backup.timer'] if nextcloud_backup_enabled | bool else [])
+    }}
+
+- name: Stop active Nextcloud background jobs before service restart
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+  loop: >-
+    {{
+      (['nextcloud-cron.service'] if nextcloud_cron_enabled | bool else [])
+      + (['nextcloud-backup.service'] if nextcloud_backup_enabled | bool else [])
+    }}
+
 - name: Ensure Nextcloud services stopped
   ansible.builtin.systemd_service:
     name: "{{ item }}"
@@ -16,6 +36,17 @@
     enabled: yes
     state: started
   with_items: "{{ nextcloud_services_list }}"
+
+- name: Restore Nextcloud background-job timers after service restart
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop: >-
+    {{
+      (['nextcloud-cron.timer'] if nextcloud_cron_enabled | bool else [])
+      + (['nextcloud-backup.timer'] if nextcloud_backup_enabled | bool else [])
+    }}
 
 - name: Ensure Nextcloud canonical hostname is configured
   ansible.builtin.command: >-

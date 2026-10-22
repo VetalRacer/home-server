@@ -44,12 +44,6 @@
     mode: 0644
   register: nexus_nginx_proxy_configured
 
-- name: Reload Nginx-proxy after Nexus configuration changes
-  ansible.builtin.service:
-    name: nginx-proxy.service
-    state: reloaded
-  when: nexus_nginx_proxy_configured.changed
-
 - name: Ensure nexus.service installed
   template:
     src: "{{ role_path }}/templates/nexus/nexus.service.j2"

@@ -4,16 +4,16 @@
   ansible.builtin.systemd:
     daemon_reload: true
 
-- name: Ensure Exporter services started
+- name: Ensure Exporter services restarted
   ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: yes
-    state: started
+    state: restarted
   loop: "{{ exporter_services_list }}"
 
-- name: Ensure Prometheus services started
+- name: Ensure Prometheus services restarted
   ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: yes
-    state: started
+    state: restarted
   loop: "{{ prometheus_services_list }}"

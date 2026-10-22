@@ -94,7 +94,7 @@ samba_user_passwords:
   vitalii: ""
 
 # Nginx services tag
-nginx_proxy_docker_image_tag: 1.7
+nginx_proxy_docker_image_tag: "1.11"
 
 # Transmission service tag
 transmission_docker_image_tag: 4.1.3

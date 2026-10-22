@@ -16,3 +16,27 @@
     enabled: yes
     state: started
   with_items: "{{ nextcloud_services_list }}"
+
+- name: Ensure Nextcloud canonical hostname is configured
+  ansible.builtin.command: >-
+    {{ host_command_docker }} exec --user www-data nextcloud
+    php occ config:system:set overwritehost
+    --value={{ nextcloud_service_hostname }} --type=string
+  changed_when: false
+  check_mode: false
+  register: nextcloud_overwritehost_result
+  retries: 12
+  delay: 5
+  until: nextcloud_overwritehost_result.rc == 0
+
+- name: Ensure Nextcloud primary trusted domain is configured
+  ansible.builtin.command: >-
+    {{ host_command_docker }} exec --user www-data nextcloud
+    php occ config:system:set trusted_domains 0
+    --value={{ nextcloud_service_hostname }} --type=string
+  changed_when: false
+  check_mode: false
+  register: nextcloud_trusted_domain_result
+  retries: 12
+  delay: 5
+  until: nextcloud_trusted_domain_result.rc == 0

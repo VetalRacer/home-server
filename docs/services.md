@@ -1,6 +1,17 @@
 # Nginx-proxy
 
-Nginx-proxy service proxies requests to internal services
+Nginx-proxy routes HTTP requests to the internal services that join the shared
+Docker network. By default it binds port `80` only to the host primary LAN
+address (`nginx_proxy_listen_address`), so services are reachable from the
+local network but are not exposed on every host interface or IPv6. Override
+`nginx_proxy_listen_address` and `nginx_proxy_http_port` only when a different
+listener is required.
+
+The role uses `nginxproxy/nginx-proxy` and accepts the optional settings
+`nginx_proxy_worker_processes`, `nginx_proxy_worker_connections`, and
+`nginx_proxy_client_max_body_size`. HTTP has no encryption or authentication
+at the proxy layer: keep it on a trusted LAN. If a router forwards this port
+to the Internet, add TLS and authentication at an Internet-facing proxy first.
 
 You can find all configs in `roles/nginx-proxy/templates/nginx-proxy/conf.d/` folder
 
@@ -474,6 +485,11 @@ they do not already exist. Existing roles, passwords, database owners, and
 data are never changed. Store `nextcloud_postgres_password` and
 `nextcloud_admin_password` in Ansible Vault. They are written to a root-only
 environment file rather than the systemd unit command line.
+
+`nextcloud_service_hostname` is the canonical browser URL. On each role start,
+the role synchronizes this hostname to Nextcloud's `overwritehost` and primary
+trusted-domain setting, so rename it through Ansible rather than editing
+`config.php` on the server.
 
 The role runs `cron.php` every five minutes through a systemd timer. It also
 creates a consistent daily archive under `nextcloud_backup_path`: the archive

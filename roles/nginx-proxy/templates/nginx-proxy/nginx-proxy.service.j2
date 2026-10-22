@@ -1,8 +1,8 @@
 [Unit]
 Description=Nginx-proxy service
 Requires=docker.service
-After=docker.service
-DefaultDependencies=no
+After=docker.service network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
@@ -10,11 +10,21 @@ Environment="HOME={{ systemd_unit_home_path }}"
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill nginx-proxy 2>/dev/null'
 ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm nginx-proxy 2>/dev/null'
 
-ExecStart=/usr/bin/docker run --rm --name nginx-proxy \
+ExecStart={{ host_command_docker }} run --rm --name nginx-proxy \
 			--log-driver=none \
 			--network={{ nginx_docker_network }} \
 			--env TZ={{ timezone }} \
-			-p 80:80 \
+			-p {{ nginx_proxy_listen_address }}:{{ nginx_proxy_http_port }}:80 \
+			--cap-drop=ALL \
+			--cap-add=CHOWN \
+			--cap-add=NET_BIND_SERVICE \
+			--cap-add=SETGID \
+			--cap-add=SETUID \
+			--security-opt=no-new-privileges:true \
+			--health-cmd='nginx -t' \
+			--health-interval=30s \
+			--health-timeout=10s \
+			--health-retries=3 \
 			-v /var/run/docker.sock:/tmp/docker.sock:ro \
 			-v {{ nginx_proxy_base_path }}/nginx.conf:/etc/nginx/nginx.conf:ro \
 			-v {{ nginx_proxy_confd_path }}:/etc/nginx/conf.d \

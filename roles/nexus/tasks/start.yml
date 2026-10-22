@@ -16,3 +16,8 @@
     enabled: yes
     state: started
   with_items: "{{ nexus_services_list }}"
+
+- name: Reload Nginx-proxy after Nexus is started
+  ansible.builtin.service:
+    name: nginx-proxy.service
+    state: reloaded

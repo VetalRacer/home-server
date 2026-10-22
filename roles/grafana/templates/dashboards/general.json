@@ -421,7 +421,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "text": {
+          "valueSize": 28
+        }
       },
       "pluginVersion": "9.2.8",
       "targets": [
@@ -501,7 +504,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "text": {
+          "valueSize": 28
+        }
       },
       "pluginVersion": "9.2.8",
       "targets": [
@@ -584,7 +590,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "text": {
+          "valueSize": 28
+        }
       },
       "pluginVersion": "9.2.8",
       "targets": [
@@ -601,7 +610,7 @@
           "step": 240
         }
       ],
-      "title": "RAM Total",
+      "title": "RAM",
       "type": "stat"
     },
     {
@@ -678,7 +687,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "text": {
+          "valueSize": 25
+        }
       },
       "pluginVersion": "9.2.8",
       "targets": [
@@ -1091,7 +1103,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "text": {
+          "valueSize": 25
+        }
       },
       "pluginVersion": "9.2.8",
       "targets": [

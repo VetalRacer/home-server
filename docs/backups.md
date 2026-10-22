@@ -1,57 +1,55 @@
-# Backups
+# GitLab backups
 
-Backups are created daily and automatically. After creating, they're gpg-encrypted (password specified by `gitlab_backup_encryption_password`) and then relocated to `gitlab_backup_directory` (default: `/datafolder/homeserver/backup/`).
+The GitLab role creates a daily backup at 04:12 in
+`{{ backups_base_data_path }}/gitlab` (normally
+`/datafolder/homeserver/backups/gitlab`). The directory is mode `0700`; each
+archive is mode `0600` and owned by the `gitlab_backup_user` (default:
+`backup`). A manual backup is available with:
 
-14 days worth of backups are kept locally by default (controllable by `gitlab_backup_days_to_keep_locally`).
+```bash
+ansible-playbook -i inventory/hosts setup.yml --tags=backup-gitlab --ask-vault-pass
+```
 
-Granting SSH access to this backup user is possible by defining a list of public keys in the `gitlab_backup_user_authorized_keys` variable.
+Each archive contains the GitLab application backup, `/etc/gitlab` (including
+`gitlab-secrets.json`), the managed GitLab environment file, and the GitLab
+Shell SSH host keys. The role keeps 14 archives by default; change
+`gitlab_backup_days_to_keep_local` to adjust it.
 
-Creating a backup manually is also possible: `make backup`.
+Archives are **not encrypted** by the role. The filesystem permissions protect
+them only on this server. Copy them to separately mounted/off-host storage and
+encrypt that copy when protection against disk or host loss is required.
 
+To fetch archives over SSH, add public keys to
+`gitlab_backup_user_authorized_keys`; that account can read these sensitive
+archives.
 
-## Remote backups
+## Yandex Disk replica
 
-You can store backups remotely by:
+Define `gitlab_backup_yandex_token` as an Ansible Vault value to enable uploads
+of completed archives to `app:/gitlab` on Yandex Disk. The role keeps remote
+copies for 30 days by default. The OAuth token needs access only to the Yandex
+Disk application folder. Advanced installations may override
+`gitlab_backup_yandex_directory` or `gitlab_backup_yandex_days_to_keep`.
 
-- having them uploaded to [Yandex.Drive](https://disk.yandex.ru/) - see the `gitlab_backup_yandex_` variables
+## Restoring a GitLab backup
 
-Backups uploaded remotely get purged by us.
-You're advised to set up the appropriate lifecycle rules.
-30 days worth of backups are kept Yandex.Drive by default (controllable by `gitlab_backup_yandex_days_to_keep`).
+Restoring changes GitLab data. Stop normal use and make a fresh backup first.
+The archive must be restored with the exact GitLab image version that created
+it; do not use this procedure as an upgrade path.
 
-
-## Note on setting up Yandex.Drive backups
-
-- We login on Yandex under the account, on the disk that we will backup, go to https://oauth.yandex.ru and click "Register a new application".
-- Fill in the name of the application (for example, “backup”) and issue the necessary rights in the “Yandex.Disk REST API” section, namely: “Access to information about the Disk” and “Access to the application folder on the Disk”.
-Below on the same page, under the "Callback URL" field, click "substitute URL for development" and click "Save".
-- After saving the application settings, we will be redirected to the application data page.
-- We get a token (if you want, you can read more about this in the Yandex manual), for this we copy the ID, substitute it at the end of the URL https://oauth.yandex.ru/authorize?response_type=token&client_id=, go to the resulting address and confirm granting permissions to the application.
-- The page will display a token that is issued for at least 1 year, so if the backup script suddenly stops working, we can get a new token and substitute it into the script. You can test the capabilities of working with Yandex.Disk using the received token at [a special test site](https://tech.yandex.ru/disk/poligon/).
-
-## Note on fetching backups via SSH
-
-To get SSH access to the server with the `backup` user, so you can pull the backups from `/home/backup/backups`, you should put your public SSH key(s) in `gitlab_backup_user_authorized_keys`.
-
-
-## Restoring a gitlab backup
-
-- Note the version of Gitlab that was used for making the backup. For the example file name (`2022_12_05_15.5.1-ee_gitlab_backup.tar.gz`), it's `15.5.1`.
-
-- Configure your inventory file (`inventory/host_vars/gitlab.DOMAIN/vars.yml`) with a custom variable: `gitlab_docker_image_tag: VERSION_HERE`. We need this to ensure that we'll install the same Gitlab version as the one used to make the backup.
-
-- Rebuild the server using the Ansible playbook. See [Installing](installing.md). You may start services if you wish.
-
-- Make sure the `.tar.gz` backup file is available in the `/datafolder/homeserver/backup/gitlab/` directory (e.g. `/datafolder/homeserver/backup/gitlab/2022_12_05_15.5.1-ee_gitlab_backup.tar.gz`)
-
-- Ask the playbook to restore the backup:
+1. Copy the archive to `gitlab_backup_directory` on the server.
+2. Set `gitlab_docker_image_tag` to the version recorded in the archive's
+   `backup_information.yml` (for example, a backup reporting `15.5.1-ee`
+   requires `15.5.1-ee.0`).
+3. Render the service but do not change the GitLab image version.
+4. Run:
 
 ```bash
 ansible-playbook -i inventory/hosts setup.yml \
---tags=restore-backup \
---extra-vars='gitlab_archive_name=2022_12_04_15.5.1-ee_gitlab_backup.tar.gz'
+  --tags=restore-backup --ask-vault-pass \
+  --extra-vars='gitlab_archive_name=ARCHIVE_NAME.tar.gz'
 ```
 
-- You may now wish to remove your custom version definitions from your `inventory/host_vars/gitlab.DOMAIN/vars.yml` file and re-run the playbook, so you would get upgraded to the latest version. See [Upgrading](upgrading.md).
-
-- The restore operation enables the "Write to authorized_keys file" setting (Admin Area > Settings > Network > Performance Optimization). Consider disabling it, as it doesn't work well with containers.
+The role verifies the embedded version, restores configuration, secrets and SSH
+host keys, restores the application data, and runs `gitlab:doctor:secrets`.
+Verify sign-in, projects, CI variables and SSH clone access afterwards.

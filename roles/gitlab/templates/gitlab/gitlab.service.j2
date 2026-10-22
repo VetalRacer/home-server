@@ -1,7 +1,8 @@
 [Unit]
 Description=Gitlab service
 Requires=docker.service
-After=docker.service
+Wants=nginx-proxy.service
+After=docker.service nginx-proxy.service
 DefaultDependencies=no
 
 [Service]
@@ -12,13 +13,14 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm gitlab 2>/d
 
 ExecStart={{ host_command_docker }} run --rm --name gitlab \
 			--log-driver=none \
+			--shm-size={{ gitlab_shm_size }} \
 			--network={{ nginx_docker_network }} \
 			--env TZ={{ timezone }} \
             --env VIRTUAL_HOST={{ gitlab_service_hostname }} \
 			--env VIRTUAL_PORT={{ gitlab_service_port }} \
-			-p {{ gitlab_ssh_port }}:{{ gitlab_ssh_port }} \
+			-p {{ gitlab_ssh_listen_address }}:{{ gitlab_ssh_host_port }}:{{ gitlab_ssh_port }} \
 			--hostname={{ gitlab_service_hostname }} \
-			--env-file={{ gitlab_base_path }}/env-gitlab \
+			--env-file={{ gitlab_env_path }} \
 			--volume {{ gitlab_config_dir_path }}:/etc/gitlab \
 			--volume {{ gitlab_data_dir_path }}:/var/opt/gitlab \
 			--volume {{ gitlab_log_dir_path }}:/var/log/gitlab \

@@ -1,7 +1,7 @@
 ---
 
-- name: Ensure Gitlab base path exists
-  file:
+- name: Ensure GitLab base path exists
+  ansible.builtin.file:
     path: "{{ gitlab_base_data_path }}"
     state: directory
     mode: 0750
@@ -23,13 +23,13 @@
 #     driver: bridge
 
 - name: Check existence of Nginx-proxy network in Docker
-  shell:
+  ansible.builtin.command:
     cmd: "docker network ls -q --filter='name=^{{ nginx_docker_network }}$'"
   register: nginx_result_docker_network
   changed_when: false
 
 - name: Fail if docker network not defined
-  fail:
+  ansible.builtin.fail:
     msg: >-
       You need to define a docker network (`{{ nginx_docker_network }}`) for using this service.
   when: nginx_result_docker_network.stdout == ''

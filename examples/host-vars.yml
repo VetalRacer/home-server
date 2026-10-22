@@ -86,7 +86,6 @@ gitlab_root_password: ''
 
 # Gitlab services tag
 gitlab_docker_image_tag: "15.5.1-ee.0"
-gitlab_runner_image_tag: v15.1.1
 
 # Samba service image and non-empty passwords for every user defined in the role.
 samba_docker_image_tag: 4.23.8
@@ -308,17 +307,11 @@ tubearchivist_apikey: ''
 # it with Ansible Vault before use.
 searxng_secret_key: ""
 
-# Required secrets (can be generated with something like `pwgen -Bsv1 64`)
-# We recommend encrypting the values using `ansible-vault encrypt_string`.
-gitlab_secrets_otp_key_base: ''
-gitlab_secrets_secret_key_base: ''
-gitlab_secrets_db_key_base: ''
-
-# Choose an encryption password (to be used for gpg).
-# We recommend encrypting the values using `ansible-vault encrypt_string`.
-gitlab_backup_encryption_password: ''
-
 gitlab_backup_cron_email_to: YOUR_EMAIL_ADDRESS_HERE
+
+# Optional off-host copy. Generate a Yandex Disk OAuth token with access only
+# to the application folder and encrypt it using `ansible-vault encrypt_string`.
+# gitlab_backup_yandex_token: ''
 
 # After you've installed Gitlab for the first time and everything is running,
 # you should uncomment and populate this.

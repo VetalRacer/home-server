@@ -3,7 +3,7 @@
     # - { role: server-base }
     # - { role: raid }
     # - { role: nginx-proxy }
-    # - { role: gitlab }
+    - { role: gitlab }
     # - { role: samba }
     # - { role: transmission }
     # - { role: plex }
@@ -25,7 +25,7 @@
     # - { role: motioneye }
     # - { role: torrserver }
     # - { role: tubearchivist }
-    - { role: nextcloud }
+    # - { role: nextcloud }
     # - { role: searxng }
     # - { role: planka }
     # - { role: q3server }

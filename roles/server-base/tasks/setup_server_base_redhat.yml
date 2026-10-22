@@ -18,16 +18,16 @@
   when: docker_installation_enabled|bool and docker_package_name == 'docker-ce'
 
 - name: Ensure yum packages are installed
-  yum:
+  ansible.builtin.yum:
     name:
       - gnupg2
       - "{{ ntpd_package }}"
-    state: latest
+    state: present
     update_cache: yes
 
 - name: Ensure Docker is installed
-  yum:
+  ansible.builtin.yum:
     name:
       - "{{ docker_package_name }}"
-    state: latest
+    state: present
   when: docker_installation_enabled|bool

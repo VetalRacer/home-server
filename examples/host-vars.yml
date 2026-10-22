@@ -7,6 +7,14 @@ host_command_sh: "/usr/bin/env sh"
 nginx_docker_network: nginx-proxy
 timezone: Etc/UTC
 
+# Optional host firewall policy. When enabled, all services remain available
+# from the listed LANs; only these explicitly listed Docker ports are public.
+# server_base_firewall_enabled: true
+# server_base_firewall_lan_cidrs:
+#   - "192.168.1.0/24"
+# server_base_firewall_public_tcp_ports: []
+# server_base_firewall_public_udp_ports: []
+
 # Install raid
 raid_installation_enabled: true
 nginx_proxy_installation_enabled: true

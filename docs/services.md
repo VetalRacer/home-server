@@ -389,7 +389,8 @@ data and roles, so protect them with host-storage encryption when required.
 They are root-readable only at
 `postgres_backup_path`, are made daily by `postgres-backup.timer`, and
 are retained for `postgres_backup_retention_days` days. Run a backup manually
-with `make backup`, and verify restoration periodically on a separate host.
+with `make backup TARGET=prod` (or `TARGET=test`), and verify restoration
+periodically on a separate host.
 
 Use `systemctl list-timers postgres-backup.timer` to inspect the next run and
 `journalctl -u postgres-backup.service` to inspect its result.

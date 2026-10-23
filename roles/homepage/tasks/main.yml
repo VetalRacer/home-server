@@ -15,3 +15,4 @@
   when: homepage_installation_enabled|bool == true
   tags:
     - start
+    - start-homepage

@@ -8,5 +8,5 @@
   ansible.builtin.service:
     name: "{{ item }}"
     enabled: yes
-    state: started
+    state: restarted
   loop: "{{ grafana_services_list }}"

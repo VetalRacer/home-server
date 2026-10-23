@@ -1,18 +1,19 @@
 ---
 # For configuration options and examples, please see:
 # https://gethomepage.dev/en/configs/bookmarks
+{% set is_russian = homepage_language == 'ru' %}
 
-- Developer:
+- {{ 'Разработка' if is_russian else 'Developer' }}:
     - Github:
         - abbr: GH
           href: https://github.com/
 
-- Social:
+- {{ 'Социальные сети' if is_russian else 'Social' }}:
     - Vkontakte:
         - abbr: VK
           href: https://vk.com/
 
-- Entertainment:
+- {{ 'Развлечения' if is_russian else 'Entertainment' }}:
     - YouTube:
         - abbr: YT
           href: https://youtube.com/

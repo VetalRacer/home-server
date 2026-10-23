@@ -9,7 +9,10 @@ This [Ansible](https://www.ansible.com/) playbook can help you set up a services
 
 ## Installation
 
-To configure and install services on your home server, follow the [README in the docs/ directory](docs/README.md).
+To configure and install services on your home server, choose a documentation language:
+
+- [English documentation](docs/en/README.md)
+- [Документация на русском](docs/ru/README.md)
 
 
 ## Docker images used by this playbook
@@ -40,6 +43,7 @@ This playbook sets up your server using the following Docker images:
 - [ghcr.io/yourok/torrserver](https://ghcr.io/yourok/torrserver) - the [yourok/torrserver](https://ghcr.io/yourok/torrserver) Torrserver image.
 - [vetalracer/tubearchivist](https://hub.docker.com/r/vetalracer/tubearchivist) - the fork [bbilly1/tubearchivistr](https://hub.docker.com/r/bbilly1/tubearchivist) TubeArchivist image.
 - [nextcloud](https://hub.docker.com/_/nextcloud) - the [nextcloud](https://hub.docker.com/_/nextcloud) Nextcloud image.
+- [Immich](https://github.com/immich-app/immich) - self-hosted photo and video backup.
 - [searxng](https://github.com/searxng/searxng/pkgs/container/searxng) - privacy-respecting metasearch engine.
 - [planka](https://hub.docker.com/r/linuxserver/planka) - the [planka](https://hub.docker.com/r/linuxserver/planka) Planka image.
 - [q3server](https://hub.docker.com/r/vetalracer/q3server) - the [q3server](https://hub.docker.com/r/vetalracer/q3server) Quake 3 server image.

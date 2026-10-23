@@ -41,6 +41,7 @@ motioneye_installation_enabled: true
 torrserver_installation_enabled: true
 tubearchivist_installation_enabled: true
 nextcloud_installation_enabled: true
+immich_installation_enabled: false
 searxng_installation_enabled: true
 planka_installation_enabled: true
 q3server_installation_enabled: true
@@ -66,6 +67,7 @@ motioneye_service_hostname: "motioneye.YOUR_DOMAIN_NAME_HERE"
 torrserver_service_hostname: "torrserver.YOUR_DOMAIN_NAME_HERE"
 tubearchivist_service_hostname: "tubearchivist.YOUR_DOMAIN_NAME_HERE"
 nextcloud_service_hostname: "nextcloud.YOUR_DOMAIN_NAME_HERE"
+immich_service_hostname: "immich.YOUR_DOMAIN_NAME_HERE"
 searxng_service_hostname: "searxng.YOUR_DOMAIN_NAME_HERE"
 planka_service_hostname: "planka.YOUR_DOMAIN_NAME_HERE"
 
@@ -121,6 +123,9 @@ tubearchivist_docker_image_tag: v0.4.1
 tubearchivist_redis_docker_image_tag: 7.2.0-v2
 tubearchivist_es_docker_image_tag: 8.9.0
 nextcloud_docker_image_tag: 28.0.1
+immich_docker_image_tag: v3.3.4
+immich_postgres_docker_image_tag: "14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23"
+immich_redis_docker_image_tag: "9@sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd"
 searxng_docker_image_tag: 2026.10.19-81371861f
 searxng_valkey_docker_image_tag: 9.0.6-alpine
 planka_docker_image_tag: 2.2.1
@@ -138,6 +143,10 @@ samba_user_passwords:
 
 # Homepage receives container status through a local read-only API proxy.
 # Never expose the proxy port or mount the host Docker socket into Homepage.
+# Homepage UI language; examples: "en" and "ru". It can differ per host.
+# homepage_language: "en"
+# Use the full browser width for service groups. The default is true.
+# homepage_full_width: true
 homepage_docker_integration_enabled: true
 homepage_docker_port: 2375
 homepage_docker_protocol: http
@@ -234,6 +243,11 @@ nextcloud_admin_password: ""
 # Keep this empty until nginx-proxy has a known, stable IP/CIDR. Do not place
 # the Nextcloud hostname here: trusted proxies must be IP addresses or ranges.
 nextcloud_trusted_proxies: []
+
+# Immich keeps its database separate from the repository-wide PostgreSQL
+# service because it requires the upstream VectorChord image. Use Ansible Vault
+# for this password and keep the database path on local (non-network) storage.
+immich_db_password: ""
 
 # Planka creds
 planka_postgres_user: planka

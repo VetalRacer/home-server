@@ -1,0 +1,9 @@
+[Unit]
+Description=Consistent Immich backup
+Requires=immich-postgres.service
+After=immich-postgres.service
+
+[Service]
+Type=oneshot
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStart={{ immich_backup_script_path }}

@@ -1,0 +1,26 @@
+[Unit]
+Description=Immich machine learning service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill immich-machine-learning 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm immich-machine-learning 2>/dev/null'
+ExecStart={{ host_command_docker }} run --rm --name immich-machine-learning \
+  --log-driver=none \
+  --network={{ nginx_docker_network }} \
+  --env TZ={{ timezone }} \
+  --cap-drop=NET_RAW \
+  --security-opt=no-new-privileges:true \
+  -v {{ immich_ml_cache_path }}:/cache \
+  {{ immich_machine_learning_docker_image }}
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 immich-machine-learning 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm immich-machine-learning 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=immich-machine-learning
+
+[Install]
+WantedBy=multi-user.target

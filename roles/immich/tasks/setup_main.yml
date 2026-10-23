@@ -1,0 +1,40 @@
+---
+- name: Ensure Immich base path exists
+  ansible.builtin.file:
+    path: "{{ immich_base_data_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Persist Valkey memory-overcommit setting for Immich
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-immich.conf
+    content: "vm.overcommit_memory = 1\n"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Read current Valkey memory-overcommit setting
+  ansible.builtin.command: /sbin/sysctl -n vm.overcommit_memory
+  register: immich_vm_overcommit_memory
+  changed_when: false
+  check_mode: false
+
+- name: Apply Valkey memory-overcommit setting
+  ansible.builtin.command: /sbin/sysctl -w vm.overcommit_memory=1
+  when: immich_vm_overcommit_memory.stdout | int != 1
+
+- name: Check existence of Nginx-proxy network in Docker
+  ansible.builtin.shell:
+    cmd: "docker network ls -q --filter='name=^{{ nginx_docker_network }}$'"
+  register: immich_nginx_docker_network
+  changed_when: false
+  check_mode: false
+
+- name: Fail if Docker network is not defined
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a Docker network (`{{ nginx_docker_network }}`) for
+      using Immich.
+  when: immich_nginx_docker_network.stdout == ''

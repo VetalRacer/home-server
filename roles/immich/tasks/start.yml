@@ -1,0 +1,19 @@
+---
+- name: Ensure Immich services enabled and restarted
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: restarted
+    daemon_reload: true
+  loop: "{{ immich_services_list }}"
+
+- name: Wait for Immich server health check
+  ansible.builtin.command:
+    cmd: >-
+      {{ host_command_docker }} inspect
+      --format '{{ '{{' }}.State.Health.Status{{ '}}' }}' immich
+  register: immich_healthcheck
+  changed_when: false
+  until: immich_healthcheck.stdout == 'healthy'
+  retries: "{{ immich_healthcheck_retries | int }}"
+  delay: "{{ immich_healthcheck_delay | int }}"

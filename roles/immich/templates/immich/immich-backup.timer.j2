@@ -1,0 +1,10 @@
+[Unit]
+Description=Run consistent Immich backup on a schedule
+
+[Timer]
+OnCalendar={{ immich_backup_schedule }}
+Persistent=true
+Unit=immich-backup.service
+
+[Install]
+WantedBy=timers.target

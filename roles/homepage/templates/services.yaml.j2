@@ -1,13 +1,16 @@
 ---
 # For configuration options and examples, please see:
 # https://gethomepage.dev/en/configs/services
+{% macro text(english, russian) -%}
+{{ (russian if homepage_language == 'ru' else english) | to_json }}
+{%- endmacro %}
 
-- Media:
+- {{ text('Media', 'Медиа') }}:
 {% if plex_installation_enabled == true %}
     - Plex:
         icon: plex.png
         href: http://{{ plex_service_hostname }}
-        description: Media server
+        description: {{ text('Media server', 'Медиасервер') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: plex
@@ -21,7 +24,7 @@
     - TubeArchivist:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/tube-archivist.png
         href: http://{{ tubearchivist_service_hostname }}
-        description: Torrent stream server
+        description: {{ text('YouTube media archive', 'Архив медиа с YouTube') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: tubearchivist
@@ -31,7 +34,7 @@
     - NextCloud:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png
         href: http://{{ nextcloud_service_hostname }}
-        description: Local cloud service
+        description: {{ text('Local cloud service', 'Локальное облако') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: nextcloud
@@ -41,7 +44,7 @@
     - Immich:
         icon: immich.png
         href: http://{{ immich_service_hostname }}
-        description: Photo and video backup
+        description: {{ text('Photo and video backup', 'Резервное копирование фото и видео') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: immich
@@ -51,7 +54,7 @@
     - Seerr:
         icon: seerr.png
         href: http://{{ seerr_service_hostname }}
-        description: Request TV Shows and Movies via WebUI
+        description: {{ text('Request TV shows and movies', 'Запросы фильмов и сериалов') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: seerr
@@ -61,7 +64,7 @@
     - Sonarr:
         icon: sonarr.png
         href: http://{{ sonarr_service_hostname }}
-        description: TV Shows Management
+        description: {{ text('TV shows management', 'Управление сериалами') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: sonarr
@@ -71,7 +74,7 @@
     - Radarr:
         icon: radarr.png
         href: http://{{ radarr_service_hostname }}
-        description: Movies Management
+        description: {{ text('Movies management', 'Управление фильмами') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: radarr
@@ -81,19 +84,19 @@
     - MeTube:
         icon: metube.png
         href: http://{{ metube_service_hostname }}
-        description: Video Downloader WebUI
+        description: {{ text('Video downloader', 'Загрузка видео') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: metube
 {% endif %}
 {% endif %}
 
-- Tools:
+- {{ text('Tools', 'Инструменты') }}:
 {% if transmission_installation_enabled == true %}
     - Transmission:
         icon: transmission.png
         href: http://{{ transmission_service_hostname }}
-        description: Torrent downloader
+        description: {{ text('Torrent downloader', 'Загрузчик торрентов') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: transmission
@@ -108,7 +111,7 @@
     - Planka:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/planka.png
         href: http://{{ planka_service_hostname }}
-        description: Elegant open source project tracking
+        description: {{ text('Open-source project tracking', 'Управление проектами') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: planka
@@ -118,7 +121,7 @@
     - FileBrowser:
         icon: filebrowser.png
         href: http://{{ filebrowser_service_hostname }}
-        description: Web filebrowser
+        description: {{ text('Web file manager', 'Веб-файловый менеджер') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: filebrowser
@@ -128,7 +131,7 @@
     - SearXNG:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/searxng.png
         href: http://{{ searxng_service_hostname }}
-        description: Private metasearch engine
+        description: {{ text('Private metasearch engine', 'Приватный метапоиск') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: searxng
@@ -138,7 +141,7 @@
     - PiHole:
         icon: pi-hole.png
         href: http://{{ pihole_service_hostname }}/admin
-        description: Network-wide protection
+        description: {{ text('Network-wide protection', 'Защита всей сети') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: pihole
@@ -153,7 +156,7 @@
     - Speedtest:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/speedtest.png
         href: http://{{ speedtest_service_hostname }}
-        description: Speedtest Tracking
+        description: {{ text('Internet speed tracking', 'Мониторинг скорости интернета') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: speedtest
@@ -170,7 +173,7 @@
     - MotionEye:
         icon: motioneye.png
         href: http://{{ motioneye_service_hostname }}
-        description: NVR monitoring
+        description: {{ text('Video surveillance', 'Видеонаблюдение') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: motioneye
@@ -178,11 +181,11 @@
 {% endif %}
 
 
-- Services:
+- {{ text('Services', 'Сервисы') }}:
 {% if nginx_proxy_installation_enabled == true %}
     - Nginx-proxy:
         icon: nginx.png
-        description: Reverse proxy server
+        description: {{ text('Reverse proxy server', 'Обратный прокси-сервер') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: nginx-proxy
@@ -192,7 +195,7 @@
     - Torrserver:
         icon: https://developer.asustor.com/uploadIcons/0020_131612_1639825715_torrserver.PNG
         href: http://{{ torrserver_service_hostname }}
-        description: Torrent stream server
+        description: {{ text('Torrent stream server', 'Потоковый торрент-сервер') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: torrserver
@@ -202,7 +205,7 @@
     - Prometheus:
         icon: prometheus.png
         href: http://{{ prometheus_service_hostname }}
-        description: Metrics service
+        description: {{ text('Metrics service', 'Сервис метрик') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: prometheus
@@ -211,7 +214,7 @@
 {% if samba_installation_enabled == true %}
     - Samba:
         icon: files.png
-        description: Fileshare service
+        description: {{ text('File sharing service', 'Сервис общего доступа к файлам') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: samba
@@ -220,7 +223,7 @@
 {% if postgres_installation_enabled == true %}
     - Postgres:
         icon: postgres.png
-        description: SQL database
+        description: {{ text('SQL database', 'База данных SQL') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: postgres
@@ -229,7 +232,7 @@
 {% if ps3netsrv_installation_enabled == true %}
     - ps3netsrv:
         icon: stash.png
-        description: PS3 remote server
+        description: {{ text('PS3 remote server', 'Удалённый сервер PS3') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: ps3netsrv
@@ -239,7 +242,7 @@
     - Jackett:
         icon: jackett.png
         href: http://{{ jackett_service_hostname }}
-        description: Movies and TV Shows indexer
+        description: {{ text('Movies and TV shows indexer', 'Индексатор фильмов и сериалов') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: jackett
@@ -247,12 +250,12 @@
 {% endif %}
 
 
-- Development:
+- {{ text('Development', 'Разработка') }}:
 {% if gitlab_installation_enabled == true %}
     - GitLab:
         icon: gitlab.png
         href: http://{{ gitlab_service_hostname }}
-        description: Development platform
+        description: {{ text('Development platform', 'Платформа разработки') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: gitlab
@@ -262,7 +265,7 @@
     - Grafana:
         icon: grafana.png
         href: http://{{ grafana_service_hostname }}
-        description: Monitoring Service
+        description: {{ text('Monitoring service', 'Сервис мониторинга') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: grafana
@@ -270,7 +273,7 @@
         widget:
           type: grafana
           version: 2
-          url: http://grafana:3000
+          url: http://{{ grafana_service_hostname }}:{{ grafana_service_port }}
           username: {{ grafana_username }}
           password: {{ grafana_password }}
 {% endif %}
@@ -278,7 +281,7 @@
     - pgAdmin:
         icon: pgadmin.png
         href: http://{{ pgadmin_service_hostname }}
-        description: GUI tool for Postgres
+        description: {{ text('PostgreSQL administration UI', 'Интерфейс администрирования PostgreSQL') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: pgadmin
@@ -288,7 +291,7 @@
     - Nexus:
         icon: emqx.png
         href: http://{{ nexus_service_hostname }}
-        description: Repository Manager
+        description: {{ text('Repository manager', 'Менеджер репозиториев') }}
 {% if homepage_docker_integration_enabled | bool %}
         server: homeserver
         container: nexus

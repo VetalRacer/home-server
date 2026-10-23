@@ -9,7 +9,10 @@ This [Ansible](https://www.ansible.com/) playbook can help you set up a services
 
 ## Installation
 
-To configure and install services on your home server, follow the [README in the docs/ directory](docs/README.md).
+To configure and install services on your home server, choose a documentation language:
+
+- [English documentation](docs/en/README.md)
+- [Документация на русском](docs/ru/README.md)
 
 
 ## Docker images used by this playbook

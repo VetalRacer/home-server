@@ -82,6 +82,15 @@ status discovery. Do not mount `/var/run/docker.sock` into Homepage or expose
 the proxy outside the Docker network. Set `homepage_docker_integration_enabled:
 false` to disable container status discovery.
 
+Set `homepage_language` per inventory host to select the UI language. The
+default is `en`; for Russian use `homepage_language: "ru"`.
+The role uses the same setting for its service-card descriptions, category
+headings, resource widgets, and bookmark groups.
+
+`homepage_full_width` defaults to `true`, allowing service groups to use the
+available browser width. Homepage stays responsive and still wraps groups on
+narrow screens.
+
 The Homepage image in the example configuration is `v2.4.0`.
 
 # FileBrowser
@@ -343,6 +352,12 @@ and [cAdvisor documentation](https://github.com/google/cadvisor).
 Grafana is available through `grafana_service_hostname` and uses the internal
 Prometheus URL `http://prometheus:9090`. Its port is not published directly on
 the host; nginx-proxy is the only public entry point.
+
+Homepage reaches Grafana's widget API through the same Docker-network hostname
+as the configured `grafana_service_hostname`. The Grafana container has this
+hostname as a Docker network alias, so the request stays internal while its
+Host header remains compatible with Grafana's enforced canonical domain. The
+widget uses Grafana's internal `grafana_service_port` rather than proxy port 80.
 
 Set `grafana_username`, `grafana_password`, and a persistent
 `grafana_secret_key` in host variables. Store the password and secret key with

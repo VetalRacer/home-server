@@ -1,15 +1,10 @@
-# Table of Contents
+# Home Server documentation
 
-- [Prepare machine](prepare-machine.md)
+Choose a language:
 
-- [Prerequisites](prerequisites.md)
+- [English](en/README.md)
+- [Русский](ru/README.md)
 
-- [Configuring the playbook](configuring-playbook.md)
-
-- [Services](services.md)
-
-- [Installing](installing.md)
-
-- [Updating](updating.md)
-
-- [Backups](backups.md)
+Both language trees describe the same Ansible roles. Configuration examples and
+all executable files remain in the repository root; do not copy secrets into
+documentation.

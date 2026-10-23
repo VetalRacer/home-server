@@ -82,6 +82,15 @@ status discovery. Do not mount `/var/run/docker.sock` into Homepage or expose
 the proxy outside the Docker network. Set `homepage_docker_integration_enabled:
 false` to disable container status discovery.
 
+Set `homepage_language` per inventory host to select the UI language. The
+default is `en`; for Russian use `homepage_language: "ru"`.
+The role uses the same setting for its service-card descriptions, category
+headings, resource widgets, and bookmark groups.
+
+`homepage_full_width` defaults to `true`, allowing service groups to use the
+available browser width. Homepage stays responsive and still wraps groups on
+narrow screens.
+
 The Homepage image in the example configuration is `v2.4.0`.
 
 # FileBrowser
@@ -344,6 +353,12 @@ Grafana is available through `grafana_service_hostname` and uses the internal
 Prometheus URL `http://prometheus:9090`. Its port is not published directly on
 the host; nginx-proxy is the only public entry point.
 
+Homepage reaches Grafana's widget API through the same Docker-network hostname
+as the configured `grafana_service_hostname`. The Grafana container has this
+hostname as a Docker network alias, so the request stays internal while its
+Host header remains compatible with Grafana's enforced canonical domain. The
+widget uses Grafana's internal `grafana_service_port` rather than proxy port 80.
+
 Set `grafana_username`, `grafana_password`, and a persistent
 `grafana_secret_key` in host variables. Store the password and secret key with
 Ansible Vault. The secret key must be at least 32 characters and must remain
@@ -389,7 +404,8 @@ data and roles, so protect them with host-storage encryption when required.
 They are root-readable only at
 `postgres_backup_path`, are made daily by `postgres-backup.timer`, and
 are retained for `postgres_backup_retention_days` days. Run a backup manually
-with `make backup`, and verify restoration periodically on a separate host.
+with `make backup TARGET=prod` (or `TARGET=test`), and verify restoration
+periodically on a separate host.
 
 Use `systemctl list-timers postgres-backup.timer` to inspect the next run and
 `journalctl -u postgres-backup.service` to inspect its result.
@@ -515,6 +531,60 @@ both `nextcloud_overwrite_protocol: "https"` and
 `nextcloud_overwrite_cli_url` to the public URL.
 
 You can read more about configured [here](https://hub.docker.com/_/nextcloud) or [here](https://github.com/nextcloud/docker)
+
+# Immich
+
+Immich is a self-hosted photo and video backup service. Enabling
+`immich_installation_enabled` creates four private containers: the web server,
+machine-learning worker, Valkey, and a dedicated PostgreSQL database. Only the
+web server is published through nginx-proxy at `immich_service_hostname`.
+
+Set `immich_docker_image_tag`, `immich_postgres_docker_image_tag`, and
+`immich_redis_docker_image_tag` to the compatible pinned values from the
+example inventory. The Immich server and machine-learning image tags must
+always be identical. Store `immich_db_password` in Ansible Vault, for example:
+
+```bash
+printf '%s' "$(openssl rand -hex 32)" | ansible-vault encrypt_string --stdin-name immich_db_password
+```
+
+Originals, thumbnails, and videos are stored below
+`{{ services_base_data_path }}/immich/upload`; the dedicated database is below
+`{{ services_base_data_path }}/immich/postgres`. Keep both on local storage,
+not on SMB or NFS. The role deliberately does not use the repository-wide
+PostgreSQL service, because Immich requires its upstream PostgreSQL image with
+the VectorChord extension.
+
+The first user is created in the Immich web interface. Immich settings, such
+as the Smart Search model, remain configurable through
+`Administration → Settings → Machine Learning Settings`; setting
+`nllb-clip-base-siglip__v1` there is suitable for primarily Russian-language
+search. After changing a model, run the `Smart Search: All` job to re-index
+existing assets. This NLLB model needs about 4.7 GiB of RAM while loaded, so it
+is intentionally not preloaded by the role.
+
+The role creates a daily consistent backup by stopping only the Immich web
+container briefly, dumping its dedicated PostgreSQL database and archiving the
+`upload` directory. Archives are stored under `immich_backup_path` (default:
+`{{ backups_base_data_path }}/immich`) for 14 days. Point that path at
+separately mounted/off-host storage: a backup on the same disk does not protect
+against server or disk loss. Run one immediately with:
+
+```bash
+ansible-playbook -i inventory/hosts setup.yml --tags=backup-immich --ask-vault-pass
+```
+
+To restore, stop Immich, extract `files.tar.gz` from an archive into
+`{{ services_base_data_path }}/immich`, load `immich.env` in a root shell, and
+pipe `database.dump.gz` into `pg_restore` in the `immich-postgres` container.
+The archive's `README` contains the exact commands.
+
+For Valkey reliability, the role persists `vm.overcommit_memory=1`. All
+database and cache ports remain internal to the Docker network; only the web
+container is exposed through nginx-proxy.
+
+See the [Immich installation documentation](https://docs.immich.app/install/docker-compose/)
+and [environment variable reference](https://docs.immich.app/install/environment-variables/).
 
 # SearXNG
 

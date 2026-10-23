@@ -16,3 +16,4 @@
   when: grafana_installation_enabled|bool == true
   tags:
     - start
+    - start-grafana

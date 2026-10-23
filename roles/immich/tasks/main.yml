@@ -1,0 +1,24 @@
+---
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: immich_installation_enabled | bool
+  tags:
+    - setup-all
+    - setup-immich
+
+- import_tasks: "{{ role_path }}/tasks/setup_immich.yml"
+  when: immich_installation_enabled | bool
+  tags:
+    - setup-immich
+    - setup-all
+
+- import_tasks: "{{ role_path }}/tasks/backup.yml"
+  when: immich_installation_enabled | bool
+  tags:
+    - backup
+    - backup-immich
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: immich_installation_enabled | bool
+  tags:
+    - start
+    - start-immich

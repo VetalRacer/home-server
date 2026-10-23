@@ -1,15 +1,16 @@
 ---
 # For configuration options and examples, please see:
 # https://gethomepage.dev/en/configs/widgets
+{% set is_russian = homepage_language == 'ru' %}
 
 - resources:
-    label: System
+    label: {{ 'Система' if is_russian else 'System' }}
     cpu: true
     memory: true
     disk: /
 
 - resources:
-    label: Storage
+    label: {{ 'Хранилище' if is_russian else 'Storage' }}
     disk: /datafolder
 
 - search:

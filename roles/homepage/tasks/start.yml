@@ -14,5 +14,5 @@
   service:
     name: "{{ item }}"
     enabled: yes
-    state: started
+    state: restarted
   with_items: "{{ homepage_services_list }}"

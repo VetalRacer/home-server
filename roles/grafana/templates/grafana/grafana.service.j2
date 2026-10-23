@@ -11,6 +11,7 @@ ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm grafana 2>/
 ExecStart=/usr/bin/docker run --rm --name grafana \
 	--log-driver=none \
 	--network={{ nginx_docker_network }} \
+	--network-alias={{ grafana_service_hostname }} \
 	--user {{ grafana_uid }}:{{ grafana_gid }} \
 	--tmpfs /tmp:rw,noexec,nosuid,size=64m \
 	--cap-drop=ALL \

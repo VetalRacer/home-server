@@ -18,6 +18,15 @@ homepage_weather_timezone: Europe/Samara
 # Homepage envs
 homepage_service_port: 3000
 
+# Homepage UI language. Use an IETF language tag supported by Homepage, for
+# example "en" or "ru". Override per inventory host when environments need
+# different interfaces.
+homepage_language: "en"
+
+# Use the available browser width for service groups. Homepage remains
+# responsive and will still reduce columns on narrow screens.
+homepage_full_width: false
+
 # Docker integration shows container status on service cards. Homepage reaches
 # a local allowlisted API proxy, never the Docker socket directly.
 homepage_docker_integration_enabled: true

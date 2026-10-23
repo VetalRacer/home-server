@@ -1,0 +1,26 @@
+[Unit]
+Description=Immich Valkey service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill immich-redis 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm immich-redis 2>/dev/null'
+ExecStart={{ host_command_docker }} run --rm --name immich-redis \
+  --log-driver=none \
+  --network={{ nginx_docker_network }} \
+  --user={{ immich_redis_uid }}:{{ immich_redis_gid }} \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges:true \
+  -v {{ immich_redis_data_path }}:/data \
+  {{ immich_redis_docker_image }} valkey-server --loglevel warning
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=30 immich-redis 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm immich-redis 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=immich-redis
+
+[Install]
+WantedBy=multi-user.target

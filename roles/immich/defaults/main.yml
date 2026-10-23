@@ -8,6 +8,8 @@ immich_postgres_data_path: "{{ immich_base_data_path }}/postgres"
 immich_redis_data_path: "{{ immich_base_data_path }}/redis"
 immich_ml_cache_path: "{{ immich_base_data_path }}/model-cache"
 immich_env_path: "{{ immich_base_data_path }}/immich.env"
+immich_backup_path: "{{ backups_base_data_path }}/immich"
+immich_backup_script_path: "{{ immich_base_data_path }}/immich-backup.sh"
 
 immich_service_port: 2283
 immich_db_username: immich
@@ -17,6 +19,15 @@ immich_postgres_uid: "999"
 immich_postgres_gid: "999"
 immich_redis_uid: "999"
 immich_redis_gid: "999"
+
+# The backup contains a PostgreSQL custom dump and the entire upload directory.
+# Point this path at separately mounted/off-host storage in host vars to protect
+# against loss of the primary server or its disks.
+immich_backup_enabled: true
+immich_backup_schedule: "*-*-* 03:45:00"
+immich_backup_retention_days: 14
+immich_healthcheck_retries: 30
+immich_healthcheck_delay: 5
 
 # Keep the server and machine-learning images on exactly the same Immich
 # release. The PostgreSQL image is the upstream-supported VectorChord build.

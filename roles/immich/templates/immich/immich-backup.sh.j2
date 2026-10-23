@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+backup_path="{{ immich_backup_path }}"
+temporary_path="${backup_path}/.immich-${timestamp}.tmp"
+final_path="${backup_path}/immich-${timestamp}"
+immich_was_active=false
+
+cleanup() {
+  local exit_code=$?
+
+  if [[ "$immich_was_active" == true ]]; then
+    systemctl start immich.service >/dev/null 2>&1 || true
+  fi
+
+  rm -rf -- "$temporary_path"
+  exit "$exit_code"
+}
+trap cleanup EXIT
+
+mkdir -p -- "$temporary_path"
+
+if systemctl is-active --quiet immich.service; then
+  systemctl stop immich.service
+  immich_was_active=true
+fi
+
+postgres_user="$(printf %s '{{ immich_db_username | b64encode }}' | base64 --decode)"
+postgres_database="$(printf %s '{{ immich_db_database | b64encode }}' | base64 --decode)"
+export PGPASSWORD="$(printf %s '{{ immich_db_password | b64encode }}' | base64 --decode)"
+
+{{ host_command_docker }} exec --env PGPASSWORD immich-postgres \
+  pg_dump --host 127.0.0.1 --username "$postgres_user" \
+  --dbname "$postgres_database" --format=custom | gzip -c > "${temporary_path}/database.dump.gz"
+unset PGPASSWORD
+
+tar --acls --xattrs --numeric-owner -C "{{ immich_base_data_path }}" \
+  -czf "${temporary_path}/files.tar.gz" upload
+
+cat > "${temporary_path}/README" <<'EOF'
+The archive contains a PostgreSQL custom dump and Immich upload data.
+
+Restore procedure:
+  1. Stop Immich: systemctl stop immich.service
+  2. Restore upload data from the Immich service base directory:
+       tar --acls --xattrs --numeric-owner -xzf files.tar.gz
+  3. Load the root-only Immich environment file, then restore PostgreSQL:
+       set -a; . {{ immich_env_path }}; set +a
+       gzip -dc database.dump.gz | docker exec -e PGPASSWORD -i immich-postgres \
+         pg_restore --host 127.0.0.1 --username {{ immich_db_username }} \
+         --dbname {{ immich_db_database }} --clean --if-exists --exit-on-error
+  4. Start Immich: systemctl start immich.service
+EOF
+
+mv -- "$temporary_path" "$final_path"
+
+if [[ "$immich_was_active" == true ]]; then
+  systemctl start immich.service
+  immich_was_active=false
+fi
+
+find "$backup_path" -mindepth 1 -maxdepth 1 -type d -name 'immich-*' \
+  -mtime +{{ immich_backup_retention_days | int }} -exec rm -rf -- {} +
+
+trap - EXIT

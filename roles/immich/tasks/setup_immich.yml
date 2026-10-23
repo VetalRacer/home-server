@@ -15,6 +15,11 @@
       - immich_postgres_gid | string is match('^[0-9]+$')
       - immich_redis_uid | string is match('^[0-9]+$')
       - immich_redis_gid | string is match('^[0-9]+$')
+      - immich_backup_path | default('') | trim | length > 0
+      - immich_backup_schedule | default('') | trim | length > 0
+      - immich_backup_retention_days | int > 0
+      - immich_healthcheck_retries | int > 0
+      - immich_healthcheck_delay | int > 0
     fail_msg: >-
       Define pinned Immich images, a valid hostname, database name/user, and a
       PostgreSQL storage type of SSD or HDD.
@@ -47,6 +52,15 @@
     - { path: "{{ immich_redis_data_path }}", owner: "{{ immich_redis_uid }}", group: "{{ immich_redis_gid }}" }
     - { path: "{{ immich_ml_cache_path }}", owner: root, group: root }
 
+- name: Ensure Immich backup path exists
+  ansible.builtin.file:
+    path: "{{ immich_backup_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  when: immich_backup_enabled | bool
+
 - name: Ensure Immich environment file is installed
   ansible.builtin.template:
     src: immich/immich.env.j2
@@ -55,6 +69,16 @@
     group: root
     mode: '0600'
   no_log: true
+
+- name: Ensure Immich backup script is installed
+  ansible.builtin.template:
+    src: immich/immich-backup.sh.j2
+    dest: "{{ immich_backup_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+  no_log: true
+  when: immich_backup_enabled | bool
 
 - name: Ensure Immich systemd services are installed
   ansible.builtin.template:
@@ -66,7 +90,31 @@
   loop: "{{ immich_services_list }}"
   register: immich_systemd_services
 
+- name: Ensure Immich backup systemd service is installed
+  ansible.builtin.template:
+    src: immich/immich-backup.service.j2
+    dest: /etc/systemd/system/immich-backup.service
+    owner: root
+    group: root
+    mode: '0644'
+  when: immich_backup_enabled | bool
+
+- name: Ensure Immich backup systemd timer is installed
+  ansible.builtin.template:
+    src: immich/immich-backup.timer.j2
+    dest: /etc/systemd/system/immich-backup.timer
+    owner: root
+    group: root
+    mode: '0644'
+  when: immich_backup_enabled | bool
+
 - name: Reload systemd after Immich service installation
   ansible.builtin.systemd_service:
     daemon_reload: true
-  when: immich_systemd_services.changed
+
+- name: Ensure Immich backup timer is enabled
+  ansible.builtin.systemd_service:
+    name: immich-backup.timer
+    enabled: true
+    state: started
+  when: immich_backup_enabled | bool

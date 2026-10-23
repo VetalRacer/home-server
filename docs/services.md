@@ -540,8 +540,33 @@ not on SMB or NFS. The role deliberately does not use the repository-wide
 PostgreSQL service, because Immich requires its upstream PostgreSQL image with
 the VectorChord extension.
 
-The first user is created in the Immich web interface. Back up the upload and
-PostgreSQL directories together before host or storage maintenance.
+The first user is created in the Immich web interface. Immich settings, such
+as the Smart Search model, remain configurable through
+`Administration → Settings → Machine Learning Settings`; setting
+`nllb-clip-base-siglip__v1` there is suitable for primarily Russian-language
+search. After changing a model, run the `Smart Search: All` job to re-index
+existing assets. This NLLB model needs about 4.7 GiB of RAM while loaded, so it
+is intentionally not preloaded by the role.
+
+The role creates a daily consistent backup by stopping only the Immich web
+container briefly, dumping its dedicated PostgreSQL database and archiving the
+`upload` directory. Archives are stored under `immich_backup_path` (default:
+`{{ backups_base_data_path }}/immich`) for 14 days. Point that path at
+separately mounted/off-host storage: a backup on the same disk does not protect
+against server or disk loss. Run one immediately with:
+
+```bash
+ansible-playbook -i inventory/hosts setup.yml --tags=backup-immich --ask-vault-pass
+```
+
+To restore, stop Immich, extract `files.tar.gz` from an archive into
+`{{ services_base_data_path }}/immich`, load `immich.env` in a root shell, and
+pipe `database.dump.gz` into `pg_restore` in the `immich-postgres` container.
+The archive's `README` contains the exact commands.
+
+For Valkey reliability, the role persists `vm.overcommit_memory=1`. All
+database and cache ports remain internal to the Docker network; only the web
+container is exposed through nginx-proxy.
 
 See the [Immich installation documentation](https://docs.immich.app/install/docker-compose/)
 and [environment variable reference](https://docs.immich.app/install/environment-variables/).

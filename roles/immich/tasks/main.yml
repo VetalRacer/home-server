@@ -11,6 +11,12 @@
     - setup-immich
     - setup-all
 
+- import_tasks: "{{ role_path }}/tasks/backup.yml"
+  when: immich_installation_enabled | bool
+  tags:
+    - backup
+    - backup-immich
+
 - import_tasks: "{{ role_path }}/tasks/start.yml"
   when: immich_installation_enabled | bool
   tags:

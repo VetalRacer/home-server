@@ -1,0 +1,28 @@
+[Unit]
+Description=Immich PostgreSQL service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill immich-postgres 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm immich-postgres 2>/dev/null'
+ExecStart={{ host_command_docker }} run --rm --name immich-postgres \
+  --log-driver=none \
+  --network={{ nginx_docker_network }} \
+  --env-file {{ immich_env_path }} \
+  --env POSTGRES_INITDB_ARGS=--data-checksums \
+  --shm-size=128m \
+  --cap-drop=NET_RAW \
+  --security-opt=no-new-privileges:true \
+  -v {{ immich_postgres_data_path }}:/var/lib/postgresql/data \
+  {{ immich_postgres_docker_image }}
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 immich-postgres 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm immich-postgres 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=immich-postgres
+
+[Install]
+WantedBy=multi-user.target

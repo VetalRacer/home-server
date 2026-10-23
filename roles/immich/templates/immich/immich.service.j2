@@ -1,0 +1,29 @@
+[Unit]
+Description=Immich server service
+Requires=docker.service immich-postgres.service immich-redis.service immich-machine-learning.service
+After=docker.service nginx-proxy.service immich-postgres.service immich-redis.service immich-machine-learning.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill immich 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm immich 2>/dev/null'
+ExecStart={{ host_command_docker }} run --rm --name immich \
+  --log-driver=none \
+  --network={{ nginx_docker_network }} \
+  --env-file {{ immich_env_path }} \
+  --env VIRTUAL_HOST={{ immich_service_hostname }} \
+  --env VIRTUAL_PORT={{ immich_service_port }} \
+  --cap-drop=NET_RAW \
+  --security-opt=no-new-privileges:true \
+  -v {{ immich_upload_path }}:/data \
+  -v /etc/localtime:/etc/localtime:ro \
+  {{ immich_server_docker_image }}
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=90 immich 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm immich 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=immich
+
+[Install]
+WantedBy=multi-user.target

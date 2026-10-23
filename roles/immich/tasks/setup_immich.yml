@@ -1,0 +1,72 @@
+---
+- name: Validate Immich non-secret configuration
+  ansible.builtin.assert:
+    that:
+      - immich_docker_image_tag | default('') is match('^[^\\s@]+$')
+      - immich_postgres_docker_image_tag | default('') is match('^[^\\s]+$')
+      - immich_redis_docker_image_tag | default('') is match('^[^\\s]+$')
+      - immich_service_hostname | default('') is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+      - immich_service_port | int >= 1
+      - immich_service_port | int <= 65535
+      - immich_db_username | default('') is match('^[A-Za-z_][A-Za-z0-9_]*$')
+      - immich_db_database | default('') is match('^[A-Za-z_][A-Za-z0-9_]*$')
+      - immich_db_storage_type in ['SSD', 'HDD']
+      - immich_postgres_uid | string is match('^[0-9]+$')
+      - immich_postgres_gid | string is match('^[0-9]+$')
+      - immich_redis_uid | string is match('^[0-9]+$')
+      - immich_redis_gid | string is match('^[0-9]+$')
+    fail_msg: >-
+      Define pinned Immich images, a valid hostname, database name/user, and a
+      PostgreSQL storage type of SSD or HDD.
+
+- name: Validate Immich database password
+  ansible.builtin.assert:
+    that:
+      - immich_db_password | default('') | length > 0
+      - immich_db_password is not search('[\r\n]')
+    fail_msg: >-
+      Define immich_db_password in Ansible Vault as a non-empty value without
+      line breaks. Use printf, not echo, when encrypting it.
+
+- name: Ensure Immich images are pulled
+  docker_image:
+    name: "{{ item }}"
+    source: pull
+  loop: "{{ immich_docker_images }}"
+
+- name: Ensure Immich writable paths exist
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: '0750'
+  loop:
+    - { path: "{{ immich_upload_path }}", owner: root, group: root }
+    - { path: "{{ immich_postgres_data_path }}", owner: "{{ immich_postgres_uid }}", group: "{{ immich_postgres_gid }}" }
+    - { path: "{{ immich_redis_data_path }}", owner: "{{ immich_redis_uid }}", group: "{{ immich_redis_gid }}" }
+    - { path: "{{ immich_ml_cache_path }}", owner: root, group: root }
+
+- name: Ensure Immich environment file is installed
+  ansible.builtin.template:
+    src: immich/immich.env.j2
+    dest: "{{ immich_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
+- name: Ensure Immich systemd services are installed
+  ansible.builtin.template:
+    src: "immich/{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ immich_services_list }}"
+  register: immich_systemd_services
+
+- name: Reload systemd after Immich service installation
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when: immich_systemd_services.changed

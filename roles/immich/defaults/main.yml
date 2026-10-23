@@ -1,0 +1,41 @@
+---
+# Immich stores originals, thumbnails and encoded videos under upload. Keep the
+# database on local storage; the upstream project does not support network
+# shares for PostgreSQL data.
+immich_base_data_path: "{{ services_base_data_path }}/immich"
+immich_upload_path: "{{ immich_base_data_path }}/upload"
+immich_postgres_data_path: "{{ immich_base_data_path }}/postgres"
+immich_redis_data_path: "{{ immich_base_data_path }}/redis"
+immich_ml_cache_path: "{{ immich_base_data_path }}/model-cache"
+immich_env_path: "{{ immich_base_data_path }}/immich.env"
+
+immich_service_port: 2283
+immich_db_username: immich
+immich_db_database: immich
+immich_db_storage_type: SSD
+immich_postgres_uid: "999"
+immich_postgres_gid: "999"
+immich_redis_uid: "999"
+immich_redis_gid: "999"
+
+# Keep the server and machine-learning images on exactly the same Immich
+# release. The PostgreSQL image is the upstream-supported VectorChord build.
+immich_server_docker_image_template: "ghcr.io/immich-app/immich-server:__VERSION__"
+immich_server_docker_image: "{{ immich_server_docker_image_template | replace('__VERSION__', immich_docker_image_tag) }}"
+immich_machine_learning_docker_image_template: "ghcr.io/immich-app/immich-machine-learning:__VERSION__"
+immich_machine_learning_docker_image: "{{ immich_machine_learning_docker_image_template | replace('__VERSION__', immich_docker_image_tag) }}"
+immich_postgres_docker_image_template: "ghcr.io/immich-app/postgres:__VERSION__"
+immich_postgres_docker_image: "{{ immich_postgres_docker_image_template | replace('__VERSION__', immich_postgres_docker_image_tag) }}"
+immich_redis_docker_image_template: "docker.io/valkey/valkey:__VERSION__"
+immich_redis_docker_image: "{{ immich_redis_docker_image_template | replace('__VERSION__', immich_redis_docker_image_tag) }}"
+immich_docker_images:
+  - "{{ immich_server_docker_image }}"
+  - "{{ immich_machine_learning_docker_image }}"
+  - "{{ immich_postgres_docker_image }}"
+  - "{{ immich_redis_docker_image }}"
+
+immich_services_list:
+  - immich-postgres.service
+  - immich-redis.service
+  - immich-machine-learning.service
+  - immich.service

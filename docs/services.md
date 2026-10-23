@@ -517,6 +517,35 @@ both `nextcloud_overwrite_protocol: "https"` and
 
 You can read more about configured [here](https://hub.docker.com/_/nextcloud) or [here](https://github.com/nextcloud/docker)
 
+# Immich
+
+Immich is a self-hosted photo and video backup service. Enabling
+`immich_installation_enabled` creates four private containers: the web server,
+machine-learning worker, Valkey, and a dedicated PostgreSQL database. Only the
+web server is published through nginx-proxy at `immich_service_hostname`.
+
+Set `immich_docker_image_tag`, `immich_postgres_docker_image_tag`, and
+`immich_redis_docker_image_tag` to the compatible pinned values from the
+example inventory. The Immich server and machine-learning image tags must
+always be identical. Store `immich_db_password` in Ansible Vault, for example:
+
+```bash
+printf '%s' "$(openssl rand -hex 32)" | ansible-vault encrypt_string --stdin-name immich_db_password
+```
+
+Originals, thumbnails, and videos are stored below
+`{{ services_base_data_path }}/immich/upload`; the dedicated database is below
+`{{ services_base_data_path }}/immich/postgres`. Keep both on local storage,
+not on SMB or NFS. The role deliberately does not use the repository-wide
+PostgreSQL service, because Immich requires its upstream PostgreSQL image with
+the VectorChord extension.
+
+The first user is created in the Immich web interface. Back up the upload and
+PostgreSQL directories together before host or storage maintenance.
+
+See the [Immich installation documentation](https://docs.immich.app/install/docker-compose/)
+and [environment variable reference](https://docs.immich.app/install/environment-variables/).
+
 # SearXNG
 
 SearXNG is a privacy-respecting metasearch engine. Its web interface is

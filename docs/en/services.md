@@ -135,6 +135,20 @@ a static `/etc/resolv.conf`. Its fallback resolvers are `8.8.8.8` and
 servers. Existing hosts previously configured this way keep their current
 resolver state until it is changed manually.
 
+Manage local DNS A records declaratively with `pihole_local_dns_records`.
+The role renders a dedicated file in `/etc/dnsmasq.d` and restarts Pi-hole only
+when it changes. Do not add the same names manually in the Pi-hole UI: Pi-hole
+v6 regenerates its own `custom.list`. Each list item groups one IPv4 address
+and one or more names, for example:
+
+```yaml
+pihole_local_dns_records:
+  - address: "192.168.1.200"
+    hostnames:
+      - "homepage.example.test"
+      - "grafana.example.test"
+```
+
 You can read more about configuration in the [official Pi-hole Docker documentation](https://docs.pi-hole.net/docker/).
 
 # ps3netsrv

@@ -79,6 +79,20 @@ Pi-hole публикует DNS только на основном LAN-адрес
 `NET_ADMIN`. Не включайте его вместе с DHCP на роутере. Управление resolver
 хоста выключено по умолчанию.
 
+Локальные DNS A-записи задавайте декларативно через
+`pihole_local_dns_records`. Роль создаёт отдельный Ansible-managed файл в
+`/etc/dnsmasq.d` и перезапускает Pi-hole только при его изменении. Не создавайте
+те же имена вручную в UI: Pi-hole v6 генерирует собственный `custom.list`.
+Один элемент объединяет IP и несколько имён:
+
+```yaml
+pihole_local_dns_records:
+  - address: "192.168.1.200"
+    hostnames:
+      - "homepage.loc"
+      - "grafana.loc"
+```
+
 ## ps3netsrv
 
 ps3netsrv раздаёт игры PS3 по TCP `38008`, обычно только на LAN-адресе.

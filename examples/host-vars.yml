@@ -190,6 +190,15 @@ grafana_secret_key: ""
 # Pi-hole administrator password. Store the real value with Ansible Vault.
 pihole_service_webpassword: ""
 
+# Local DNS A records served by Pi-hole. They are rendered as an
+# Ansible-managed dnsmasq configuration file; do not maintain the same names
+# manually in the Pi-hole UI.
+# pihole_local_dns_records:
+#   - address: "192.168.1.200"
+#     hostnames:
+#       - "homepage.example.test"
+#       - "grafana.example.test"
+
 # Speedtest Tracker application key and initial administrator password. Generate
 # an APP_KEY with openssl rand -base64 32 and store both secret values with
 # Ansible Vault before the first start.

@@ -137,6 +137,16 @@
         container: searxng
 {% endif %}
 {% endif %}
+{% if omniroute_installation_enabled | default(false) | bool %}
+    - OmniRoute:
+        icon: openai.png
+        href: http://{{ omniroute_service_hostname }}
+        description: {{ text('AI gateway and model router', 'AI-шлюз и маршрутизатор моделей') }}
+{% if homepage_docker_integration_enabled | bool %}
+        server: homeserver
+        container: omniroute
+{% endif %}
+{% endif %}
 {% if pihole_installation_enabled == true %}
     - PiHole:
         icon: pi-hole.png

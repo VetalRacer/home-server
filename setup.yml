@@ -28,5 +28,6 @@
     - { role: nextcloud }
     - { role: immich }
     - { role: searxng }
+    - { role: omniroute }
     - { role: planka }
     - { role: q3server }

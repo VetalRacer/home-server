@@ -1,0 +1,9 @@
+---
+
+- name: Ensure OmniRoute services are enabled and restarted
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: restarted
+    daemon_reload: true
+  loop: "{{ omniroute_services_list }}"

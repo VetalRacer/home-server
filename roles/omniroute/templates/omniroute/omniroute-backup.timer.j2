@@ -1,0 +1,10 @@
+[Unit]
+Description=Run OmniRoute backup on a schedule
+
+[Timer]
+OnCalendar={{ omniroute_backup_schedule }}
+Persistent=true
+Unit=omniroute-backup.service
+
+[Install]
+WantedBy=timers.target

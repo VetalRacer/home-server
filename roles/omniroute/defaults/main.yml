@@ -1,0 +1,51 @@
+---
+# OmniRoute stores its SQLite database, encrypted provider credentials and
+# automatic SQLite snapshots in this directory.
+omniroute_base_data_path: "{{ services_base_data_path }}/omniroute"
+omniroute_data_path: "{{ omniroute_base_data_path }}/data"
+omniroute_env_path: "{{ omniroute_base_data_path }}/omniroute.env"
+omniroute_backup_path: "{{ backups_base_data_path }}/omniroute"
+omniroute_backup_script_path: "{{ omniroute_base_data_path }}/omniroute-backup.sh"
+omniroute_healthcheck_script_path: "{{ omniroute_base_data_path }}/omniroute-healthcheck.sh"
+omniroute_uid: '1000'
+omniroute_gid: '1000'
+
+# The dashboard and OpenAI-compatible /v1 endpoint share this port.
+omniroute_service_port: 20128
+omniroute_redis_host: omniroute-redis
+omniroute_redis_port: 6379
+omniroute_memory_mb: 2048
+omniroute_container_memory_limit: 8g
+omniroute_container_pids_limit: 512
+
+# Retain a short operational history by default because call logs can contain
+# prompts and model responses. Set enable_request_logs only while diagnosing.
+omniroute_app_log_retention_days: 14
+omniroute_app_log_max_files: 20
+omniroute_call_log_retention_days: 14
+omniroute_call_logs_table_max_rows: 20000
+omniroute_enable_request_logs: false
+
+# The scheduled archive stops OmniRoute briefly so SQLite and its WAL are
+# copied consistently. Put backup_path on separately mounted/off-host storage.
+omniroute_backup_enabled: true
+omniroute_backup_schedule: "*-*-* 04:15:00"
+omniroute_backup_retention_days: 14
+
+# A running process can still be unable to serve HTTP. This check restarts it
+# only after /healthz fails, and skips execution during a scheduled backup.
+omniroute_healthcheck_enabled: true
+omniroute_healthcheck_schedule: "*:0/2:00"
+omniroute_healthcheck_timeout_seconds: 15
+
+# Do not start the role until the hostname, pinned image tags and Vault secrets
+# are supplied in host vars.
+omniroute_installation_enabled: false
+omniroute_docker_image_template: "diegosouzapw/omniroute:__VERSION__"
+omniroute_docker_image: "{{ omniroute_docker_image_template | replace('__VERSION__', omniroute_docker_image_tag) }}"
+omniroute_redis_docker_image_template: "redis:__VERSION__"
+omniroute_redis_docker_image: "{{ omniroute_redis_docker_image_template | replace('__VERSION__', omniroute_redis_docker_image_tag) }}"
+
+omniroute_services_list:
+  - omniroute-redis.service
+  - omniroute.service

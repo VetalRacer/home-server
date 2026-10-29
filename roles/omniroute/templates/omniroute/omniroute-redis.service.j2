@@ -1,0 +1,31 @@
+[Unit]
+Description=OmniRoute Redis service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+EnvironmentFile={{ omniroute_env_path }}
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill omniroute-redis 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm omniroute-redis 2>/dev/null'
+
+ExecStart={{ host_command_docker }} run --rm --name omniroute-redis \
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--cap-drop=ALL \
+	--security-opt=no-new-privileges:true \
+	--read-only \
+	--tmpfs /data:rw,noexec,nosuid,size=128m \
+	--env REDIS_PASSWORD \
+	{{ omniroute_redis_docker_image }} \
+	sh -ec 'exec redis-server --appendonly no --save "" --requirepass "$${REDIS_PASSWORD}"'
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=30 omniroute-redis 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm omniroute-redis 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=omniroute-redis
+
+[Install]
+WantedBy=multi-user.target

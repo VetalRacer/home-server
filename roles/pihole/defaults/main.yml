@@ -8,6 +8,7 @@ pihole_docker_image: "{{ pihole_docker_image_template|replace('__VERSION__', pih
 # Pihole-related data
 pihole_data_path: "{{ pihole_base_data_path }}/data"
 pihole_dnsmasq_path: "{{ pihole_base_data_path }}/dnsmasq"
+pihole_local_dns_config_path: "{{ pihole_dnsmasq_path }}/99-home-server-local-dns.conf"
 pihole_env_path: "{{ pihole_base_data_path }}/pihole.env"
 
 # Pi-hole network configuration. Bind DNS only to the primary LAN address so
@@ -17,6 +18,11 @@ pihole_dns_listen_address: "{{ ansible_default_ipv4.address | default('') }}"
 pihole_dhcp_enabled: false
 # Keep this enabled for compatibility with existing custom dnsmasq snippets.
 pihole_dnsmasq_enabled: true
+
+# Local DNS A records managed by Ansible. Each item maps one IPv4 address to
+# one or more DNS names. Set these in host vars; do not edit Pi-hole's UI for
+# records managed here.
+pihole_local_dns_records: []
 
 # Set to true only for legacy deployments that deliberately replace the host
 # resolver. Override the fallback resolvers in host vars when needed.

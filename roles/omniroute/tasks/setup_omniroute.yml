@@ -1,0 +1,166 @@
+---
+
+- name: Validate OmniRoute non-secret configuration
+  ansible.builtin.assert:
+    that:
+      - omniroute_docker_image_tag | default('') is match('^[^\\s@]+$')
+      - omniroute_redis_docker_image_tag | default('') is match('^[^\\s@]+$')
+      - omniroute_service_hostname | default('') is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+      - omniroute_service_port | int > 0
+      - omniroute_service_port | int <= 65535
+      - omniroute_redis_port | int > 0
+      - omniroute_redis_port | int <= 65535
+      - omniroute_memory_mb | int >= 1024
+      - omniroute_container_memory_limit | default('') is match('^[0-9]+[mMgG]$')
+      - omniroute_container_pids_limit | int > 0
+      - omniroute_app_log_retention_days | int > 0
+      - omniroute_app_log_max_files | int > 0
+      - omniroute_call_log_retention_days | int > 0
+      - omniroute_call_logs_table_max_rows | int > 0
+      - omniroute_backup_schedule | default('') | trim | length > 0
+      - omniroute_backup_retention_days | int > 0
+      - omniroute_healthcheck_schedule | default('') | trim | length > 0
+      - omniroute_healthcheck_timeout_seconds | int > 0
+      - omniroute_uid | string is match('^[0-9]+$')
+      - omniroute_gid | string is match('^[0-9]+$')
+    fail_msg: >-
+      Define pinned OmniRoute and Redis image tags, a valid hostname and ports,
+      safe container limits, logging retention and timer configuration.
+
+- name: Assess OmniRoute secrets without logging them
+  ansible.builtin.set_fact:
+    omniroute_secrets_are_valid: >-
+      {{
+        omniroute_jwt_secret | default('') is match('^[A-Fa-f0-9]{64,}$')
+        and omniroute_api_key_secret | default('') is match('^[A-Fa-f0-9]{32,}$')
+        and omniroute_storage_encryption_key | default('') is match('^[A-Fa-f0-9]{64,}$')
+        and omniroute_redis_password | default('') is match('^[A-Fa-f0-9]{32,}$')
+        and omniroute_ws_bridge_secret | default('') is match('^[A-Fa-f0-9]{32,}$')
+      }}
+  no_log: true
+
+- name: Validate OmniRoute secrets
+  ansible.builtin.assert:
+    that:
+      - omniroute_secrets_are_valid | bool
+    fail_msg: >-
+      Define Vault-encrypted hexadecimal OmniRoute secrets: a 64+ character
+      JWT secret, a 32+ character API-key secret, a 64+ character storage
+      encryption key, Redis password and WebSocket bridge secret. Generate
+      each independently with `openssl rand -hex 32` or longer.
+
+- name: Ensure OmniRoute images are pulled
+  docker_image:
+    name: "{{ item }}"
+    source: pull
+  loop:
+    - "{{ omniroute_docker_image }}"
+    - "{{ omniroute_redis_docker_image }}"
+
+- name: Ensure OmniRoute data path exists
+  ansible.builtin.file:
+    path: "{{ omniroute_data_path }}"
+    state: directory
+    owner: "{{ omniroute_uid }}"
+    group: "{{ omniroute_gid }}"
+    mode: '0750'
+
+- name: Ensure OmniRoute backup path exists
+  ansible.builtin.file:
+    path: "{{ omniroute_backup_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  when: omniroute_backup_enabled | bool
+
+- name: Ensure OmniRoute environment file is installed
+  ansible.builtin.template:
+    src: omniroute/omniroute.env.j2
+    dest: "{{ omniroute_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
+- name: Ensure OmniRoute backup script is installed
+  ansible.builtin.template:
+    src: omniroute/omniroute-backup.sh.j2
+    dest: "{{ omniroute_backup_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+  when: omniroute_backup_enabled | bool
+
+- name: Ensure OmniRoute health-check script is installed
+  ansible.builtin.template:
+    src: omniroute/omniroute-healthcheck.sh.j2
+    dest: "{{ omniroute_healthcheck_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+  when: omniroute_healthcheck_enabled | bool
+
+- name: Ensure OmniRoute systemd services are installed
+  ansible.builtin.template:
+    src: "omniroute/{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ omniroute_services_list }}"
+  register: omniroute_systemd_services
+
+- name: Ensure OmniRoute backup systemd service is installed
+  ansible.builtin.template:
+    src: omniroute/omniroute-backup.service.j2
+    dest: /etc/systemd/system/omniroute-backup.service
+    owner: root
+    group: root
+    mode: '0644'
+  when: omniroute_backup_enabled | bool
+
+- name: Ensure OmniRoute backup timer is installed
+  ansible.builtin.template:
+    src: omniroute/omniroute-backup.timer.j2
+    dest: /etc/systemd/system/omniroute-backup.timer
+    owner: root
+    group: root
+    mode: '0644'
+  when: omniroute_backup_enabled | bool
+
+- name: Ensure OmniRoute health-check systemd service is installed
+  ansible.builtin.template:
+    src: omniroute/omniroute-healthcheck.service.j2
+    dest: /etc/systemd/system/omniroute-healthcheck.service
+    owner: root
+    group: root
+    mode: '0644'
+  when: omniroute_healthcheck_enabled | bool
+
+- name: Ensure OmniRoute health-check timer is installed
+  ansible.builtin.template:
+    src: omniroute/omniroute-healthcheck.timer.j2
+    dest: /etc/systemd/system/omniroute-healthcheck.timer
+    owner: root
+    group: root
+    mode: '0644'
+  when: omniroute_healthcheck_enabled | bool
+
+- name: Reload systemd after OmniRoute service installation
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Ensure OmniRoute backup timer is enabled
+  ansible.builtin.systemd_service:
+    name: omniroute-backup.timer
+    enabled: true
+    state: started
+  when: omniroute_backup_enabled | bool
+
+- name: Ensure OmniRoute health-check timer is enabled
+  ansible.builtin.systemd_service:
+    name: omniroute-healthcheck.timer
+    enabled: true
+    state: started
+  when: omniroute_healthcheck_enabled | bool

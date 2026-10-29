@@ -41,8 +41,9 @@ motioneye_installation_enabled: true
 torrserver_installation_enabled: true
 tubearchivist_installation_enabled: true
 nextcloud_installation_enabled: true
-immich_installation_enabled: false
+immich_installation_enabled: true
 searxng_installation_enabled: true
+omniroute_installation_enabled: true
 planka_installation_enabled: true
 q3server_installation_enabled: true
 
@@ -69,6 +70,7 @@ tubearchivist_service_hostname: "tubearchivist.YOUR_DOMAIN_NAME_HERE"
 nextcloud_service_hostname: "nextcloud.YOUR_DOMAIN_NAME_HERE"
 immich_service_hostname: "immich.YOUR_DOMAIN_NAME_HERE"
 searxng_service_hostname: "searxng.YOUR_DOMAIN_NAME_HERE"
+omniroute_service_hostname: "omniroute.YOUR_DOMAIN_NAME_HERE"
 planka_service_hostname: "planka.YOUR_DOMAIN_NAME_HERE"
 
 # Specifies the path to use for the `HOME` environment variable for systemd unit files.
@@ -128,6 +130,8 @@ immich_postgres_docker_image_tag: "14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf
 immich_redis_docker_image_tag: "9@sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd"
 searxng_docker_image_tag: 2026.10.19-81371861f
 searxng_valkey_docker_image_tag: 9.0.6-alpine
+omniroute_docker_image_tag: 3.8.52
+omniroute_redis_docker_image_tag: 8.6.5-alpine
 planka_docker_image_tag: 2.2.1
 q3server_docker_image_tag: v1.0.0
 q3server_docker_image_digest: "sha256:cee856a51ef657b75493b1a039e99f6b6852a0c05009ea7cf83591627612f99d"
@@ -189,6 +193,15 @@ grafana_secret_key: ""
 
 # Pi-hole administrator password. Store the real value with Ansible Vault.
 pihole_service_webpassword: ""
+
+# Local DNS A records served by Pi-hole. They are rendered as an
+# Ansible-managed dnsmasq configuration file; do not maintain the same names
+# manually in the Pi-hole UI.
+# pihole_local_dns_records:
+#   - address: "192.168.1.200"
+#     hostnames:
+#       - "homepage.example.test"
+#       - "grafana.example.test"
 
 # Speedtest Tracker application key and initial administrator password. Generate
 # an APP_KEY with openssl rand -base64 32 and store both secret values with
@@ -279,6 +292,17 @@ tubearchivist_apikey: ''
 # SearXNG settings. Generate a value with `openssl rand -hex 32` and encrypt
 # it with Ansible Vault before use.
 searxng_secret_key: ""
+
+# OmniRoute is an OpenAI-compatible AI gateway. The dashboard creates its own
+# login and client API keys; these five Vault values protect its sessions,
+# stored provider keys, WebSocket bridge and internal Redis connection. Generate hexadecimal
+# secrets with `openssl rand -hex 48` (JWT/storage) or `openssl rand -hex 32`
+# (API/Redis), then encrypt each value with ansible-vault.
+omniroute_jwt_secret: ""
+omniroute_api_key_secret: ""
+omniroute_storage_encryption_key: ""
+omniroute_redis_password: ""
+omniroute_ws_bridge_secret: ""
 
 gitlab_backup_cron_email_to: YOUR_EMAIL_ADDRESS_HERE
 

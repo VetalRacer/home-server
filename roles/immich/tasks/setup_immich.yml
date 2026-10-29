@@ -18,8 +18,6 @@
       - immich_backup_path | default('') | trim | length > 0
       - immich_backup_schedule | default('') | trim | length > 0
       - immich_backup_retention_days | int > 0
-      - immich_healthcheck_retries | int > 0
-      - immich_healthcheck_delay | int > 0
     fail_msg: >-
       Define pinned Immich images, a valid hostname, database name/user, and a
       PostgreSQL storage type of SSD or HDD.

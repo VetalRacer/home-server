@@ -28,6 +28,7 @@ ExecStart=/usr/bin/docker run --rm --name pihole \
 			--hostname={{ pihole_service_hostname }} \
 			-v {{ pihole_data_path }}:/etc/pihole \
 {% if pihole_dnsmasq_enabled | bool %}
+			--env FTLCONF_misc_etc_dnsmasq_d=true \
 			-v {{ pihole_dnsmasq_path }}:/etc/dnsmasq.d \
 {% endif %}
 			{{ pihole_docker_image }}

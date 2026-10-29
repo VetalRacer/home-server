@@ -1,0 +1,11 @@
+[Unit]
+Description=Run OmniRoute HTTP health check on a schedule
+
+[Timer]
+OnBootSec=5min
+OnCalendar={{ omniroute_healthcheck_schedule }}
+Persistent=true
+Unit=omniroute-healthcheck.service
+
+[Install]
+WantedBy=timers.target

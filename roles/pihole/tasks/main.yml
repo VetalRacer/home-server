@@ -21,3 +21,4 @@
   when: pihole_installation_enabled|bool == true
   tags:
     - start
+    - start-pihole

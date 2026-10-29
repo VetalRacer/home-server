@@ -1,0 +1,36 @@
+[Unit]
+Description=OmniRoute service
+Requires=docker.service omniroute-redis.service
+After=docker.service nginx-proxy.service omniroute-redis.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+EnvironmentFile={{ omniroute_env_path }}
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill omniroute 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm omniroute 2>/dev/null'
+
+ExecStart={{ host_command_docker }} run --rm --name omniroute \
+	--log-driver=none \
+	--network={{ nginx_docker_network }} \
+	--cap-drop=ALL \
+	--security-opt=no-new-privileges:true \
+	--read-only \
+	--memory={{ omniroute_container_memory_limit }} \
+	--pids-limit={{ omniroute_container_pids_limit }} \
+	--tmpfs /tmp:rw,noexec,nosuid,size=64m \
+	--env-file={{ omniroute_env_path }} \
+	--env TZ={{ timezone }} \
+	--env VIRTUAL_HOST={{ omniroute_service_hostname }} \
+	--env VIRTUAL_PORT={{ omniroute_service_port }} \
+	-v {{ omniroute_data_path }}:/app/data \
+	{{ omniroute_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 omniroute 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm omniroute 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=omniroute
+
+[Install]
+WantedBy=multi-user.target

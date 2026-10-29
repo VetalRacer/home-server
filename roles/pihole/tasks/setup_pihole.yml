@@ -13,6 +13,23 @@
       Define a non-empty Pi-hole password without line breaks, a valid web port,
       a DNS listen address, and host resolvers when host resolver management is enabled.
 
+- name: Validate Pi-hole local DNS records
+  ansible.builtin.assert:
+    that:
+      - pihole_dnsmasq_enabled | bool
+      - item.address | default('') is match('^[0-9]{1,3}(\.[0-9]{1,3}){3}$')
+      - item.hostnames is sequence
+      - item.hostnames is not string
+      - item.hostnames | default([]) | length > 0
+      - item.hostnames | select('match', '^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$') | list | length == item.hostnames | length
+    fail_msg: >-
+      Each pihole_local_dns_records item needs an IPv4 address and one or more
+      a non-empty list of hostnames containing only letters, numbers, dots, and
+      hyphens. Local DNS records require pihole_dnsmasq_enabled: true.
+  loop: "{{ pihole_local_dns_records }}"
+  loop_control:
+    label: "{{ item.address | default('missing address') }}"
+
 - name: Ensure Pihole image is pulled
   docker_image:
     name: "{{ pihole_docker_image }}"
@@ -32,9 +49,21 @@
   file:
     path: "{{ pihole_dnsmasq_path }}"
     state: directory
-    mode: '0750'
+    # Pi-hole FTL drops privileges to the `pihole` user and must be able to
+    # traverse this bind-mounted directory to read managed dnsmasq snippets.
+    mode: '0755'
     owner: root
     group: root
+  when: pihole_dnsmasq_enabled | bool
+
+- name: Ensure Ansible-managed Pi-hole local DNS records installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/pihole/99-home-server-local-dns.conf.j2"
+    dest: "{{ pihole_local_dns_config_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  register: pihole_local_dns_config_result
   when: pihole_dnsmasq_enabled | bool
 
 - name: Ensure Pi-hole environment file installed
@@ -57,3 +86,11 @@
   service:
     daemon_reload: yes
   when: pihole_systemd_service_result.changed
+
+- name: Restart Pi-hole after local DNS records change
+  ansible.builtin.service:
+    name: pihole.service
+    state: restarted
+  when:
+    - pihole_local_dns_config_result is defined
+    - pihole_local_dns_config_result.changed

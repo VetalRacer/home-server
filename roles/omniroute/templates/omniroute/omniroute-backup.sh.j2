@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+backup_path="{{ omniroute_backup_path }}"
+temporary_path="${backup_path}/.omniroute-${timestamp}.tmp"
+final_path="${backup_path}/omniroute-${timestamp}"
+omniroute_was_active=false
+
+cleanup() {
+  local exit_code=$?
+
+  if [[ "$omniroute_was_active" == true ]]; then
+    systemctl start omniroute.service >/dev/null 2>&1 || true
+  fi
+
+  rm -rf -- "$temporary_path"
+  exit "$exit_code"
+}
+trap cleanup EXIT
+
+mkdir -p -- "$temporary_path"
+
+if systemctl is-active --quiet omniroute.service; then
+  systemctl stop omniroute.service
+  omniroute_was_active=true
+fi
+
+tar --acls --xattrs --numeric-owner -C "{{ omniroute_base_data_path }}" \
+  -czf "${temporary_path}/data.tar.gz" data
+
+cat > "${temporary_path}/README" <<'EOF'
+The archive contains the complete OmniRoute persistent data directory.
+
+Restore procedure:
+  1. Stop OmniRoute: systemctl stop omniroute.service
+  2. Restore files into {{ omniroute_base_data_path }}:
+       tar --acls --xattrs --numeric-owner -xzf data.tar.gz -C {{ omniroute_base_data_path }}
+  3. Start OmniRoute: systemctl start omniroute.service
+EOF
+
+mv -- "$temporary_path" "$final_path"
+
+if [[ "$omniroute_was_active" == true ]]; then
+  systemctl start omniroute.service
+  omniroute_was_active=false
+fi
+
+find "$backup_path" -mindepth 1 -maxdepth 1 -type d -name 'omniroute-*' \
+  -mtime +{{ omniroute_backup_retention_days | int }} -exec rm -rf -- {} +
+
+trap - EXIT

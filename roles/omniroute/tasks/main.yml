@@ -1,0 +1,25 @@
+---
+
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: omniroute_installation_enabled | bool
+  tags:
+    - setup-all
+    - setup-omniroute
+
+- import_tasks: "{{ role_path }}/tasks/setup_omniroute.yml"
+  when: omniroute_installation_enabled | bool
+  tags:
+    - setup-all
+    - setup-omniroute
+
+- import_tasks: "{{ role_path }}/tasks/backup.yml"
+  when: omniroute_installation_enabled | bool
+  tags:
+    - backup
+    - backup-omniroute
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: omniroute_installation_enabled | bool
+  tags:
+    - start
+    - start-omniroute

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+if systemctl is-active --quiet omniroute-backup.service; then
+  exit 0
+fi
+
+if {{ host_command_docker }} exec omniroute node -e '
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), {{ omniroute_healthcheck_timeout_seconds | int }}000).unref();
+  fetch("http://127.0.0.1:{{ omniroute_service_port }}/healthz", { signal: controller.signal })
+    .then((response) => process.exit(response.ok ? 0 : 1))
+    .catch(() => process.exit(1));
+'; then
+  exit 0
+fi
+
+systemctl restart omniroute.service

@@ -79,6 +79,20 @@ Pi-hole публикует DNS только на основном LAN-адрес
 `NET_ADMIN`. Не включайте его вместе с DHCP на роутере. Управление resolver
 хоста выключено по умолчанию.
 
+Локальные DNS A-записи задавайте декларативно через
+`pihole_local_dns_records`. Роль создаёт отдельный Ansible-managed файл в
+`/etc/dnsmasq.d` и перезапускает Pi-hole только при его изменении. Не создавайте
+те же имена вручную в UI: Pi-hole v6 генерирует собственный `custom.list`.
+Один элемент объединяет IP и несколько имён:
+
+```yaml
+pihole_local_dns_records:
+  - address: "192.168.1.200"
+    hostnames:
+      - "homepage.loc"
+      - "grafana.loc"
+```
+
 ## ps3netsrv
 
 ps3netsrv раздаёт игры PS3 по TCP `38008`, обычно только на LAN-адресе.
@@ -226,6 +240,50 @@ SearXNG доступен через proxy, Valkey остаётся внутре�
 `openssl rand -hex 32`. Не редактируйте файлы конфигурации на сервере: Ansible
 управляет `settings.yml` и `limiter.toml`.
 
+## OmniRoute
+
+OmniRoute — AI-шлюз с OpenAI-совместимым `/v1` API и маршрутизацией моделей.
+Веб-интерфейс доступен только через nginx-proxy по
+`omniroute_service_hostname`. Redis не публикуется на хост и защищён отдельным
+паролем. Роль принудительно включает `REQUIRE_API_KEY=true`, поэтому API не
+становится открытым для локальной сети.
+
+До включения `omniroute_installation_enabled` закрепите теги образов, задайте
+hostname и зашифруйте в Ansible Vault пять независимых секретов:
+
+```bash
+printf '%s' "$(openssl rand -hex 48)" | ansible-vault encrypt_string --stdin-name omniroute_jwt_secret
+printf '%s' "$(openssl rand -hex 32)" | ansible-vault encrypt_string --stdin-name omniroute_api_key_secret
+printf '%s' "$(openssl rand -hex 48)" | ansible-vault encrypt_string --stdin-name omniroute_storage_encryption_key
+printf '%s' "$(openssl rand -hex 32)" | ansible-vault encrypt_string --stdin-name omniroute_redis_password
+printf '%s' "$(openssl rand -hex 32)" | ansible-vault encrypt_string --stdin-name omniroute_ws_bridge_secret
+```
+
+При первом открытии dashboard создайте пароль администратора. Клиентские API
+ключи для IDE и агентов создавайте в UI, не используйте для них ключи
+провайдеров. Зашифрованные credentials провайдеров, настройки и SQLite-база
+находятся в `{{ services_base_data_path }}/omniroute/data`. Роль раз в сутки
+ненадолго останавливает OmniRoute и сохраняет согласованный архив в
+`{{ backups_base_data_path }}/omniroute`, храня 14 последних дней. Разместите
+`omniroute_backup_path` на отдельном/off-host хранилище. Ручной запуск:
+
+```bash
+ansible-playbook -i inventory/hosts setup.yml --limit test --tags=backup-omniroute --ask-vault-pass
+```
+
+По умолчанию история запросов и application logs хранится 7 дней, а детальное
+логирование запросов отключено. Это снижает риск сохранить в базе промпты и
+ответы с чувствительными данными. При диагностике его можно временно включить
+переменной `omniroute_enable_request_logs: true`.
+
+По умолчанию процессу Node.js выделен heap 2 ГиБ, а контейнер ограничен 3 ГиБ
+RAM и 512 процессами. Увеличивайте `omniroute_memory_mb` и
+`omniroute_container_memory_limit` вместе только при ошибках нехватки памяти
+во время длинных или параллельных запросов агентов. Timer раз в две минуты
+проверяет `/healthz` и перезапускает зависший сервис; во время backup он не
+выполняется.
+
+## Planka
 ## Planka
 
 При управляемом PostgreSQL роль создаёт пользователя и БД Planka только если

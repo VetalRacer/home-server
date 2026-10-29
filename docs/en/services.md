@@ -135,6 +135,20 @@ a static `/etc/resolv.conf`. Its fallback resolvers are `8.8.8.8` and
 servers. Existing hosts previously configured this way keep their current
 resolver state until it is changed manually.
 
+Manage local DNS A records declaratively with `pihole_local_dns_records`.
+The role renders a dedicated file in `/etc/dnsmasq.d` and restarts Pi-hole only
+when it changes. Do not add the same names manually in the Pi-hole UI: Pi-hole
+v6 regenerates its own `custom.list`. Each list item groups one IPv4 address
+and one or more names, for example:
+
+```yaml
+pihole_local_dns_records:
+  - address: "192.168.1.200"
+    hostnames:
+      - "homepage.example.test"
+      - "grafana.example.test"
+```
+
 You can read more about configuration in the [official Pi-hole Docker documentation](https://docs.pi-hole.net/docker/).
 
 # ps3netsrv
@@ -598,6 +612,51 @@ with `openssl rand -hex 32`. SearXNG configuration is kept under
 because Ansible manages `settings.yml` and `limiter.toml`.
 
 You can read more in the [SearXNG documentation](https://docs.searxng.org/).
+
+# OmniRoute
+
+OmniRoute is an OpenAI-compatible AI gateway and model router. It is exposed
+only through nginx-proxy at `omniroute_service_hostname`; its Redis sidecar has
+no host port and is protected by a separate password. The API is never open by
+default: the role sets `REQUIRE_API_KEY=true`.
+
+Before enabling `omniroute_installation_enabled`, pin
+`omniroute_docker_image_tag` and `omniroute_redis_docker_image_tag`, set a
+hostname, and store these five independent values in Ansible Vault:
+
+```bash
+printf '%s' "$(openssl rand -hex 48)" | ansible-vault encrypt_string --stdin-name omniroute_jwt_secret
+printf '%s' "$(openssl rand -hex 32)" | ansible-vault encrypt_string --stdin-name omniroute_api_key_secret
+printf '%s' "$(openssl rand -hex 48)" | ansible-vault encrypt_string --stdin-name omniroute_storage_encryption_key
+printf '%s' "$(openssl rand -hex 32)" | ansible-vault encrypt_string --stdin-name omniroute_redis_password
+printf '%s' "$(openssl rand -hex 32)" | ansible-vault encrypt_string --stdin-name omniroute_ws_bridge_secret
+```
+
+The first visit to the dashboard creates its administrator password. Create
+client API keys there for IDEs and agents; do not reuse provider keys as client
+keys. Provider credentials, encrypted settings and the SQLite database live
+under `{{ services_base_data_path }}/omniroute/data`. Once a day the role
+briefly stops OmniRoute and writes a consistent archive to
+`{{ backups_base_data_path }}/omniroute`, retaining 14 days by default. Point
+`omniroute_backup_path` at separately mounted/off-host storage. Run a backup
+manually with:
+
+```bash
+ansible-playbook -i inventory/hosts setup.yml --limit test --tags=backup-omniroute --ask-vault-pass
+```
+
+Request history and application logs are retained for seven days by default,
+and detailed request logging is disabled to reduce storage of sensitive prompts
+and responses. Set `omniroute_enable_request_logs: true` temporarily only when
+diagnosing a problem.
+
+The role gives Node.js a 2 GiB heap and confines the container to 3 GiB RAM and
+512 processes. Increase `omniroute_memory_mb` and
+`omniroute_container_memory_limit` together only when logs show memory pressure
+while handling long or concurrent agent sessions. A two-minute `/healthz` timer
+restarts a stuck service and skips checks while a backup is running.
+
+See the [OmniRoute self-host guide](https://omniroute.hagicode.com/en-US/getting-started/self-hosting/).
 
 # Planka
 Elegant open source project tracking.

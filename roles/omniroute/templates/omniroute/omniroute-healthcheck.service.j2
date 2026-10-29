@@ -1,0 +1,8 @@
+[Unit]
+Description=OmniRoute HTTP health check
+After=omniroute.service
+
+[Service]
+Type=oneshot
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStart={{ omniroute_healthcheck_script_path }}

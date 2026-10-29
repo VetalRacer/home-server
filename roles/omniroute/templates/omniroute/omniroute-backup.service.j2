@@ -1,0 +1,8 @@
+[Unit]
+Description=Consistent OmniRoute backup
+After=omniroute.service
+
+[Service]
+Type=oneshot
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStart={{ omniroute_backup_script_path }}

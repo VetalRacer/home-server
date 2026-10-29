@@ -15,6 +15,7 @@ ExecStart={{ host_command_docker }} run --rm --name omniroute \
 	--network={{ nginx_docker_network }} \
 	--cap-drop=ALL \
 	--security-opt=no-new-privileges:true \
+	--read-only \
 	--memory={{ omniroute_container_memory_limit }} \
 	--pids-limit={{ omniroute_container_pids_limit }} \
 	--tmpfs /tmp:rw,noexec,nosuid,size=64m \

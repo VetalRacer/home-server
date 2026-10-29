@@ -26,8 +26,6 @@ immich_redis_gid: "999"
 immich_backup_enabled: true
 immich_backup_schedule: "*-*-* 03:45:00"
 immich_backup_retention_days: 14
-immich_healthcheck_retries: 30
-immich_healthcheck_delay: 5
 
 # Keep the server and machine-learning images on exactly the same Immich
 # release. The PostgreSQL image is the upstream-supported VectorChord build.

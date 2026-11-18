@@ -116,3 +116,13 @@
     enabled: true
     state: started
   when: immich_backup_enabled | bool
+
+- name: Disable Immich backup timer when backups are disabled
+  ansible.builtin.systemd_service:
+    name: immich-backup.timer
+    enabled: false
+    state: stopped
+  when: not immich_backup_enabled | bool
+  failed_when: false
+  tags:
+    - disable-backup

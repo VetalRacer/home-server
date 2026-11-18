@@ -158,6 +158,16 @@
     state: started
   when: omniroute_backup_enabled | bool
 
+- name: Disable OmniRoute backup timer when backups are disabled
+  ansible.builtin.systemd_service:
+    name: omniroute-backup.timer
+    enabled: false
+    state: stopped
+  when: not omniroute_backup_enabled | bool
+  failed_when: false
+  tags:
+    - disable-backup
+
 - name: Ensure OmniRoute health-check timer is enabled
   ansible.builtin.systemd_service:
     name: omniroute-healthcheck.timer

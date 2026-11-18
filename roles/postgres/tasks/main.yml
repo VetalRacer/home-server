@@ -25,6 +25,14 @@
     - setup-all
     - setup-postgres
 
+- import_tasks: "{{ role_path }}/tasks/disable_backup.yml"
+  when:
+    - postgres_installation_enabled | bool
+    - not postgres_backup_enabled | bool
+  tags:
+    - setup-all
+    - setup-postgres
+
 - import_tasks: "{{ role_path }}/tasks/backup.yml"
   when:
     - postgres_installation_enabled | bool

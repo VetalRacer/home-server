@@ -201,6 +201,16 @@
         container: nginx-proxy
 {% endif %}
 {% endif %}
+{% if awgforge_installation_enabled | default(false) | bool and awgforge_service_hostname | default('') | length > 0 %}
+    - AWG-Forge:
+        icon: http://{{ awgforge_service_hostname }}/static/forge-mark.svg
+        href: http://{{ awgforge_service_hostname }}
+        description: {{ text('AmneziaWG VPN management', 'Управление VPN AmneziaWG') }}
+{% if homepage_docker_integration_enabled | bool %}
+        server: homeserver
+        container: awg-forge
+{% endif %}
+{% endif %}
 {% if torrserver_installation_enabled == true %}
     - Torrserver:
         icon: https://developer.asustor.com/uploadIcons/0020_131612_1639825715_torrserver.PNG

@@ -170,3 +170,13 @@
     enabled: true
     state: started
   when: nextcloud_backup_enabled | bool
+
+- name: Disable Nextcloud backup timer when backups are disabled
+  ansible.builtin.systemd_service:
+    name: nextcloud-backup.timer
+    enabled: false
+    state: stopped
+  when: not nextcloud_backup_enabled | bool
+  failed_when: false
+  tags:
+    - disable-backup

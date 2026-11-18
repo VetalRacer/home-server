@@ -13,7 +13,9 @@
     - setup-omniroute
 
 - import_tasks: "{{ role_path }}/tasks/backup.yml"
-  when: omniroute_installation_enabled | bool
+  when:
+    - omniroute_installation_enabled | bool
+    - omniroute_backup_enabled | bool
   tags:
     - backup
     - backup-omniroute

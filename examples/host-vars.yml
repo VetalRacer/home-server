@@ -46,6 +46,7 @@ searxng_installation_enabled: true
 omniroute_installation_enabled: true
 planka_installation_enabled: true
 q3server_installation_enabled: true
+awgforge_installation_enabled: true
 
 # The fully-qualified name of your services (e.g. `gitlab.example.com`)
 gitlab_service_hostname: "gitlab.YOUR_DOMAIN_NAME_HERE"
@@ -135,6 +136,9 @@ omniroute_redis_docker_image_tag: 8.6.5-alpine
 planka_docker_image_tag: 2.2.1
 q3server_docker_image_tag: v1.0.0
 q3server_docker_image_digest: "sha256:cee856a51ef657b75493b1a039e99f6b6852a0c05009ea7cf83591627612f99d"
+# AWG 3.1 is available in this release. Update the tag deliberately after
+# reviewing upstream release notes.
+awgforge_docker_image_tag: "0.20.0"
 
 # Service-specific configuration and credentials.
 # Gitlab root password
@@ -222,6 +226,8 @@ postgres_password: ""
 # postgres_listen_address: "192.168.1.10"
 # postgres_host_port: 5432
 # A root-only pg_dumpall archive is created daily by default.
+# Set to false to disable both scheduled and Ansible-triggered PostgreSQL backups.
+# postgres_backup_enabled: true
 # postgres_backup_schedule: "*-*-* 03:15:00"
 # postgres_backup_retention_days: 14
 
@@ -304,7 +310,31 @@ omniroute_storage_encryption_key: ""
 omniroute_redis_password: ""
 omniroute_ws_bridge_secret: ""
 
+# AWG-Forge manages host-network AmneziaWG tunnels. Its Web UI is available
+# through nginx-proxy on the LAN. The password and session secret must be Vault
+# values. These bootstrap settings are used only when the
+# role creates data/state.json for the first time; later tunnel changes belong
+# in the UI.
+# awgforge_service_hostname: "awg-forge.YOUR_DOMAIN_NAME_HERE"
+# awgforge_webui_port: 51821
+# Keep false for the LAN-only HTTP UI; set true after configuring HTTPS.
+# awgforge_session_cookie_secure: false
+# DNS for newly created VPN clients; set it to the LAN Pi-hole address.
+# awgforge_client_dns: "192.168.1.10"
+# awgforge_external_interface: "eth0"
+# awgforge_server_host: "vpn.example.com"
+# The default profile is awg_3; set another supported profile only before
+# the first run if a client needs it.
+# awgforge_tunnel_profile: "awg_3"
+# awgforge_tunnel_name: "awg31"
+# awgforge_tunnel_listen_port: 51830
+# awgforge_tunnel_ipv4_subnet: "10.20.0.0/24"
+awgforge_password: ""
+awgforge_session_secret: ""
+
 gitlab_backup_cron_email_to: YOUR_EMAIL_ADDRESS_HERE
+# Set to false to disable the GitLab backup cronjob and the backup-gitlab tag.
+# gitlab_backup_enabled: true
 
 # Optional off-host copy. Generate a Yandex Disk OAuth token with access only
 # to the application folder and encrypt it using `ansible-vault encrypt_string`.

@@ -71,6 +71,7 @@ gitlab_email: "gitlab@{{ gitlab_service_hostname }}"
 gitlab_email_reply_to: "{{ gitlab_email }}"
 
 # Gitlab backup settings
+gitlab_backup_enabled: true
 gitlab_backup_user: backup
 gitlab_backup_cron_email_to: ""
 gitlab_backup_program_install_dir: "{{ scripts_base_data_path }}/gitlab"

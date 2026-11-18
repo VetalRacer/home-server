@@ -92,6 +92,8 @@ available browser width. Homepage stays responsive and still wraps groups on
 narrow screens.
 
 The Homepage image in the example configuration is `v2.4.0`.
+When AWG-Forge is enabled, Homepage automatically renders a card linking to its
+LAN-only Web UI and, when Docker integration is enabled, its container status.
 
 # FileBrowser
 
@@ -658,7 +660,69 @@ restarts a stuck service and skips checks while a backup is running.
 
 See the [OmniRoute self-host guide](https://omniroute.hagicode.com/en-US/getting-started/self-hosting/).
 
+# AWG-Forge
+
+AWG-Forge manages AmneziaWG tunnels and changes host routes and firewall
+rules. The role is therefore opt-in and uses Docker `host` networking. It
+necessarily receives `NET_ADMIN`, `SYS_MODULE`,
+`/dev/net/tun`, and read-only `/lib/modules`; do not enable it on a host where
+that privilege model is unacceptable.
+
+Before enabling it, pin the image to a non-moving tag, set the server's
+public DNS/IP, WAN interface, and first-tunnel settings. `state.json` is
+created once only: manage tunnels in the UI afterwards rather than changing
+Ansible bootstrap variables. The first tunnel uses the experimental AWG 3
+profile by default (`awgforge_tunnel_profile: "awg_3"`),
+which is compatible with AWG 3.1. It is available in AWG-Forge release
+`0.20.0`, but the profile remains experimental; change it before the first run
+only if a client does not support that version. If the host firewall is
+enabled, open the tunnel UDP port with a separate INPUT/UFW/nftables rule.
+
+Each `setup-awg-forge` run applies pending SQLite migrations before the service
+is restarted. Update the image with the `setup-awg-forge,start-awg-forge` tags.
+
+The UI is available through nginx-proxy from the LAN at
+`http://{{ awgforge_service_hostname }}`. Add this name to
+`pihole_local_dns_records`; the example uses `awg-forge.loc` for production
+and `awg-forge-test.loc` for test. AWG-Forge itself listens on port 51821 only
+at the nginx-proxy Docker network gateway, so it is not directly reachable
+from the LAN or Internet.
+
+New client configurations receive DNS from `awgforge_client_dns`, which
+defaults to the LAN Pi-hole address. To let VPN clients reach all LAN services
+and resolve `*.loc` names, add the tunnel subnet (with the default settings,
+`10.20.0.0/24`) to `server_base_firewall_lan_cidrs` alongside the usual LAN.
+On every `setup-awg-forge` run, the role uses the local control API to converge
+the bootstrap tunnel (`awgforge_tunnel_name`) DNS to `awgforge_client_dns`,
+without editing `state.json` directly. Export and import a fresh client
+configuration after changing DNS.
+
+When `server_base_firewall_enabled` is enabled, the role also adds a UFW route
+rule from the VPN interface to the external interface. This is needed when UFW
+uses a different iptables backend than the AWG-Forge container; without it a
+VPN client may reach the LAN but not the Internet.
+
+The role opens the bootstrap tunnel UDP port (`awgforge_tunnel_listen_port`) in
+UFW. The router needs to forward only that UDP port to the server; AmneziaWG
+does not use TCP. If test and production share one public IP, assign distinct
+tunnel ports: one external UDP port cannot be forwarded to two LAN hosts.
+
+For this LAN-only HTTP setup the role sets `SESSION_COOKIE_SECURE=false`
+(`awgforge_session_cookie_secure: false`); otherwise AWG-Forge rejects login.
+Set it to `true` only after configuring trusted HTTPS on the reverse proxy.
+
+Store distinct Vault values for
+`awgforge_password` and `awgforge_session_secret`; generate the latter with:
+
+```bash
+printf '%s' "$(openssl rand -hex 32)" | ansible-vault encrypt_string --stdin-name awgforge_session_secret
+```
+
+Do not publish the HTTP UI to the Internet. Check an installed service with
+`docker exec awg-forge awg-forge doctor`.
+
 # Planka
+
 Elegant open source project tracking.
 
 When PostgreSQL is managed by this repository, the Planka role safely creates

@@ -47,6 +47,7 @@ This playbook sets up your server using the following Docker images:
 - [searxng](https://github.com/searxng/searxng/pkgs/container/searxng) - privacy-respecting metasearch engine.
 - [planka](https://hub.docker.com/r/linuxserver/planka) - the [planka](https://hub.docker.com/r/linuxserver/planka) Planka image.
 - [q3server](https://hub.docker.com/r/vetalracer/q3server) - the [q3server](https://hub.docker.com/r/vetalracer/q3server) Quake 3 server image.
+- [AWG-Forge](https://github.com/astronaut808/AWG-Forge) - self-hosted AmneziaWG management panel.
 
 
 ## Support

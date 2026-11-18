@@ -49,3 +49,12 @@
     src: templates/gitlab-backup/cron.d/gitlab-backup.j2
     dest: "/etc/cron.d/gitlab-backup"
     mode: 0644
+  when: gitlab_backup_enabled | bool
+
+- name: Ensure GitLab backup cronjob is absent when backups are disabled
+  ansible.builtin.file:
+    path: /etc/cron.d/gitlab-backup
+    state: absent
+  when: not gitlab_backup_enabled | bool
+  tags:
+    - disable-backup

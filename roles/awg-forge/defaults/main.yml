@@ -1,0 +1,44 @@
+---
+# AWG-Forge controls host-network AmneziaWG interfaces and firewall rules.
+# Its Web UI is reverse-proxied through nginx-proxy on the LAN only.
+awgforge_installation_enabled: false
+awgforge_base_data_path: "{{ services_base_data_path }}/awg-forge"
+awgforge_data_path: "{{ awgforge_base_data_path }}/data"
+awgforge_env_path: "{{ awgforge_base_data_path }}/awg-forge.env"
+
+awgforge_docker_image_template: "ghcr.io/astronaut808/awg-forge:__VERSION__"
+awgforge_docker_image: "{{ awgforge_docker_image_template | replace('__VERSION__', awgforge_docker_image_tag) }}"
+
+# The upstream-recommended host network lets tunnels created in the UI listen
+# on their own UDP ports without changing Docker port mappings.
+awgforge_service_hostname: "awg-forge.loc"
+# Set during setup to the nginx-proxy Docker bridge gateway. This keeps the UI
+# unreachable from the LAN except through nginx-proxy.
+awgforge_webui_host: ""
+awgforge_webui_port: 51821
+# The UI is LAN-only and served over HTTP by default. Set this to true only
+# when the reverse proxy terminates trusted HTTPS for this hostname.
+awgforge_session_cookie_secure: false
+# DNS rendered into newly created client configurations. By default use the
+# local Pi-hole listener so VPN clients can resolve the private .loc names.
+awgforge_client_dns: "{{ pihole_dns_listen_address | default(ansible_default_ipv4.address | default('')) }}"
+awgforge_external_interface: "{{ ansible_default_ipv4.interface | default('eth0') }}"
+awgforge_apply_config: true
+awgforge_tunnel_udp_port_range: "30000-49999"
+awgforge_audit_log_enabled: true
+awgforge_database_retention_days: 90
+
+# These are used once, when there is no persistent state yet. Afterwards
+# tunnels are intentionally managed through AWG-Forge rather than Ansible.
+awgforge_server_host: ""
+awgforge_tunnel_profile: "awg_3"
+awgforge_tunnel_name: "awg31"
+awgforge_tunnel_listen_port: 51830
+awgforge_tunnel_ipv4_subnet: "10.20.0.0/24"
+
+# Supply both values through Ansible Vault in host variables.
+awgforge_password: ""
+awgforge_session_secret: ""
+
+awgforge_services_list:
+  - awg-forge.service

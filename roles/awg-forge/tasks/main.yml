@@ -1,0 +1,18 @@
+---
+- import_tasks: "{{ role_path }}/tasks/setup_main.yml"
+  when: awgforge_installation_enabled | bool
+  tags:
+    - setup-all
+    - setup-awg-forge
+
+- import_tasks: "{{ role_path }}/tasks/setup_awgforge.yml"
+  when: awgforge_installation_enabled | bool
+  tags:
+    - setup-all
+    - setup-awg-forge
+
+- import_tasks: "{{ role_path }}/tasks/start.yml"
+  when: awgforge_installation_enabled | bool
+  tags:
+    - start
+    - start-awg-forge

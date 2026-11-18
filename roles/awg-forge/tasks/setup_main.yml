@@ -1,0 +1,16 @@
+---
+- name: Ensure AWG-Forge base path exists
+  ansible.builtin.file:
+    path: "{{ awgforge_base_data_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Ensure AWG-Forge data path exists
+  ansible.builtin.file:
+    path: "{{ awgforge_data_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'

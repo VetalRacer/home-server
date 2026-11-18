@@ -10,6 +10,9 @@ archive is mode `0600` and owned by the `gitlab_backup_user` (default:
 ansible-playbook -i inventory/hosts setup.yml --tags=backup-gitlab --ask-vault-pass
 ```
 
+Set `gitlab_backup_enabled: false` to disable both the daily cron job and
+Ansible runs using the `backup-gitlab` tag. Existing archives are retained.
+
 Each archive contains the GitLab application backup, `/etc/gitlab` (including
 `gitlab-secrets.json`), the managed GitLab environment file, and the GitLab
 Shell SSH host keys. The role keeps 14 archives by default; change

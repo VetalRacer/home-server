@@ -11,6 +11,9 @@
 ansible-playbook -i inventory/hosts setup.yml --tags=backup-gitlab --ask-vault-pass
 ```
 
+Укажите `gitlab_backup_enabled: false`, чтобы отключить ежедневное задание cron
+и запуск через тег `backup-gitlab`. Уже созданные архивы сохраняются.
+
 Архив содержит данные GitLab, `/etc/gitlab`, `gitlab-secrets.json`, env-файл и
 SSH host keys GitLab Shell. Роль не шифрует архивы: копируйте их в отдельное
 хранилище и шифруйте перед отправкой вне сервера.

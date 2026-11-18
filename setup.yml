@@ -31,3 +31,4 @@
     - { role: omniroute }
     - { role: planka }
     - { role: q3server }
+    - { role: awg-forge }

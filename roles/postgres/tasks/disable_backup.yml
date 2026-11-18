@@ -1,0 +1,9 @@
+---
+- name: Disable PostgreSQL backup timer
+  ansible.builtin.systemd_service:
+    name: postgres-backup.timer
+    enabled: false
+    state: stopped
+  failed_when: false
+  tags:
+    - disable-backup

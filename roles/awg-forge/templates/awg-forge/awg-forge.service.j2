@@ -1,0 +1,35 @@
+[Unit]
+Description=AWG-Forge AmneziaWG control panel
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+Environment="HOME={{ systemd_unit_home_path }}"
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} kill awg-forge 2>/dev/null'
+ExecStartPre=-{{ host_command_sh }} -c '{{ host_command_docker }} rm awg-forge 2>/dev/null'
+
+ExecStart={{ host_command_docker }} run --rm --name awg-forge \
+	--log-driver=local \
+	--log-opt max-size=10m \
+	--log-opt max-file=3 \
+	--network=host \
+	--cap-drop=ALL \
+	--cap-add=NET_ADMIN \
+	--cap-add=SYS_MODULE \
+	--security-opt=no-new-privileges:true \
+	--device=/dev/net/tun:/dev/net/tun \
+	--env-file={{ awgforge_env_path }} \
+	--env TZ={{ timezone }} \
+	-v {{ awgforge_data_path }}:/etc/awg-forge \
+	-v /lib/modules:/lib/modules:ro \
+	{{ awgforge_docker_image }}
+
+ExecStop=-{{ host_command_sh }} -c '{{ host_command_docker }} stop --timeout=60 awg-forge 2>/dev/null'
+ExecStopPost=-{{ host_command_sh }} -c '{{ host_command_docker }} rm awg-forge 2>/dev/null'
+Restart=always
+RestartSec=30
+SyslogIdentifier=awg-forge
+
+[Install]
+WantedBy=multi-user.target

@@ -13,7 +13,9 @@
     - restore-backup
 
 - import_tasks: "{{ role_path }}/tasks/create_backup.yml"
-  when: gitlab_installation_enabled|bool == true
+  when:
+    - gitlab_installation_enabled | bool
+    - gitlab_backup_enabled | bool
   tags:
     - backup
     - backup-gitlab

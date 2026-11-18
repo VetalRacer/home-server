@@ -1,0 +1,278 @@
+---
+- name: Read Nginx-proxy Docker bridge network for AWG-Forge UI
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/docker
+      - network
+      - inspect
+      - "{{ nginx_docker_network }}"
+      - --format
+      - "{{ '{{with index .IPAM.Config 0}}{{.Gateway}} {{.Subnet}}{{end}}' }}"
+  register: awgforge_nginx_network
+  changed_when: false
+  check_mode: false
+
+- name: Set AWG-Forge UI bridge network values
+  ansible.builtin.set_fact:
+    awgforge_webui_host: "{{ (awgforge_nginx_network.stdout | trim).split()[0] }}"
+    awgforge_nginx_subnet: "{{ (awgforge_nginx_network.stdout | trim).split()[1] }}"
+
+- name: Validate AWG-Forge non-secret configuration
+  ansible.builtin.assert:
+    that:
+      - awgforge_docker_image_tag | default('') is match('^[^\\s@]+$')
+      - awgforge_service_hostname | default('') is match('^[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]$')
+      - awgforge_webui_host | default('') is match('^([0-9]{1,3}\\.){3}[0-9]{1,3}$')
+      - awgforge_nginx_subnet | default('') is match('^([0-9]{1,3}\\.){3}[0-9]{1,3}/([0-9]|[12][0-9]|3[0-2])$')
+      - awgforge_client_dns | default('') is match('^([0-9]{1,3}\\.){3}[0-9]{1,3}$')
+      - awgforge_webui_port | int > 0
+      - awgforge_webui_port | int < 65536
+      - nginx_proxy_installation_enabled | default(false) | bool
+      - awgforge_external_interface | default('') is match('^[A-Za-z0-9_.:-]+$')
+      - awgforge_server_host | default('') is match('^[A-Za-z0-9][A-Za-z0-9.-]*$')
+      - awgforge_tunnel_profile in ['awg_legacy_1_0', 'awg_1_5', 'awg_2_0', 'awg_3']
+      - awgforge_tunnel_name | default('') is match('^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$')
+      - awgforge_tunnel_listen_port | int > 0
+      - awgforge_tunnel_listen_port | int < 65536
+      - awgforge_tunnel_ipv4_subnet | default('') is match('^([0-9]{1,3}\\.){3}[0-9]{1,3}/([0-9]|[12][0-9]|3[0-2])$')
+      - awgforge_tunnel_udp_port_range | default('') is match('^[0-9]+-[0-9]+$')
+      - awgforge_database_retention_days | int > 0
+    fail_msg: >-
+      Define a pinned AWG-Forge image tag, proxy hostname, LAN UI bind address,
+      client DNS, external interface and first tunnel settings. nginx-proxy must
+      be enabled.
+
+- name: Allow Nginx-proxy network access to AWG-Forge UI
+  ansible.builtin.command:
+    argv:
+      - ufw
+      - allow
+      - from
+      - "{{ awgforge_nginx_subnet }}"
+      - to
+      - "{{ awgforge_webui_host }}"
+      - port
+      - "{{ awgforge_webui_port | string }}"
+      - proto
+      - tcp
+  register: awgforge_ufw_proxy_rule
+  changed_when: "'Rule added' in awgforge_ufw_proxy_rule.stdout"
+  when:
+    - server_base_firewall_enabled | default(false) | bool
+    - ansible_os_family == 'Debian'
+
+- name: Allow AWG-Forge clients to route to the Internet through UFW
+  ansible.builtin.command:
+    argv:
+      - ufw
+      - route
+      - allow
+      - in
+      - "on"
+      - "{{ awgforge_tunnel_name }}"
+      - out
+      - "on"
+      - "{{ awgforge_external_interface }}"
+      - from
+      - "{{ awgforge_tunnel_ipv4_subnet }}"
+  register: awgforge_ufw_forward_rule
+  changed_when: "'Rule added' in awgforge_ufw_forward_rule.stdout"
+  when:
+    - server_base_firewall_enabled | default(false) | bool
+    - ansible_os_family == 'Debian'
+
+- name: Allow the first AWG-Forge tunnel through UFW
+  ansible.builtin.command:
+    argv:
+      - ufw
+      - allow
+      - "{{ awgforge_tunnel_listen_port | string }}/udp"
+  register: awgforge_ufw_tunnel_rule
+  changed_when: "'Rule added' in awgforge_ufw_tunnel_rule.stdout"
+  when:
+    - server_base_firewall_enabled | default(false) | bool
+    - ansible_os_family == 'Debian'
+
+- name: Validate AWG-Forge secrets
+  ansible.builtin.assert:
+    that:
+      - awgforge_password | default('') | length > 0
+      - awgforge_password is not search('[\\r\\n]')
+      - awgforge_session_secret | default('') | length >= 32
+      - awgforge_session_secret is not search('[\\r\\n]')
+    fail_msg: >-
+      Define a non-empty awgforge_password and an awgforge_session_secret of
+      at least 32 characters as Ansible Vault values without line breaks.
+
+- name: Ensure AWG-Forge image is pulled
+  docker_image:
+    name: "{{ awgforge_docker_image }}"
+    source: pull
+
+- name: Ensure AWG-Forge environment file is installed
+  ansible.builtin.template:
+    src: awg-forge/awg-forge.env.j2
+    dest: "{{ awgforge_env_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
+- name: Ensure Nginx-proxy configured for AWG-Forge
+  ansible.builtin.template:
+    src: awg-forge/awg-forge.conf.j2
+    dest: "{{ nginx_proxy_confd_path }}/awg-forge.conf"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Check whether AWG-Forge has persistent tunnel state
+  ansible.builtin.stat:
+    path: "{{ awgforge_data_path }}/state.json"
+  register: awgforge_state_file
+
+- name: Initialise AWG-Forge first tunnel
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/docker
+      - run
+      - --rm
+      - --network=host
+      - --cap-drop=ALL
+      - --cap-add=NET_ADMIN
+      - --cap-add=SYS_MODULE
+      - --security-opt=no-new-privileges:true
+      - --device=/dev/net/tun:/dev/net/tun
+      - --env-file={{ awgforge_env_path }}
+      - -v
+      - "{{ awgforge_data_path }}:/etc/awg-forge"
+      - -v
+      - /lib/modules:/lib/modules:ro
+      - "{{ awgforge_docker_image }}"
+      - init
+      - --server-host
+      - "{{ awgforge_server_host }}"
+      - --external-interface
+      - "{{ awgforge_external_interface }}"
+      - --profile
+      - "{{ awgforge_tunnel_profile }}"
+      - --tunnel-name
+      - "{{ awgforge_tunnel_name }}"
+      - --listen-port
+      - "{{ awgforge_tunnel_listen_port | string }}"
+      - --ipv4-subnet
+      - "{{ awgforge_tunnel_ipv4_subnet }}"
+  when: not awgforge_state_file.stat.exists
+
+- name: Apply pending AWG-Forge SQLite migrations
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/docker
+      - run
+      - --rm
+      - --network=host
+      - --cap-drop=ALL
+      - --cap-add=NET_ADMIN
+      - --cap-add=SYS_MODULE
+      - --security-opt=no-new-privileges:true
+      - --device=/dev/net/tun:/dev/net/tun
+      - --env-file={{ awgforge_env_path }}
+      - -v
+      - "{{ awgforge_data_path }}:/etc/awg-forge"
+      - -v
+      - /lib/modules:/lib/modules:ro
+      - "{{ awgforge_docker_image }}"
+      - db
+      - migrate
+  changed_when: false
+  no_log: true
+
+- name: Ensure awg-forge.service installed
+  ansible.builtin.template:
+    src: awg-forge/awg-forge.service.j2
+    dest: /etc/systemd/system/awg-forge.service
+    owner: root
+    group: root
+    mode: '0644'
+  register: awgforge_systemd_service
+
+- name: Reload systemd after AWG-Forge service installation
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when: awgforge_systemd_service.changed
+
+# The initial tunnel is normally created only once. Keep its client DNS in
+# sync afterwards through AWG-Forge's local control API rather than editing
+# state.json, whose internal format is owned by AWG-Forge.
+- name: Log in to the local AWG-Forge control API
+  ansible.builtin.uri:
+    url: "http://{{ ansible_default_ipv4.address }}/api/login"
+    method: POST
+    body_format: json
+    body:
+      password: "{{ awgforge_password }}"
+    headers:
+      Host: "{{ awgforge_service_hostname }}"
+      Origin: "http://{{ awgforge_service_hostname }}"
+    status_code: 200
+    use_proxy: false
+  register: awgforge_api_login
+  no_log: true
+  when: awgforge_state_file.stat.exists
+
+- name: Read AWG-Forge tunnel settings
+  ansible.builtin.uri:
+    url: "http://{{ ansible_default_ipv4.address }}/api/state"
+    method: GET
+    headers:
+      Host: "{{ awgforge_service_hostname }}"
+      Origin: "http://{{ awgforge_service_hostname }}"
+      Cookie: "{{ awgforge_api_login.cookies_string }}"
+    status_code: 200
+    use_proxy: false
+  register: awgforge_api_state
+  no_log: true
+  when: awgforge_state_file.stat.exists
+
+- name: Select the Ansible-managed AWG-Forge tunnel
+  ansible.builtin.set_fact:
+    awgforge_managed_tunnel: >-
+      {{ awgforge_api_state.json.tunnels
+         | selectattr('name', 'equalto', awgforge_tunnel_name)
+         | list
+         | first
+         | default({}) }}
+  no_log: true
+  when: awgforge_state_file.stat.exists
+
+- name: Set client DNS for the Ansible-managed AWG-Forge tunnel
+  ansible.builtin.uri:
+    url: >-
+      http://{{ ansible_default_ipv4.address }}/api/tunnels/{{ awgforge_managed_tunnel.id }}/settings
+    method: PATCH
+    body_format: raw
+    body: >-
+      {{ {
+        'name': awgforge_managed_tunnel.name,
+        'server_host': awgforge_managed_tunnel.server_host,
+        'egress_mode': awgforge_managed_tunnel.egress_mode,
+        'port': awgforge_managed_tunnel.listen_port | int,
+        'subnet': awgforge_managed_tunnel.subnet,
+        'dns': awgforge_client_dns,
+        'allowed_ips': awgforge_managed_tunnel.allowed_ips,
+        'keepalive': awgforge_managed_tunnel.keepalive | int,
+        'mtu': awgforge_managed_tunnel.mtu | int,
+        'enabled': awgforge_managed_tunnel.enabled | bool
+      } | to_json }}
+    headers:
+      Content-Type: application/json
+      Host: "{{ awgforge_service_hostname }}"
+      Origin: "http://{{ awgforge_service_hostname }}"
+      Cookie: "{{ awgforge_api_login.cookies_string }}"
+    status_code: 200
+    use_proxy: false
+  no_log: true
+  when:
+    - awgforge_state_file.stat.exists
+    - awgforge_managed_tunnel.id | default('') | length > 0
+    - awgforge_managed_tunnel.dns | default('') != awgforge_client_dns
